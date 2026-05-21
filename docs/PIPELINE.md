@@ -51,7 +51,7 @@ Closes #6"
 | 4 | LLM client + vision debug | `step/4-llm-client` | ✅ Done | [#16](https://github.com/Mis4nthr0pic/furniture-vision-search/pull/16) |
 | — | OpenRouter defaults | `chore/openrouter-defaults` | ✅ Done | [#17](https://github.com/Mis4nthr0pic/furniture-vision-search/pull/17) |
 | 5 | Search pipeline (no embed/rerank) | `step/5-hybrid-search` | 🔄 In PR | — |
-| 6 | Static eval harness | `step/6-static-eval` | 🔲 | — |
+| 6 | Static eval harness | `step/6-static-eval` | 🔄 In PR | — |
 | 7 | Embeddings (lazy + cache) | `step/7-embeddings` | 🔲 | — |
 | 8 | LLM rerank | `step/8-rerank` | 🔲 | — |
 | 9 | Live rating API | `step/9-live-eval` | 🔲 | — |
