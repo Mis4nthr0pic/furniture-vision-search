@@ -20,10 +20,9 @@ Paste your **OpenRouter** API key in the Admin tab to enable vision search ([ope
 
 | Capability | Default provider | Why |
 |------------|------------------|-----|
-| Vision + chat + rerank | **OpenRouter** (`LLM_BASE_URL`) | One key, model choice (`openai/gpt-4o`, `anthropic/claude-3.5-sonnet`, etc.) |
-| Embeddings | **OpenAI direct** (`LLM_EMBED_BASE_URL`) | OpenRouter embedding support is limited |
+| Vision + chat + rerank + embeddings | **OpenRouter** (one `OPENROUTER_API_KEY`) | Same OpenAI-compatible API for all LLM calls — no separate OpenAI account needed |
 
-The client speaks the OpenAI-compatible HTTP API — OpenRouter implements the same `/chat/completions` and `/embeddings` endpoints. When `LLM_BASE_URL` points at OpenRouter, attribution headers (`HTTP-Referer`, `X-Title`) are sent automatically.
+The client speaks the OpenAI-compatible HTTP API — OpenRouter implements `/chat/completions` and `/embeddings`. Attribution headers (`HTTP-Referer`, `X-Title`) are sent automatically.
 
 ## Development
 

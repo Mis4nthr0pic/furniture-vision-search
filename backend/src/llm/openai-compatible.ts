@@ -27,13 +27,13 @@ function sanitizeMessage(message: string, apiKey: string): string {
   return message.split(apiKey).join("[REDACTED]");
 }
 
-function buildHeaders(llmConfig: LLMConfig): Record<string, string> {
+function buildHeaders(llmConfig: LLMConfig, apiKey: string, requestUrl: string): Record<string, string> {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
-    Authorization: `Bearer ${llmConfig.apiKey}`,
+    Authorization: `Bearer ${apiKey}`,
   };
 
-  if (llmConfig.baseUrl.includes(config.openRouter.host)) {
+  if (requestUrl.includes(config.openRouter.host)) {
     headers["HTTP-Referer"] = config.openRouter.referer;
     headers["X-Title"] = config.openRouter.title;
   }
@@ -45,18 +45,19 @@ async function postJson<T>(
   url: string,
   llmConfig: LLMConfig,
   body: unknown,
+  apiKey = llmConfig.apiKey,
 ): Promise<T> {
   let response: Response;
   try {
     response = await fetch(url, {
       method: "POST",
-      headers: buildHeaders(llmConfig),
+      headers: buildHeaders(llmConfig, apiKey, url),
       body: JSON.stringify(body),
       signal: AbortSignal.timeout(config.llm.requestTimeoutMs),
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Network request failed";
-    throw new AppError("LLM_NETWORK_ERROR", sanitizeMessage(message, llmConfig.apiKey), 502);
+    throw new AppError("LLM_NETWORK_ERROR", sanitizeMessage(message, apiKey), 502);
   }
 
   const raw = await response.text();
@@ -66,7 +67,7 @@ async function postJson<T>(
   } catch {
     throw new AppError(
       "LLM_PARSE_ERROR",
-      sanitizeMessage(`Invalid JSON from LLM provider (${response.status})`, llmConfig.apiKey),
+      sanitizeMessage(`Invalid JSON from LLM provider (${response.status})`, apiKey),
       502,
     );
   }
@@ -77,7 +78,7 @@ async function postJson<T>(
       errorBody.error?.message ?? `LLM request failed with status ${response.status}`;
     throw new AppError(
       "LLM_PROVIDER_ERROR",
-      sanitizeMessage(providerMessage, llmConfig.apiKey),
+      sanitizeMessage(providerMessage, apiKey),
       response.status >= 500 ? 502 : 400,
     );
   }
@@ -131,6 +132,7 @@ export function createOpenAICompatibleClient(llmConfig: LLMConfig): LLMClient {
           model: llmConfig.embedModel,
           input: texts,
         },
+        llmConfig.apiKey,
       );
 
       const embeddings = response.data?.map((row) => row.embedding) ?? [];

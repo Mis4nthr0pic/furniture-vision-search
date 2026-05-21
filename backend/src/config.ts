@@ -17,15 +17,18 @@ const envSchema = z.object({
   LEXICAL_MAX_LIMIT: z.coerce.number().int().positive().default(100),
 
   LLM_BASE_URL: z.string().url().default("https://openrouter.ai/api/v1"),
-  LLM_EMBED_BASE_URL: z.string().url().default("https://api.openai.com/v1"),
+  LLM_EMBED_BASE_URL: z.string().url().default("https://openrouter.ai/api/v1"),
   LLM_VISION_MODEL: z.string().default("openai/gpt-4o"),
-  LLM_EMBED_MODEL: z.string().default("text-embedding-3-small"),
+  LLM_EMBED_MODEL: z.string().default("openai/text-embedding-3-small"),
   LLM_CHAT_MODEL: z.string().default("openai/gpt-4o"),
   LLM_REQUEST_TIMEOUT_MS: z.coerce.number().int().positive().default(60_000),
 
   OPENROUTER_REFERER: z.string().default("http://localhost:5173"),
   OPENROUTER_TITLE: z.string().default("Furniture Vision Search"),
   OPENROUTER_HOST: z.string().default("openrouter.ai"),
+
+  /** Local dev only — gitignored via .env, never required in production. */
+  OPENROUTER_API_KEY: z.string().optional(),
 });
 
 function loadConfig() {
@@ -82,12 +85,22 @@ function loadConfig() {
       title: env.OPENROUTER_TITLE,
       host: env.OPENROUTER_HOST,
     },
+
+    devApiKeys: {
+      openRouter: env.OPENROUTER_API_KEY,
+    },
   } as const;
 }
 
 export const config = loadConfig();
 
 export type AppConfig = typeof config;
+
+/** Dev-only env key for LLM requests when the client omits apiKey. Never used in production. */
+export function getDevLLMApiKey(): string | undefined {
+  if (config.nodeEnv === "production") return undefined;
+  return config.devApiKeys.openRouter;
+}
 
 /** Server-side LLM defaults merged with per-request config from the client. */
 export function getLLMDefaults() {

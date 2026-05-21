@@ -8,6 +8,7 @@ import {
 } from "./rerank.service.js";
 import { retrieveTopK, toRankedResult, type Retriever } from "./retrieval.service.js";
 import { VisionService } from "./vision.service.js";
+import { LiveEvalService } from "./eval-live.service.js";
 
 export interface SearchTimings {
   visionMs: number;
@@ -25,6 +26,7 @@ export const SearchService = {
     retrievalConfig: RetrievalConfig;
     retriever?: Retriever;
   }): Promise<{
+    searchId: string;
     visionFeatures: VisionFeatures;
     ranked: RankedSearchResult[];
     candidates: ReturnType<typeof toRankedResult>[];
@@ -87,7 +89,15 @@ export const SearchService = {
       rerankMs = Date.now() - rerankStarted;
     }
 
+    const searchId = LiveEvalService.recordSearch({
+      visionFeatures,
+      userPrompt: args.userPrompt,
+      resultIds: ranked.map((item) => item.id),
+      configUsed: args.retrievalConfig,
+    });
+
     return {
+      searchId,
       visionFeatures,
       ranked,
       candidates,
