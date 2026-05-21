@@ -26,6 +26,7 @@ export const defaultRetrievalConfig: RetrievalConfig = {
   useImageInRerank: true,
   filterMode: "auto",
   confidenceThreshold: 0.7,
+  priceTolerancePercent: 0,
   weights: defaultScoreWeights,
 };
 

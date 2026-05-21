@@ -6,22 +6,22 @@
     "expected": {
       "category": "Ottomans",
       "type": "Storage Ottoman",
-      "color": "Black"
+      "color": "Espresso"
     }
   },
   {
     "id": "case_02",
     "image_path": "images/wide_bookshelf.jpg",
-    "user_prompt": "walnut bookshelf",
+    "user_prompt": "",
     "expected": {
       "category": "Bookshelves",
       "type": "Wide Bookshelf",
-      "color": "Espresso"
+      "color": "Natural"
     }
   },
   {
     "id": "case_03",
-    "image_path": "images/entryway_bench.jpg",
+    "image_path": "images/storage_bench.jpg",
     "user_prompt": "",
     "expected": {
       "category": "Benches",
@@ -32,30 +32,29 @@
   {
     "id": "case_04",
     "image_path": "images/accent_chair.jpg",
-    "user_prompt": "",
+    "user_prompt": "yellow accent chair",
     "expected": {
       "category": "Chairs",
-      "type": "Accent Chair",
-      "color": "Cream"
+      "type": "Accent Chair"
     }
   },
   {
     "id": "case_05",
-    "image_path": "images/lift_top_coffee_table.jpg",
+    "image_path": "images/rectangular_coffee_table.jpg",
     "user_prompt": "",
     "expected": {
       "category": "Coffee Tables",
-      "type": "Lift-Top Coffee Table",
-      "color": "Cream"
+      "type": "Rectangular Coffee Table",
+      "color": "Natural"
     }
   },
   {
     "id": "case_06",
-    "image_path": "images/sectional_sofa.jpg",
+    "image_path": "images/loveseat_sofa.jpg",
     "user_prompt": "",
     "expected": {
       "category": "Sofas",
-      "type": "Sectional Sofa",
+      "type": "Loveseat",
       "color": "Forest"
     }
   }

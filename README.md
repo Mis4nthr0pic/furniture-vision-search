@@ -6,6 +6,17 @@ Upload a furniture photo and get ranked matches from a ~2,500-item catalog — w
 
 ---
 
+## Why this is not just GPT vision
+
+The vision model never returns catalog items directly. It extracts constrained attributes from the image, then the backend searches and ranks the catalog with multiple inspectable signals:
+
+- **Catalog-constrained vision** avoids hallucinated labels by forcing category/type/color/style/material to come from live MongoDB vocabulary.
+- **Hybrid retrieval** combines cached embedding similarity, MiniSearch lexical scores, structured attribute matches, dimensions, and prompt-derived price constraints.
+- **LLM rerank** only reorders the top-K candidates and returns reasons, so expensive model judgment improves the final list without replacing retrieval.
+- **Eval tooling** measures quality through a six-case static harness and live thumbs feedback rather than relying on demo vibes.
+
+---
+
 ## Demo flow (2 minutes)
 
 1. Open **Admin → Config** and paste your [OpenRouter](https://openrouter.ai/keys) API key (memory only).
@@ -118,6 +129,10 @@ flowchart LR
 
 **Modes:** `hybrid` (default), `vector_only`, `lexical_only`, `filter_only` — configurable in Admin.
 
+**Prompt price intent:** short constraints such as `under $500`, `between $300 and $600`, and
+`around $1,200` are parsed from the optional prompt and applied as catalog price filters before
+scoring. Admin can set a tolerance percent for near-budget matches.
+
 ### 3. LLM rerank (top-N default 10)
 
 - Sends original image + vision features + user prompt + candidate summaries to chat model.
@@ -153,6 +168,7 @@ Low vision confidence (< 0.7) is common — filters won’t narrow the catalog, 
 | Top K / Top N | Candidate pool size and final result count |
 | Ranking weights | Hybrid score component weights |
 | Confidence threshold | When auto category/type filters apply |
+| Price tolerance % | How much prompt-derived budget filters may stretch |
 | Enable rerank | LLM rerank on/off |
 | Include image in rerank | Pass original photo to rerank prompt |
 | Re-index catalog | Build embedding cache with SSE progress modal |
@@ -169,10 +185,20 @@ Other tabs:
 
 ### Static eval (offline harness)
 
-- **6 cases** in `backend/eval/` — Ottomans, Bookshelves, Benches, Chairs, Coffee Tables, Sofas.
-- Images from Unsplash (committed under `backend/eval/images/`).
+- **6 cases** in `backend/eval/` — single-piece furniture photos (filenames match the visible product).
+- Images from Unsplash (see `backend/eval/images/ATTRIBUTION.md`).
 - Runs vision + hybrid retrieval (rerank off) per case.
 - Metrics: top-1 / top-10 category & type match, color match, attribute recall@1, MRR, avg latency.
+
+**Recorded baseline** (local run, May 21 2026, OpenRouter `openai/gpt-4o`, cached embeddings, six cases):
+
+| Mode | Top-1 category | Top-1 type | Top-1 color | Attr recall @1 | MRR | Avg latency |
+|------|----------------|------------|-------------|----------------|-----|-------------|
+| Hybrid | 83% | 67% | 80% | 78% | 0.583 | 5.1s |
+| Hybrid + image rerank | 83% | 83% | 60% | 78% | 0.556 | 11.6s |
+
+Rerank improved type precision on this small set but roughly doubled latency and did not improve color matching, so it remains a configurable quality/latency tradeoff.
+The Admin static eval button runs the Hybrid row for stable comparison; the rerank row was measured by replaying the same cases through `/api/search` with image rerank enabled.
 
 Run via **Admin → Static Eval** or:
 
@@ -184,7 +210,7 @@ curl -X POST http://localhost:4000/api/eval/run \
 
 Full guide: [docs/EVAL.md](./docs/EVAL.md)
 
-> **Baseline numbers:** run locally with your OpenRouter key and record results in [CHANGELOG.md](./CHANGELOG.md). Metrics vary by model and embedding cache state.
+> **Baseline numbers:** run locally with your OpenRouter key and record results in [CHANGELOG.md](./CHANGELOG.md) (eval baselines table). Metrics vary by model and embedding cache state.
 
 ### Live eval (human feedback)
 
@@ -252,7 +278,8 @@ fortune/
 ├── backend/                 # Express API — see backend/README.md
 ├── frontend/                # React SPA — see frontend/README.md
 ├── docs/PIPELINE.md         # Incremental build roadmap
-├── CHANGELOG.md             # Step-by-step decisions and narrative
+├── CHANGELOG.md             # Narrative + eval baselines
+├── docs/changelog/          # Per-PR decision log (one file per merge)
 └── docker-compose.yml
 ```
 
@@ -280,16 +307,20 @@ fortune/
 
 ### Tests
 
+**94 unit tests** (71 backend + 23 frontend) via Vitest. See [docs/TESTING.md](docs/TESTING.md) for the full file list and edge-case matrix.
+
 ```bash
 npm install          # root Biome tooling
-npm run check        # lint + typecheck + tests (backend + frontend)
-
-# Or run packages individually:
-cd backend && npm test
-cd frontend && npm test
+npm test             # run all Vitest suites (71 backend + 23 frontend)
+npm run check        # lint + typecheck + test
 ```
 
-CI runs both on push to `main` (GitHub Actions).
+```bash
+cd backend && npm test    # 71 tests — retrieval, validation, HTTP integration
+cd frontend && npm test   # 23 tests — hooks, components, store
+```
+
+CI runs **Backend unit tests (Vitest)**, **Frontend unit tests (Vitest)**, **Lint (Biome)**, **Unit test summary**, and **Root check (lint + typecheck + tests)** jobs on every PR ([Actions](https://github.com/Mis4nthr0pic/furniture-vision-search/actions/workflows/ci.yml)).
 
 ### Local without Docker
 
@@ -333,14 +364,14 @@ Add captures to `docs/screenshots/` for README embedding:
 
 ## Future enhancements
 
-- Structured prompt intent (price max, material filters, excluded colors)
+- Richer structured prompt intent (excluded colors, room/use-case constraints)
 - Deterministic “Matched because” bullets from score contributions
 - Richer empty/low-confidence UX states
 - Persistent eval logs and export
-- README baseline eval numbers from CI or recorded run
+- CI-published eval baseline artifacts
 
 ---
 
 ## License & catalog
 
-MongoDB catalog is read-only. Eval images are from Unsplash (see `backend/eval/`). Built as an incremental pipeline project — full decision log in [CHANGELOG.md](./CHANGELOG.md).
+MongoDB catalog is read-only. Eval images are from Unsplash (see `backend/eval/`). Built as an incremental pipeline project — full decision log in [docs/changelog/README.md](./docs/changelog/README.md).

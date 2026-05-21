@@ -4,8 +4,11 @@ import type { LLMConfig, VisionFeatures } from "../schemas/llm.js";
 import { type RerankResponse, parseRerankResponse } from "../schemas/rerank.js";
 import { extractJsonFromText } from "../utils/json-parse.js";
 import { logger } from "../utils/logger.js";
-import { parsePriceIntent, productMatchesPriceIntent } from "../utils/price-intent.js";
-import type { toRankedResult } from "./retrieval.service.js";
+import {
+  parsePriceIntent,
+  productMatchesPriceIntent,
+  type toRankedResult,
+} from "./retrieval.service.js";
 
 export type RankedSearchResult = ReturnType<typeof toRankedResult> & {
   reason?: string;

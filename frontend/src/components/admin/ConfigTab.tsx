@@ -158,6 +158,18 @@ export function ConfigTab() {
               setRetrievalConfig({ confidenceThreshold: Number(event.target.value) })
             }
           />
+          <Input
+            label="Price tolerance %"
+            type="number"
+            min={0}
+            max={100}
+            step={5}
+            value={retrievalConfig.priceTolerancePercent ?? 0}
+            onChange={(event) =>
+              setRetrievalConfig({ priceTolerancePercent: Number(event.target.value) })
+            }
+            hint={'Allows prompt budgets like "under $500" to include near misses.'}
+          />
         </div>
       </Card>
 

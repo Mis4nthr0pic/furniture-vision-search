@@ -80,7 +80,7 @@ flowchart TB
 ### Search pipeline (`SearchService`)
 
 1. **Vision** — OpenRouter chat + image → catalog-constrained JSON (`VisionService`, `llm/prompts.ts`)
-2. **Filter** — optional category/type hard filter when confidence ≥ threshold
+2. **Filter** — optional category/type hard filter when confidence ≥ threshold, plus prompt-derived price constraints
 3. **Hybrid top-K** — vector cosine + MiniSearch lexical + attribute weights (`retrieval.service.ts`)
 4. **Rerank top-N** — LLM with image + candidates → scores + reasons (`rerank.service.ts`)
 
@@ -151,6 +151,7 @@ Catalog hash in cache triggers rebuild when products change.
     "useImageInRerank": true,
     "filterMode": "auto",
     "confidenceThreshold": 0.7,
+    "priceTolerancePercent": 0,
     "weights": { "w_vec": 0.25, "w_lex": 0.2, "w_cat": 0.15, "w_type": 0.15, "w_color": 0.15, "w_style": 0.05, "w_mat": 0, "w_dim": 0.05 }
   }
 }
