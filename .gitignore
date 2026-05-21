@@ -7,3 +7,4 @@ build/
 backend/data/embeddings.json
 coverage/
 .vite/
+claude-code-kickoff-final.md
