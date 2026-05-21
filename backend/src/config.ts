@@ -24,7 +24,11 @@ const envSchema = z.object({
   LLM_REQUEST_TIMEOUT_MS: z.coerce.number().int().positive().default(60_000),
 
   EMBED_BATCH_SIZE: z.coerce.number().int().positive().max(2048).default(256),
-  EMBED_BUILD_CONCURRENCY: z.coerce.number().int().positive().max(16).default(4),
+  EMBED_BUILD_CONCURRENCY: z.coerce.number().int().positive().max(8).default(2),
+  EMBED_MIN_REQUEST_INTERVAL_MS: z.coerce.number().int().nonnegative().default(350),
+  EMBED_MAX_RETRIES: z.coerce.number().int().positive().max(20).default(8),
+  EMBED_RETRY_BASE_MS: z.coerce.number().int().positive().default(1500),
+  EMBED_RETRY_MAX_MS: z.coerce.number().int().positive().default(60_000),
   EMBED_REQUEST_TIMEOUT_MS: z.coerce.number().int().positive().default(120_000),
 
   OPENROUTER_REFERER: z.string().default("http://localhost:5173"),
@@ -87,6 +91,10 @@ function loadConfig() {
     embeddings: {
       batchSize: env.EMBED_BATCH_SIZE,
       buildConcurrency: env.EMBED_BUILD_CONCURRENCY,
+      minRequestIntervalMs: env.EMBED_MIN_REQUEST_INTERVAL_MS,
+      maxRetries: env.EMBED_MAX_RETRIES,
+      retryBaseMs: env.EMBED_RETRY_BASE_MS,
+      retryMaxMs: env.EMBED_RETRY_MAX_MS,
       requestTimeoutMs: env.EMBED_REQUEST_TIMEOUT_MS,
     },
 

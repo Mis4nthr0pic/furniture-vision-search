@@ -7,6 +7,8 @@ import { createOpenAICompatibleClient } from "../llm/openai-compatible.js";
 import type { LLMConfig } from "../schemas/llm.js";
 import { chunkArray, mapWithConcurrency } from "../utils/async-pool.js";
 import { computeCatalogHash, embeddingText } from "../utils/catalog-hash.js";
+import { MinIntervalGate } from "../utils/min-interval-gate.js";
+import { isRateLimitError, isTransientProviderError, retryWithBackoff } from "../utils/retry.js";
 import { logger } from "../utils/logger.js";
 import { CachedEmbeddingRetriever, type EmbeddingsCacheFile } from "./embedding-retriever.js";
 import type { Retriever } from "./retrieval.service.js";
@@ -173,18 +175,42 @@ export const EmbeddingsService = {
     const batches = chunkArray(products, batchSize);
     const vectors: Record<string, number[]> = {};
     let completedProducts = 0;
+    const requestGate = new MinIntervalGate(config.embeddings.minRequestIntervalMs);
 
     emitProgress({
       phase: "start",
       current: 0,
       total: products.length,
-      message: `Starting embedding build (${batches.length} batches, ${concurrency} concurrent)`,
+      message: `Starting embedding build (${batches.length} batches, ${concurrency} concurrent, rate-limit safe)`,
     });
 
     try {
       const batchResults = await mapWithConcurrency(batches, concurrency, async (batch, batchIndex) => {
         const texts = batch.map(embeddingText);
-        const embeddings = await client.embed({ input: texts });
+
+        await requestGate.wait();
+
+        const embeddings = await retryWithBackoff(
+          () => client.embed({ input: texts }),
+          {
+            maxAttempts: config.embeddings.maxRetries,
+            baseDelayMs: config.embeddings.retryBaseMs,
+            maxDelayMs: config.embeddings.retryMaxMs,
+            shouldRetry: (err) => isRateLimitError(err) || isTransientProviderError(err),
+            onRetry: ({ attempt, delayMs }) => {
+              emitProgress({
+                phase: "embedding",
+                current: completedProducts,
+                total: products.length,
+                message: `Rate limited on batch ${batchIndex + 1}/${batches.length}; retry ${attempt} in ${Math.ceil(delayMs / 1000)}s`,
+              });
+              logger.warn(
+                { batchIndex: batchIndex + 1, attempt, delayMs },
+                "Embedding batch hit provider rate limit; backing off",
+              );
+            },
+          },
+        );
 
         const batchVectors: Record<string, number[]> = {};
         batch.forEach((product, index) => {
