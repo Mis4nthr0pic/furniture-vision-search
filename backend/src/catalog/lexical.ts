@@ -108,15 +108,24 @@ export function searchLexical(query: string, limit = config.lexical.defaultLimit
   return normalizeScores(limited);
 }
 
-export function getLexicalScoreForProduct(query: string, productId: string): number {
-  const results = searchLexical(query, getCatalogProducts().length);
-  const match = results.find((result) => result.id === productId);
-  return match?.score ?? 0;
-}
-
 export function getLexicalScoresForQuery(query: string): Map<string, number> {
-  const results = searchLexical(query);
-  return new Map(results.map((result) => [result.id, result.score]));
+  if (!index || !productById) {
+    throw new Error("Lexical index not initialized");
+  }
+
+  const trimmed = query.trim();
+  if (!trimmed) return new Map();
+
+  const hits = index.search(trimmed, SEARCH_OPTIONS);
+  const allHits = hits.map((hit) => ({
+    id: String(hit.id),
+    score: hit.score,
+    title: String(hit.title),
+    category: String(hit.category),
+    type: String(hit.type),
+  }));
+
+  return new Map(normalizeScores(allHits).map((result) => [result.id, result.score]));
 }
 
 export function ensureLexicalIndex(): void {
