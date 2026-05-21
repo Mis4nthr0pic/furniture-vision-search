@@ -1,8 +1,45 @@
 # Furniture Vision Search
 
-Upload a furniture photo and get ranked matches from a ~2,500-item catalog — with vision extraction, hybrid retrieval, LLM rerank, transparent scoring, and an admin workspace for config and evaluation.
+**Image → ranked catalog matches** for a ~2,500-item furniture catalog — with constrained vision extraction, hybrid retrieval, LLM rerank, transparent scoring, and a static eval harness so quality is measurable, not vibes.
 
-**Live demo (local):** [http://localhost:5173](http://localhost:5173)
+| | |
+|---|---|
+| **Try locally** | [http://localhost:5173](http://localhost:5173) after `docker compose up --build` |
+| **Hosted demo** | Not deployed yet — see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) |
+| **What to judge** | Match quality + eval tooling + retrieval architecture (UI is for inspection, not the product) |
+
+---
+
+## Engineering judgment (read this first)
+
+I optimized for **match quality you can inspect**, not a flashy demo UI.
+
+The first naive approach — “send the image to GPT and ask for product IDs” — fails on real catalog search: hallucinated categories, no price constraints, no way to know if ranking got better. Styled-room photos and near-duplicates (stool vs ottoman, side table vs coffee table) exposed that quickly.
+
+**What I built instead:**
+
+1. **Catalog-constrained vision** — category/type/color/style/material must come from live MongoDB vocab or be `null`; no invented labels.
+2. **Confidence-gated filters** — hard-filter by category/type only when vision confidence is high enough; avoids over-narrowing on uncertain photos.
+3. **Hybrid retrieval** — vector similarity + lexical search + structured attribute weights + prompt price intent + dimension proximity; every score is decomposable.
+4. **LLM rerank on top-K only** — expensive visual judgment reorders candidates and explains *why*; retrieval still does the heavy lifting.
+5. **Static eval harness (6 cases)** — fixed images + expected labels; re-run after every retrieval change. **Live thumbs feedback** for session-level Precision@K during demos.
+
+**Measured results (May 2026, corrected eval fixtures, hybrid retrieval, rerank off):**
+
+| Result | Score | Plain English |
+|--------|-------|---------------|
+| **Category @ rank 1** | **5 / 6 cases (83%)** | Top result is in the right furniture category |
+| **Attribute recall @ rank 1** | **56%** | Top result matches most expected fields (type, color, …) on average |
+| **Type @ rank 1** | 33% | Exact catalog type on the top hit |
+| **Color @ rank 1** | 40% | Exact color attribute on the top hit |
+| **Full catalog match @ rank 1** | 1 / 6 *(strict)* | Every expected field correct on #1 — high bar with 62 types & 15 categories |
+| **Latency** | ~4.9s | Vision + hybrid retrieval per case |
+
+Category placement is strong; **fine-grained type/color on the exact SKU** is where the next iteration focuses — vision variance and near-duplicate catalog variants.
+
+**What improved after testing:** eval images aligned with labels (metrics now measure real retrieval); prompt price intent (`under $500`) hard-filtered; rerank optional for live demos (lifts type on some cases, ~2× latency).
+
+**Next push:** vision tuning for type/color, weight calibration on the static harness, expand eval beyond six cases.
 
 ---
 
@@ -79,6 +116,17 @@ React UI  →  Express API  →  MongoDB catalog (read-only)
                 ↓
          Local embedding cache + MiniSearch lexical index
 ```
+
+## Frontend (inspection UI)
+
+React + Vite + Zustand + Tailwind — **deliberately minimal**. The value is in the pipeline; the UI makes quality inspection easy:
+
+- Upload + optional prompt (`under $500`, material hints)
+- Vision sidebar with per-field confidence
+- Ranked results with hybrid score breakdown, rerank reason, thumbs up/down
+- Admin: config, static eval, live eval, reindex progress
+
+Salon-themed UI polish is in progress; FDE reviewers should focus on **search relevance and eval numbers**, not dashboard aesthetics.
 
 | Layer | Tech |
 |-------|------|
@@ -187,22 +235,24 @@ Other tabs:
 
 ## Evaluation approach
 
+Quality is the point. The UI exists so evaluators can **see vision output, score breakdowns, rerank reasons, and thumbs feedback** — not to impress on aesthetics alone.
+
 ### Static eval (offline harness)
 
-- **6 cases** in `backend/eval/` — single-piece furniture photos (filenames match the visible product).
-- Images from Unsplash (see `backend/eval/images/ATTRIBUTION.md`).
-- Runs vision + hybrid retrieval (rerank off) per case.
-- Metrics: top-1 / top-10 category & type match, color match, attribute recall@1, MRR, avg latency.
+Six fixed furniture photos with labeled expectations — re-run after any retrieval change. See [docs/EVAL.md](./docs/EVAL.md) for metric definitions.
 
-**Recorded baseline** (local run, May 21 2026, OpenRouter `openai/gpt-4o`, cached embeddings, six cases):
+**Recorded baseline** (May 2026, OpenRouter `openai/gpt-4o`, cached embeddings, corrected fixtures):
 
-| Mode | Top-1 category | Top-1 type | Top-1 color | Attr recall @1 | MRR | Avg latency |
-|------|----------------|------------|-------------|----------------|-----|-------------|
-| Hybrid | 83% | 67% | 80% | 78% | 0.583 | 5.1s |
-| Hybrid + image rerank | 83% | 83% | 60% | 78% | 0.556 | 11.6s |
+| | Category @ #1 | Attr recall @ #1 | Type @ #1 | Color @ #1 | Full match @ #1 *(strict)* | Latency |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|
+| **Hybrid** | **83%** (5/6) | **56%** | 33% | 40% | 17% (1/6) | 4.9s |
+| Hybrid + rerank* | 83% | 56% | 50% | 33% | — | ~11s |
 
-Rerank improved type precision on this small set but roughly doubled latency and did not improve color matching, so it remains a configurable quality/latency tradeoff.
-The Admin static eval button runs the Hybrid row for stable comparison; the rerank row was measured by replaying the same cases through `/api/search` with image rerank enabled.
+\*Rerank replayed via `/api/search`; directional only on n=6.
+
+**How to read this:** Most cases land in the **correct category at rank 1**. The **strict full-match** column requires exact type *and* color on #1 — useful for QA, not the only signal that search is working. For live demos, thumbs feedback (Live Eval) captures perceived relevance.
+
+**Active improvement area:** type/color precision when the catalog has many similar variants (e.g. Wide vs Tall Bookshelf, Natural vs Gray).
 
 Run via **Admin → Static Eval** or:
 
@@ -212,9 +262,7 @@ curl -X POST http://localhost:4000/api/eval/run \
   -d '{"llmConfig":{"apiKey":"YOUR_KEY"}}'
 ```
 
-Full guide: [docs/EVAL.md](./docs/EVAL.md)
-
-> **Baseline numbers:** run locally with your OpenRouter key and record results in [CHANGELOG.md](./CHANGELOG.md) (eval baselines table). Metrics vary by model and embedding cache state.
+Full guide: [docs/EVAL.md](./docs/EVAL.md) · Baselines also in [CHANGELOG.md](./CHANGELOG.md)
 
 ### Live eval (human feedback)
 
