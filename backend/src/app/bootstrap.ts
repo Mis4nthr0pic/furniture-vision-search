@@ -1,6 +1,7 @@
 import { loadCatalog } from "../catalog/load.js";
 import { connectMongo } from "../db/mongo.js";
 import { CatalogService } from "../services/catalog.service.js";
+import { EmbeddingsService } from "../services/embeddings.service.js";
 import { LexicalService } from "../services/lexical.service.js";
 import { logger } from "../utils/logger.js";
 import { getAppState, setAppState } from "./state.js";
@@ -10,17 +11,19 @@ export async function bootstrapApplication(): Promise<void> {
     const db = await connectMongo();
     const products = await loadCatalog(db);
     LexicalService.init(products);
+    EmbeddingsService.tryLoadFromDisk();
 
     setAppState({
       mongoOk: true,
       productCount: products.length,
       lexicalReady: LexicalService.isReady(),
+      embeddingsReady: EmbeddingsService.getStatus().ready,
     });
 
     logger.info(
       {
         productCount: products.length,
-        categories: CatalogService.getMeta(getAppState()).categories.length,
+        categories: CatalogService.getMeta().categories.length,
       },
       "Application bootstrap complete",
     );
