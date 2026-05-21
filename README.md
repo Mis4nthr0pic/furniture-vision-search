@@ -54,6 +54,10 @@ docker compose up --build
 | Frontend | http://localhost:5173 |
 | Backend health | http://localhost:4000/api/health |
 
+### Deploy (demo / public URL)
+
+Hosting needs **backend + frontend only** — reuse your existing MongoDB URI. See **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)** (Cloudflare Tunnel, Render, or VM + Docker Compose).
+
 ### API key policy
 
 - Keys are entered at **runtime** in Admin → Config.
