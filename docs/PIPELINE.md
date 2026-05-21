@@ -20,7 +20,7 @@ Closes #6"
 **Rules:**
 - One step per PR — no bundling unrelated work
 - Every PR updates `CHANGELOG.md`
-- Merge to `main` only after CI/manual checks pass
+- Merge to `main` only after **CI passes** (backend + frontend tests in GitHub Actions)
 - **Link the issue** — put `Closes #N` in the PR body (plain text, not backticks). Issue number = step + 1 (step 5 → `Closes #6`).
 - Backup: merging a `step/N-*` branch auto-closes the pipeline issue via GitHub Action.
 
