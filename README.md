@@ -185,8 +185,8 @@ Other tabs:
 
 ### Static eval (offline harness)
 
-- **6 cases** in `backend/eval/` — targeted furniture images with optional prompts when the photo contains multiple objects.
-- Images from Unsplash (committed under `backend/eval/images/`).
+- **6 cases** in `backend/eval/` — single-piece furniture photos (filenames match the visible product).
+- Images from Unsplash (see `backend/eval/images/ATTRIBUTION.md`).
 - Runs vision + hybrid retrieval (rerank off) per case.
 - Metrics: top-1 / top-10 category & type match, color match, attribute recall@1, MRR, avg latency.
 
