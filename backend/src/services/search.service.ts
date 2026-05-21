@@ -1,5 +1,6 @@
 import type { LLMConfig, VisionFeatures } from "../schemas/llm.js";
 import type { RetrievalConfig } from "../schemas/retrieval.js";
+import { EmbeddingsService } from "./embeddings.service.js";
 import { retrieveTopK, toRankedResult, type Retriever } from "./retrieval.service.js";
 import { VisionService } from "./vision.service.js";
 
@@ -37,12 +38,15 @@ export const SearchService = {
     });
     const visionMs = Date.now() - visionStarted;
 
+    const retriever =
+      args.retriever ?? (await EmbeddingsService.ensureReady(args.llmConfig));
+
     const retrievalStarted = Date.now();
     const { results, warnings } = await retrieveTopK({
       vision: visionFeatures,
       userPrompt: args.userPrompt,
       config: args.retrievalConfig,
-      retriever: args.retriever,
+      retriever,
     });
     const retrievalMs = Date.now() - retrievalStarted;
 
