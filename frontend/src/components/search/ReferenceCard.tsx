@@ -41,8 +41,8 @@ export const ReferenceCard = memo(function ReferenceCard({
         )}
 
         {visionFeatures?.description && (
-          <div className="absolute inset-x-2 bottom-2 border border-bg/20 bg-panelInk/85 px-2 py-1.5 backdrop-blur-sm">
-            <p className="line-clamp-3 font-emphasis text-[11px] italic leading-snug text-bg/90">
+          <div className="absolute inset-x-2 bottom-2 border border-hair bg-panel/95 px-2 py-1.5">
+            <p className="line-clamp-3 font-emphasis text-[11px] italic leading-snug text-ink-soft">
               &ldquo;{visionFeatures.description}&rdquo;
             </p>
           </div>

@@ -15,16 +15,16 @@ export function applyThemeClass(theme: Theme) {
   root.classList.toggle("dark", theme === "dark");
 }
 
-/** Reads stored theme (default dark) and applies it before React renders. */
+/** Reads stored theme (default light) and applies it before React renders. */
 export function bootstrapTheme(): Theme {
   const stored = readStoredTheme();
-  const theme: Theme = stored ?? "dark";
+  const theme: Theme = stored ?? "light";
   applyThemeClass(theme);
   return theme;
 }
 
 export function useTheme() {
-  const [theme, setTheme] = useState<Theme>(() => readStoredTheme() ?? "dark");
+  const [theme, setTheme] = useState<Theme>(() => readStoredTheme() ?? "light");
 
   useEffect(() => {
     applyThemeClass(theme);
