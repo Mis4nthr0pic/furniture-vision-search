@@ -1,13 +1,13 @@
 import { defaultScoreWeights } from "../../store";
 import { useAdminConfig } from "../../hooks/useAdminConfig";
 import { useReindex } from "../../hooks/useReindex";
+import { ReindexProgressScreen } from "./ReindexProgressScreen";
 import { Alert } from "../ui/Alert";
 import { Button } from "../ui/Button";
 import { Card, CardHeader } from "../ui/Card";
 import { Input } from "../ui/Input";
 import { Select } from "../ui/Select";
 import { TextArea } from "../ui/TextArea";
-import { cn } from "../../utils/format";
 import type { ScoreWeights } from "../../types";
 
 const modelOptions = [
@@ -40,15 +40,9 @@ export function ConfigTab() {
     resetToDefaults,
   } = useAdminConfig();
 
-  const { progress, running, error: reindexError, startReindex } = useReindex();
+  const { progress, running, error: reindexError, progressOpen, startReindex, dismissProgress } =
+    useReindex();
   const weights = { ...defaultScoreWeights, ...retrievalConfig.weights };
-
-  const progressPercent =
-    progress && progress.total > 0
-      ? Math.round((progress.current / progress.total) * 100)
-      : progress?.phase === "done"
-        ? 100
-        : 0;
 
   return (
     <div className="space-y-5">
@@ -232,35 +226,24 @@ export function ConfigTab() {
           <Button onClick={startReindex} loading={running} disabled={!apiKey.trim()}>
             Re-index catalog
           </Button>
-          {progress && (
-            <span className="text-sm text-stone-600">
-              {progress.message ??
-                (progress.total > 0
-                  ? `${progress.current} / ${progress.total}`
-                  : progress.phase)}
-            </span>
+          {progress?.phase === "done" && !running && (
+            <span className="text-sm font-medium text-emerald-700">Last run completed successfully</span>
           )}
         </div>
-        {(running || progressPercent > 0) && (
-          <div className="mt-4 h-2 overflow-hidden rounded-full bg-stone-200">
-            <div
-              className={cn(
-                "h-full rounded-full transition-all duration-300",
-                progress?.phase === "error" ? "bg-rose-500" : "bg-brand-700",
-              )}
-              style={{ width: `${progressPercent}%` }}
-            />
-          </div>
-        )}
-        {reindexError && (
+        {reindexError && !progressOpen && (
           <div className="mt-3">
             <Alert tone="error">{reindexError}</Alert>
           </div>
         )}
-        {progress?.phase === "done" && (
-          <p className="mt-3 text-sm text-emerald-700">Embeddings index rebuilt successfully.</p>
-        )}
       </Card>
+
+      <ReindexProgressScreen
+        open={progressOpen}
+        progress={progress}
+        running={running}
+        error={reindexError}
+        onDismiss={dismissProgress}
+      />
     </div>
   );
 }
