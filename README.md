@@ -249,22 +249,8 @@ The `Retriever` interface in `backend/src/services/retrieval.service.ts` is the 
 
 ```
 fortune/
-├── backend/
-│   ├── src/
-│   │   ├── routes/          # HTTP adapters (search, admin, eval, vision)
-│   │   ├── services/        # Catalog, vision, retrieval, rerank, embeddings, eval
-│   │   ├── llm/             # OpenAI-compatible client + prompts
-│   │   ├── catalog/         # Mongo load, enrichment, MiniSearch
-│   │   └── schemas/         # Zod validation
-│   ├── eval/                # Static eval cases + images
-│   └── data/              # embeddings.json cache (gitignored, Docker volume)
-├── frontend/
-│   └── src/
-│       ├── pages/           # SearchPage, AdminPage
-│       ├── components/      # ui/, search/, admin/, layout/
-│       ├── hooks/           # useSearch, useReindex, useAdminConfig
-│       ├── store.ts         # Zustand — apiKey, retrievalConfig, search state
-│       └── api/client.ts    # API client
+├── backend/                 # Express API — see backend/README.md
+├── frontend/                # React SPA — see frontend/README.md
 ├── docs/PIPELINE.md         # Incremental build roadmap
 ├── CHANGELOG.md             # Step-by-step decisions and narrative
 └── docker-compose.yml
