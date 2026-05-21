@@ -1,5 +1,7 @@
 import { Router } from "express";
 import { z } from "zod";
+import { createRateLimiter } from "../middleware/rate-limit.js";
+import { config } from "../config.js";
 import { CatalogService } from "../services/catalog.service.js";
 import { EmbeddingsService } from "../services/embeddings.service.js";
 import { parseLLMConfig } from "../schemas/llm.js";
@@ -11,6 +13,11 @@ const reindexBodySchema = z.object({
 });
 
 export const adminRouter = Router();
+
+const reindexRateLimit = createRateLimiter({
+  name: "reindex",
+  ...config.rateLimit.reindex,
+});
 
 adminRouter.get("/catalog-meta", (_req, res) => {
   res.json(CatalogService.getMeta());
@@ -41,7 +48,7 @@ adminRouter.get("/reindex-progress", (req, res) => {
   });
 });
 
-adminRouter.post("/reindex", async (req, res, next) => {
+adminRouter.post("/reindex", reindexRateLimit, async (req, res, next) => {
   try {
     const body = parseBody(reindexBodySchema, req.body);
     const llmConfig = parseLLMConfig(body.llmConfig);

@@ -2,7 +2,7 @@ import cors from "cors";
 import express, { type NextFunction, type Request, type Response } from "express";
 import { bootstrapApplication } from "./app/bootstrap.js";
 import { getAppState } from "./app/state.js";
-import { config } from "./config.js";
+import { config } from "../config.js";
 import { adminRouter } from "./routes/admin.js";
 import { evalRouter } from "./routes/eval.js";
 import { lexicalRouter } from "./routes/lexical.js";
@@ -13,6 +13,8 @@ import { logger } from "./utils/logger.js";
 
 export function createServer(): express.Application {
   const app = express();
+
+  app.set("trust proxy", 1);
 
   app.use(
     cors({
@@ -32,8 +34,10 @@ export function createServer(): express.Application {
   });
 
   app.use("/api/admin", adminRouter);
-  app.use("/api/lexical", lexicalRouter);
-  app.use("/api/vision", visionRouter);
+  if (!config.security.disableDebugRoutes) {
+    app.use("/api/lexical", lexicalRouter);
+    app.use("/api/vision", visionRouter);
+  }
   app.use("/api/search", searchRouter);
   app.use("/api/eval", evalRouter);
 
