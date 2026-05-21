@@ -5,6 +5,7 @@ Upload a furniture image and get ranked catalog matches with per-result reasonin
 ## Quick start
 
 ```bash
+cp .env.example .env
 docker compose up --build
 ```
 

@@ -7,7 +7,7 @@ services:
       - "4000:4000"
     environment:
       - PORT=4000
-      - MONGODB_URI=mongodb+srv://catalog-readonly:vcRvxWHQSKUEwd7V@catalog.sontifs.mongodb.net/catalog
+      - MONGODB_URI=${MONGODB_URI}
       - OPENROUTER_REFERER=http://localhost:5173
       - OPENROUTER_TITLE=Furniture Vision Search
     volumes:
