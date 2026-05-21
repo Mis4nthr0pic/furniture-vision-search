@@ -7,6 +7,7 @@ import type { LLMConfig } from "../schemas/llm.js";
 import type { ChatMessage, ImageInput, LLMClient } from "./client.js";
 import { AppError } from "../utils/errors.js";
 import { extractJsonFromText } from "../utils/json-parse.js";
+import { parseRetryAfterMs } from "../utils/retry.js";
 
 interface OpenAIChatResponse {
   choices?: Array<{ message?: { content?: string | null } }>;
@@ -46,6 +47,7 @@ async function postJson<T>(
   llmConfig: LLMConfig,
   body: unknown,
   apiKey = llmConfig.apiKey,
+  timeoutMs = config.llm.requestTimeoutMs,
 ): Promise<T> {
   let response: Response;
   try {
@@ -53,7 +55,7 @@ async function postJson<T>(
       method: "POST",
       headers: buildHeaders(llmConfig, apiKey, url),
       body: JSON.stringify(body),
-      signal: AbortSignal.timeout(config.llm.requestTimeoutMs),
+      signal: AbortSignal.timeout(timeoutMs),
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Network request failed";
@@ -76,10 +78,15 @@ async function postJson<T>(
   if (!response.ok) {
     const providerMessage =
       errorBody.error?.message ?? `LLM request failed with status ${response.status}`;
+    const retryAfterMs = parseRetryAfterMs(response.headers.get("retry-after"));
+    const isRateLimited = response.status === 429;
+    const isTransient = response.status === 429 || response.status === 503 || response.status === 502;
+
     throw new AppError(
-      "LLM_PROVIDER_ERROR",
+      isRateLimited ? "LLM_RATE_LIMITED" : "LLM_PROVIDER_ERROR",
       sanitizeMessage(providerMessage, apiKey),
-      response.status >= 500 ? 502 : 400,
+      isRateLimited ? 429 : response.status >= 500 ? 502 : response.status,
+      isTransient ? retryAfterMs ?? undefined : undefined,
     );
   }
 
@@ -133,6 +140,7 @@ export function createOpenAICompatibleClient(llmConfig: LLMConfig): LLMClient {
           input: texts,
         },
         llmConfig.apiKey,
+        config.embeddings.requestTimeoutMs,
       );
 
       const embeddings = response.data?.map((row) => row.embedding) ?? [];
