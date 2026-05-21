@@ -1,16 +1,13 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { PageHeader } from "../components/instrument/PageHeader";
 import { StatusDot } from "../components/instrument/StatusDot";
-import { FeaturesPanel } from "../components/search/FeaturesPanel";
 import { ImageDropzone } from "../components/search/ImageDropzone";
+import { ReferenceCard } from "../components/search/ReferenceCard";
 import { ResultsList } from "../components/search/ResultsList";
 import { SearchLoadingPanel } from "../components/search/SearchLoadingPanel";
 import { WarningsBanner } from "../components/search/WarningsBanner";
 import { Alert } from "../components/ui/Alert";
 import { Button } from "../components/ui/Button";
-import { Card, CardHeader } from "../components/ui/Card";
-import { Input } from "../components/ui/Input";
 import { useHasApiKey } from "../hooks/useAdminConfig";
 import { useObjectUrl } from "../hooks/useObjectUrl";
 import { useSearchActions, useSearchState } from "../hooks/useSearch";
@@ -42,31 +39,27 @@ export function SearchPage() {
   }
 
   const showEmptyResults = !searchLoading && lastSearchId && ranked.length === 0;
+  const stats = [
+    { label: "mode", value: retrievalConfig.mode ?? "hybrid" },
+    { label: "K", value: String(retrievalConfig.k ?? 30) },
+    { label: "N", value: String(retrievalConfig.n ?? 10) },
+    {
+      label: "τ",
+      value: (retrievalConfig.confidenceThreshold ?? 0.7).toFixed(2),
+    },
+  ];
 
   return (
-    <div className="mx-auto max-w-[1280px] px-4 py-6 sm:px-6">
-      <PageHeader
-        sectionId="§ 1"
-        kicker="SEARCH"
-        title={
-          <>
-            Rank <span className="font-emphasis italic text-accent">catalog</span> matches
-          </>
-        }
-        meta={
-          <>
-            <StatusDot
-              tone={hasApiKey ? "signal" : "warn"}
-              label={hasApiKey ? "api_key" : "no_key"}
-            />
-            <span>·</span>
-            <span>model gpt-4o → vision → embed → rank</span>
-          </>
-        }
-      />
+    <div className="mx-auto max-w-[1280px] px-4 py-6 sm:px-6 sm:py-7">
+      <header className="mb-5 flex flex-wrap items-end justify-between gap-3">
+        <h1 className="editorial-title max-w-3xl">
+          Photo in, <span className="editorial-italic">catalog</span> out.
+        </h1>
+        <StatusDot tone={hasApiKey ? "signal" : "warn"} label={hasApiKey ? "api_key" : "no_key"} />
+      </header>
 
       {!hasApiKey && (
-        <div className="mb-4">
+        <div className="mb-6">
           <Alert tone="warning" title="API key required">
             Set OpenRouter key in{" "}
             <Link to="/admin" className="text-accent underline-offset-2 hover:underline">
@@ -77,60 +70,82 @@ export function SearchPage() {
         </div>
       )}
 
-      <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
-        <div className="space-y-4">
-          <Card>
-            <CardHeader
-              sectionId="§ 1.1 · INPUT"
-              title="Index query"
-              description="image/jpeg · optional prompt · hybrid k=30 n=10"
-            />
-
+      <section className="grid gap-4 lg:grid-cols-[1fr_320px]">
+        <div className="instrument-panel flex flex-col">
+          <div className="p-3">
             <ImageDropzone
               file={imageFile}
               previewUrl={previewUrl}
               onFileSelect={setImageFile}
               disabled={searchLoading}
             />
+          </div>
 
-            <div className="mt-4 border-t border-hair pt-4">
-              <Input
-                label="Prompt constraint"
-                value={userPrompt}
-                onChange={(event) => setUserPrompt(event.target.value)}
-                placeholder="walnut bookshelf · under $500"
-                disabled={searchLoading}
-              />
-            </div>
+          <div className="border-t border-hair px-3 py-3">
+            <input
+              id="prompt-constraint"
+              type="text"
+              value={userPrompt}
+              onChange={(event) => setUserPrompt(event.target.value)}
+              placeholder="add a prompt (optional)"
+              disabled={searchLoading}
+              className="instrument-input-underline text-[14px] placeholder:text-ink-muted/60"
+            />
+          </div>
 
-            <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-hair pt-4">
-              <Button
-                onClick={handleSearch}
-                disabled={searchLoading || !imageFile || !hasApiKey}
-                loading={searchLoading}
-              >
-                {searchLoading ? "Running…" : "Rank"}
-              </Button>
-              {timings && (
-                <span className="font-mono text-[11px] tabular-nums text-ink-muted">
-                  last run {timings.totalMs}ms
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-hair px-3 py-2.5">
+            <div className="flex flex-wrap items-center gap-3 font-mono text-[11px] tabular-nums text-ink-muted">
+              {stats.map((stat) => (
+                <span key={stat.label} className="flex items-baseline gap-1">
+                  <span>{stat.label}</span>
+                  <span className="text-ink">{stat.value}</span>
                 </span>
-              )}
+              ))}
+              {timings && <span>· {timings.totalMs}ms</span>}
             </div>
-          </Card>
 
-          {searchError && <Alert tone="error">{searchError}</Alert>}
-          {searchLoading && (
-            <SearchLoadingPanel enableRerank={retrievalConfig.enableRerank ?? true} />
-          )}
-          <WarningsBanner warnings={warnings} rerankError={rerankError} />
+            <Button
+              onClick={handleSearch}
+              disabled={searchLoading || !imageFile || !hasApiKey}
+              loading={searchLoading}
+            >
+              {searchLoading ? "Running…" : "Search"}
+            </Button>
+          </div>
+        </div>
 
-          {showEmptyResults && (
-            <Alert tone="info" title="0 results">
-              Refine prompt or lower filter confidence in Admin → Config.
-            </Alert>
-          )}
+        <ReferenceCard
+          previewUrl={previewUrl}
+          fileName={imageFile?.name}
+          visionFeatures={visionFeatures}
+        />
+      </section>
 
+      {searchError && (
+        <div className="mt-5">
+          <Alert tone="error">{searchError}</Alert>
+        </div>
+      )}
+      {searchLoading && (
+        <div className="mt-5">
+          <SearchLoadingPanel enableRerank={retrievalConfig.enableRerank ?? true} />
+        </div>
+      )}
+
+      <div className="mt-5">
+        <WarningsBanner warnings={warnings} rerankError={rerankError} />
+      </div>
+
+      {showEmptyResults && (
+        <div className="mt-5">
+          <Alert tone="info" title="0 results">
+            Refine prompt or lower filter confidence in Admin → Config.
+          </Alert>
+        </div>
+      )}
+
+      {ranked.length > 0 && (
+        <div className="mt-7">
           <ResultsList
             ranked={ranked}
             ratings={ratings}
@@ -142,9 +157,7 @@ export function SearchPage() {
             }}
           />
         </div>
-
-        <FeaturesPanel visionFeatures={visionFeatures} timings={timings} />
-      </div>
+      )}
     </div>
   );
 }

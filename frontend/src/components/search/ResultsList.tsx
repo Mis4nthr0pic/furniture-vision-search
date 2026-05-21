@@ -1,6 +1,5 @@
 import { memo } from "react";
 import type { RankedProduct } from "../../types";
-import { SectionStrip } from "../instrument/SectionStrip";
 import { ResultCard } from "./ResultCard";
 
 interface ResultsListProps {
@@ -21,17 +20,15 @@ export const ResultsList = memo(function ResultsList({
   if (ranked.length === 0) return null;
 
   return (
-    <section className="instrument-panel">
-      <SectionStrip
-        sectionId="§ 1.3"
-        label="MATCHES"
-        controls={
-          <span className="px-3 font-mono text-[11px] tabular-nums text-ink-muted">
-            {ranked.length} results · hybrid + rerank
-          </span>
-        }
-      />
-      <div className="divide-y divide-hair">
+    <section>
+      <header className="mb-4 flex items-end justify-between gap-4 border-b border-hair pb-2.5">
+        <h2 className="text-[20px] font-semibold leading-tight tracking-[-0.02em] text-ink">
+          {ranked.length} matches
+        </h2>
+        <p className="font-mono text-[11px] text-ink-muted">hybrid · rerank</p>
+      </header>
+
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {ranked.map((product, index) => (
           <ResultCard
             key={product.id}

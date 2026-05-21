@@ -52,7 +52,7 @@ export const ImageDropzone = memo(function ImageDropzone({
 
         <div
           className={cn(
-            "flex min-h-[220px] flex-col items-center justify-center border border-dashed border-hair bg-bg px-4 py-6 text-center transition",
+            "flex min-h-[160px] flex-col items-center justify-center border border-dashed border-hair bg-bg px-4 py-4 text-center transition",
             dragOver && "border-accent bg-panel",
           )}
         >
@@ -61,7 +61,7 @@ export const ImageDropzone = memo(function ImageDropzone({
               <img
                 src={previewUrl}
                 alt={file?.name ?? "Upload preview"}
-                className="max-h-44 w-full object-contain"
+                className="max-h-32 w-full object-contain"
                 loading="lazy"
                 decoding="async"
               />

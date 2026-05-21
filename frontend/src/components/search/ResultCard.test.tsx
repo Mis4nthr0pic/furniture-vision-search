@@ -44,11 +44,14 @@ describe("ResultCard", () => {
     expect(onRate).toHaveBeenCalledWith(false);
   });
 
-  it("reveals score breakdown when score is clicked", async () => {
+  it("reveals secondary score breakdown when the gauge is clicked", async () => {
     const user = userEvent.setup();
     render(<ResultCard rank={1} product={product} onRate={() => {}} />);
 
-    await user.click(screen.getByText("0.842"));
-    expect(screen.getByText("Hybrid score: 0.842")).toBeInTheDocument();
+    const toggle = screen.getByRole("button", { expanded: false });
+    await user.click(toggle);
+
+    expect(screen.getByRole("button", { expanded: true })).toBeInTheDocument();
+    expect(screen.getByText(/raw vec/i)).toBeInTheDocument();
   });
 });
