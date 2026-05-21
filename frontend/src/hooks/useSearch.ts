@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { rateResult, searchProducts } from "../api/client";
-import { getLlmConfigForRequest, useStore } from "../store";
+import { getLlmConfigForRequest, getRetrievalConfigForRequest, useStore } from "../store";
 
 export function useSearchActions() {
   const {
@@ -29,12 +29,18 @@ export function useSearchActions() {
       setSearchLoading(true);
       setSearchError(null);
 
+      if (!apiKey.trim()) {
+        setSearchError("Add your OpenRouter API key in Admin → Config before searching.");
+        setSearchLoading(false);
+        return;
+      }
+
       try {
         const result = await searchProducts({
           image,
           userPrompt,
           llmConfig: getLlmConfigForRequest({ apiKey, llmConfig }),
-          retrievalConfig,
+          retrievalConfig: getRetrievalConfigForRequest({ retrievalConfig }),
         });
         applySearchResult(result);
       } catch (err) {
@@ -72,7 +78,6 @@ export function useSearchState() {
   return useStore(
     useShallow((state) => ({
       apiKey: state.apiKey,
-      setApiKey: state.setApiKey,
       searchLoading: state.searchLoading,
       searchError: state.searchError,
       lastSearchId: state.lastSearchId,

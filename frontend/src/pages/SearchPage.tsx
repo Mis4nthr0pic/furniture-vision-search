@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useObjectUrl } from "../hooks/useObjectUrl";
+import { useHasApiKey } from "../hooks/useAdminConfig";
 import { useSearchActions, useSearchState } from "../hooks/useSearch";
 import { FeaturesPanel } from "../components/search/FeaturesPanel";
 import { ImageDropzone } from "../components/search/ImageDropzone";
@@ -15,10 +17,9 @@ export function SearchPage() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [userPrompt, setUserPrompt] = useState("");
   const previewUrl = useObjectUrl(imageFile);
+  const hasApiKey = useHasApiKey();
 
   const {
-    apiKey,
-    setApiKey,
     searchLoading,
     searchError,
     lastSearchId,
@@ -54,24 +55,20 @@ export function SearchPage() {
         </p>
       </section>
 
+      {!hasApiKey && (
+        <div className="mb-5">
+          <Alert tone="info" title="API key required">
+            Add your OpenRouter key in{" "}
+            <Link to="/admin" className="font-semibold text-brand-800 underline underline-offset-2">
+              Admin → Config
+            </Link>{" "}
+            before searching. Keys are stored in memory only.
+          </Alert>
+        </div>
+      )}
+
       <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_340px]">
         <div className="space-y-5">
-          <Card>
-            <CardHeader
-              title="Connection"
-              description="Your OpenRouter key stays in memory for this tab only."
-            />
-            <Input
-              label="OpenRouter API key"
-              type="password"
-              value={apiKey}
-              onChange={(event) => setApiKey(event.target.value)}
-              placeholder="sk-or-v1-…"
-              hint="Never written to disk or localStorage."
-              autoComplete="off"
-            />
-          </Card>
-
           <Card padding="lg" className="space-y-5">
             <CardHeader
               title="Upload & search"
@@ -89,13 +86,13 @@ export function SearchPage() {
               label="Optional prompt"
               value={userPrompt}
               onChange={(event) => setUserPrompt(event.target.value)}
-              placeholder="e.g. walnut bookshelf with open shelves"
+              placeholder="e.g. walnut bookshelf with open shelves, under $500"
               disabled={searchLoading}
             />
 
             <Button
               onClick={handleSearch}
-              disabled={searchLoading || !imageFile}
+              disabled={searchLoading || !imageFile || !hasApiKey}
               loading={searchLoading}
               className="w-full sm:w-auto"
             >
