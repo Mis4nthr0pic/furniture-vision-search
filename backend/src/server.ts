@@ -1,8 +1,10 @@
 import cors from "cors";
 import express, { type NextFunction, type Request, type Response } from "express";
+import { initLexicalIndex } from "./catalog/lexical.js";
 import { loadCatalog } from "./catalog/load.js";
 import { connectMongo } from "./db/mongo.js";
 import { adminRouter } from "./routes/admin.js";
+import { lexicalRouter } from "./routes/lexical.js";
 import { AppError } from "./utils/errors.js";
 import { logger } from "./utils/logger.js";
 
@@ -44,6 +46,7 @@ export function createServer(): express.Application {
   });
 
   app.use("/api/admin", adminRouter);
+  app.use("/api/lexical", lexicalRouter);
 
   app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
     if (err instanceof AppError) {
@@ -64,9 +67,11 @@ export async function bootstrap(): Promise<void> {
   try {
     const db = await connectMongo();
     const products = await loadCatalog(db);
+    initLexicalIndex(products);
     setAppState({
       mongoOk: true,
       productCount: products.length,
+      lexicalReady: true,
     });
   } catch (err) {
     logger.error({ err }, "Failed to bootstrap catalog — health will report ok=false");
