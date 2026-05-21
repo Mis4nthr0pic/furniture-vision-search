@@ -6,6 +6,17 @@ Upload a furniture photo and get ranked matches from a ~2,500-item catalog — w
 
 ---
 
+## Why this is not just GPT vision
+
+The vision model never returns catalog items directly. It extracts constrained attributes from the image, then the backend searches and ranks the catalog with multiple inspectable signals:
+
+- **Catalog-constrained vision** avoids hallucinated labels by forcing category/type/color/style/material to come from live MongoDB vocabulary.
+- **Hybrid retrieval** combines cached embedding similarity, MiniSearch lexical scores, structured attribute matches, dimensions, and prompt-derived price constraints.
+- **LLM rerank** only reorders the top-K candidates and returns reasons, so expensive model judgment improves the final list without replacing retrieval.
+- **Eval tooling** measures quality through a six-case static harness and live thumbs feedback rather than relying on demo vibes.
+
+---
+
 ## Demo flow (2 minutes)
 
 1. Open **Admin → Config** and paste your [OpenRouter](https://openrouter.ai/keys) API key (memory only).
@@ -174,10 +185,20 @@ Other tabs:
 
 ### Static eval (offline harness)
 
-- **6 cases** in `backend/eval/` — Ottomans, Bookshelves, Benches, Chairs, Coffee Tables, Sofas.
+- **6 cases** in `backend/eval/` — targeted furniture images with optional prompts when the photo contains multiple objects.
 - Images from Unsplash (committed under `backend/eval/images/`).
 - Runs vision + hybrid retrieval (rerank off) per case.
 - Metrics: top-1 / top-10 category & type match, color match, attribute recall@1, MRR, avg latency.
+
+**Recorded baseline** (local run, May 21 2026, OpenRouter `openai/gpt-4o`, cached embeddings, six cases):
+
+| Mode | Top-1 category | Top-1 type | Top-1 color | Attr recall @1 | MRR | Avg latency |
+|------|----------------|------------|-------------|----------------|-----|-------------|
+| Hybrid | 83% | 67% | 80% | 78% | 0.583 | 5.1s |
+| Hybrid + image rerank | 83% | 83% | 60% | 78% | 0.556 | 11.6s |
+
+Rerank improved type precision on this small set but roughly doubled latency and did not improve color matching, so it remains a configurable quality/latency tradeoff.
+The Admin static eval button runs the Hybrid row for stable comparison; the rerank row was measured by replaying the same cases through `/api/search` with image rerank enabled.
 
 Run via **Admin → Static Eval** or:
 
@@ -286,20 +307,20 @@ fortune/
 
 ### Tests
 
-**91 unit tests** (68 backend + 23 frontend) via Vitest. See [docs/TESTING.md](docs/TESTING.md) for the full file list and edge-case matrix.
+**94 unit tests** (71 backend + 23 frontend) via Vitest. See [docs/TESTING.md](docs/TESTING.md) for the full file list and edge-case matrix.
 
 ```bash
 npm install          # root Biome tooling
-npm test             # run all Vitest suites (68 backend + 23 frontend)
+npm test             # run all Vitest suites (71 backend + 23 frontend)
 npm run check        # lint + typecheck + test
 ```
 
 ```bash
-cd backend && npm test    # 68 tests — retrieval, validation, HTTP integration
+cd backend && npm test    # 71 tests — retrieval, validation, HTTP integration
 cd frontend && npm test   # 23 tests — hooks, components, store
 ```
 
-CI runs **Backend unit tests (Vitest)**, **Frontend unit tests (Vitest)**, **Lint (Biome)**, and a **Unit test summary** job on every PR ([Actions](https://github.com/Mis4nthr0pic/furniture-vision-search/actions/workflows/ci.yml)).
+CI runs **Backend unit tests (Vitest)**, **Frontend unit tests (Vitest)**, **Lint (Biome)**, **Unit test summary**, and **Root check (lint + typecheck + tests)** jobs on every PR ([Actions](https://github.com/Mis4nthr0pic/furniture-vision-search/actions/workflows/ci.yml)).
 
 ### Local without Docker
 
@@ -347,7 +368,7 @@ Add captures to `docs/screenshots/` for README embedding:
 - Deterministic “Matched because” bullets from score contributions
 - Richer empty/low-confidence UX states
 - Persistent eval logs and export
-- README baseline eval numbers from CI or recorded run
+- CI-published eval baseline artifacts
 
 ---
 

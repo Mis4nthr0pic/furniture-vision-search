@@ -17,11 +17,12 @@ Project decision log for [Furniture Vision Search](README.md). See [docs/PIPELIN
 
 ### Eval baselines
 
-Record local static eval runs here after `Admin → Static Eval`:
+Static eval baseline runs:
 
-| Date | Model | Top-1 cat | Top-1 type | MRR | Avg latency |
-|------|-------|-----------|------------|-----|-------------|
-| *pending* | openai/gpt-4o | — | — | — | — |
+| Date | Mode | Model | Top-1 cat | Top-1 type | Top-1 color | Attr recall @1 | MRR | Avg latency |
+|------|------|-------|-----------|------------|-------------|----------------|-----|-------------|
+| 2026-05-21 | Hybrid | openai/gpt-4o | 83% | 67% | 80% | 78% | 0.583 | 5.1s |
+| 2026-05-21 | Hybrid + image rerank | openai/gpt-4o | 83% | 83% | 60% | 78% | 0.556 | 11.6s |
 
 See [docs/EVAL.md](docs/EVAL.md) for how to run and interpret metrics.
 

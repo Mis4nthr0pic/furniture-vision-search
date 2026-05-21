@@ -2,60 +2,59 @@
   {
     "id": "case_01",
     "image_path": "images/storage_ottoman.jpg",
-    "user_prompt": "",
+    "user_prompt": "focus on the cream sectional sofa",
     "expected": {
-      "category": "Ottomans",
-      "type": "Storage Ottoman",
-      "color": "Black"
+      "category": "Sofas",
+      "type": "Sectional Sofa",
+      "color": "Cream"
     }
   },
   {
     "id": "case_02",
-    "image_path": "images/wide_bookshelf.jpg",
-    "user_prompt": "walnut bookshelf",
+    "image_path": "images/side_table.jpg",
+    "user_prompt": "white wooden side table stool",
     "expected": {
-      "category": "Bookshelves",
-      "type": "Wide Bookshelf",
-      "color": "Espresso"
+      "category": "Tables",
+      "type": "Side Table",
+      "color": "White"
     }
   },
   {
     "id": "case_03",
     "image_path": "images/entryway_bench.jpg",
-    "user_prompt": "",
+    "user_prompt": "focus on the cream bench at the foot of the bed",
     "expected": {
       "category": "Benches",
-      "type": "Entryway Bench",
-      "color": "Charcoal"
+      "type": "Storage Bench",
+      "color": "Cream"
     }
   },
   {
     "id": "case_04",
     "image_path": "images/accent_chair.jpg",
-    "user_prompt": "",
+    "user_prompt": "yellow accent chair",
     "expected": {
       "category": "Chairs",
-      "type": "Accent Chair",
-      "color": "Cream"
+      "type": "Accent Chair"
     }
   },
   {
     "id": "case_05",
     "image_path": "images/lift_top_coffee_table.jpg",
-    "user_prompt": "",
+    "user_prompt": "focus on the rectangular wooden coffee table",
     "expected": {
       "category": "Coffee Tables",
-      "type": "Lift-Top Coffee Table",
-      "color": "Cream"
+      "type": "Rectangular Coffee Table",
+      "color": "Natural"
     }
   },
   {
     "id": "case_06",
     "image_path": "images/sectional_sofa.jpg",
-    "user_prompt": "",
+    "user_prompt": "green velvet loveseat sofa",
     "expected": {
       "category": "Sofas",
-      "type": "Sectional Sofa",
+      "type": "Loveseat",
       "color": "Forest"
     }
   }

@@ -7,10 +7,10 @@ Vitest runs unit and integration tests in both packages. CI executes them on eve
 ```bash
 npm install              # root (Biome + orchestration scripts)
 
-npm test                 # backend + frontend (91 tests total)
+npm test                 # backend + frontend (94 tests total)
 npm run check            # lint + typecheck + test
 
-cd backend && npm test   # 66 tests — API, retrieval, LLM parsing, validation
+cd backend && npm test   # 71 tests — API, retrieval, LLM parsing, validation
 cd frontend && npm test  # 23 tests — hooks, components, store, API client
 ```
 
@@ -23,7 +23,7 @@ cd frontend && npm run test:watch   # add script if needed — use vitest direct
 
 ## Coverage by area
 
-### Backend (`backend/src/tests/` — 19 files, 68 tests)
+### Backend (`backend/src/tests/` — 19 files, 71 tests)
 
 | File | What it proves |
 |------|----------------|
@@ -85,5 +85,6 @@ GitHub Actions workflow [`.github/workflows/ci.yml`](../.github/workflows/ci.yml
 - **Frontend unit tests (Vitest)** — `frontend/npm test` + build
 - **Lint (Biome)** — root `npm run lint`
 - **Unit test summary** — root `npm test` after both packages pass
+- **Root check** — root `npm run check` for lint + typecheck + tests
 
 See the [Actions tab](https://github.com/Mis4nthr0pic/furniture-vision-search/actions/workflows/ci.yml) on GitHub for run history.
