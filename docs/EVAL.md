@@ -8,7 +8,9 @@ How to measure search quality for demos and documentation.
 
 **Run:** Admin → Static Eval → **Run static eval** (or `POST /api/eval/run`)
 
-**Cases (6):** targeted furniture images covering sofas, a side-table/stool, a storage bench, an accent chair, a rectangular coffee table, and a loveseat. Some cases include a short prompt when the source image contains multiple objects.
+**Cases (6):** single-piece furniture photos — ottoman, bookshelf, bench, accent chair, rectangular coffee table, loveseat. Filenames match the visible product. Case 4 uses a short prompt because the source photo is a styled room.
+
+**Image sources:** Unsplash (see `backend/eval/images/ATTRIBUTION.md`).
 
 **Metrics reported:**
 
@@ -22,14 +24,17 @@ How to measure search quality for demos and documentation.
 | MRR | Mean reciprocal rank of first fully matching result |
 | Avg latency | End-to-end pipeline ms per case (vision + hybrid, rerank off) |
 
-**Current recorded baseline** (local run, May 21 2026, OpenRouter `openai/gpt-4o`, cached embeddings):
+**Current recorded baseline** (local run, May 21 2026, OpenRouter `openai/gpt-4o`, cached embeddings, **new fixtures**):
 
-| Mode | Top-1 category | Top-1 type | Top-1 color | Attribute recall @1 | MRR | Avg latency |
-|------|----------------|------------|-------------|---------------------|-----|-------------|
-| Hybrid | 83% | 67% | 80% | 78% | 0.583 | 5.1s |
-| Hybrid + image rerank | 83% | 83% | 60% | 78% | 0.556 | 11.6s |
+| Mode | Top-1 category | Top-1 type | Top-1 color | Attribute recall @1 | MRR | Avg latency | Cases passed |
+|------|----------------|------------|-------------|---------------------|-----|-------------|--------------|
+| Hybrid | 83% | 33% | 40% | 56% | 0.19 | 4.9s | 1/6 |
 
-Admin Static Eval runs the Hybrid row for stable comparisons. The rerank row was measured by replaying the same cases through `/api/search` with image rerank enabled.
+Admin Static Eval runs the Hybrid row for stable comparisons. Type/color are stricter now that filenames match the visible product (exact catalog type/color match required).
+
+<!--
+Previous mislabeled fixtures: Hybrid 83% / 67% type / 0.583 MRR @ 5.1s — not comparable.
+-->
 
 **Recording future baselines:** paste a run into CHANGELOG under “Eval baselines”, e.g.:
 

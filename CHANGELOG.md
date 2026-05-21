@@ -21,8 +21,8 @@ Static eval baseline runs:
 
 | Date | Mode | Model | Top-1 cat | Top-1 type | Top-1 color | Attr recall @1 | MRR | Avg latency |
 |------|------|-------|-----------|------------|-------------|----------------|-----|-------------|
-| 2026-05-21 | Hybrid | openai/gpt-4o | 83% | 67% | 80% | 78% | 0.583 | 5.1s |
-| 2026-05-21 | Hybrid + image rerank | openai/gpt-4o | 83% | 83% | 60% | 78% | 0.556 | 11.6s |
+| 2026-05-21 | Hybrid (new fixtures) | openai/gpt-4o | 83% | 33% | 40% | 56% | 0.19 | 4.9s |
+| 2026-05-21 | Hybrid (old mislabeled fixtures) | openai/gpt-4o | 83% | 67% | 80% | 78% | 0.583 | 5.1s |
 
 See [docs/EVAL.md](docs/EVAL.md) for how to run and interpret metrics.
 
