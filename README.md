@@ -118,6 +118,10 @@ flowchart LR
 
 **Modes:** `hybrid` (default), `vector_only`, `lexical_only`, `filter_only` — configurable in Admin.
 
+**Prompt price intent:** short constraints such as `under $500`, `between $300 and $600`, and
+`around $1,200` are parsed from the optional prompt and applied as catalog price filters before
+scoring. Admin can set a tolerance percent for near-budget matches.
+
 ### 3. LLM rerank (top-N default 10)
 
 - Sends original image + vision features + user prompt + candidate summaries to chat model.
@@ -153,6 +157,7 @@ Low vision confidence (< 0.7) is common — filters won’t narrow the catalog, 
 | Top K / Top N | Candidate pool size and final result count |
 | Ranking weights | Hybrid score component weights |
 | Confidence threshold | When auto category/type filters apply |
+| Price tolerance % | How much prompt-derived budget filters may stretch |
 | Enable rerank | LLM rerank on/off |
 | Include image in rerank | Pass original photo to rerank prompt |
 | Re-index catalog | Build embedding cache with SSE progress modal |
@@ -184,7 +189,7 @@ curl -X POST http://localhost:4000/api/eval/run \
 
 Full guide: [docs/EVAL.md](./docs/EVAL.md)
 
-> **Baseline numbers:** run locally with your OpenRouter key and record results in [CHANGELOG.md](./CHANGELOG.md). Metrics vary by model and embedding cache state.
+> **Baseline numbers:** run locally with your OpenRouter key and record results in [CHANGELOG.md](./CHANGELOG.md) (eval baselines table). Metrics vary by model and embedding cache state.
 
 ### Live eval (human feedback)
 
@@ -252,7 +257,8 @@ fortune/
 ├── backend/                 # Express API — see backend/README.md
 ├── frontend/                # React SPA — see frontend/README.md
 ├── docs/PIPELINE.md         # Incremental build roadmap
-├── CHANGELOG.md             # Step-by-step decisions and narrative
+├── CHANGELOG.md             # Narrative + eval baselines
+├── docs/changelog/          # Per-PR decision log (one file per merge)
 └── docker-compose.yml
 ```
 
@@ -337,7 +343,7 @@ Add captures to `docs/screenshots/` for README embedding:
 
 ## Future enhancements
 
-- Structured prompt intent (price max, material filters, excluded colors)
+- Richer structured prompt intent (excluded colors, room/use-case constraints)
 - Deterministic “Matched because” bullets from score contributions
 - Richer empty/low-confidence UX states
 - Persistent eval logs and export
@@ -347,4 +353,4 @@ Add captures to `docs/screenshots/` for README embedding:
 
 ## License & catalog
 
-MongoDB catalog is read-only. Eval images are from Unsplash (see `backend/eval/`). Built as an incremental pipeline project — full decision log in [CHANGELOG.md](./CHANGELOG.md).
+MongoDB catalog is read-only. Eval images are from Unsplash (see `backend/eval/`). Built as an incremental pipeline project — full decision log in [docs/changelog/README.md](./docs/changelog/README.md).

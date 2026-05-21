@@ -4,6 +4,8 @@ import { DEFAULT_SCORE_WEIGHTS } from "../schemas/retrieval.js";
 import {
   dimProximity,
   equalsIgnoreCase,
+  filterProductsByPriceIntent,
+  parsePriceIntent,
   resolveEffectiveWeights,
   scoreProduct,
 } from "../services/retrieval.service.js";
@@ -68,5 +70,46 @@ describe("retrieval scoring", () => {
     expect(strong.breakdown.cat).toBe(1);
     expect(strong.breakdown.type).toBe(1);
     expect(dimProximity(vision.est_dimensions, product)).toBeCloseTo(1);
+  });
+
+  it("parses price constraints from natural language prompts", () => {
+    expect(parsePriceIntent("walnut bookshelf under $500")).toEqual({ maxPrice: 500 });
+    expect(parsePriceIntent("between $300 and $600")).toEqual({
+      minPrice: 300,
+      maxPrice: 600,
+    });
+    expect(parsePriceIntent("about 1,200 dollars")).toEqual({ targetPrice: 1200 });
+  });
+
+  it("filters products with prompt price intent and tolerance", () => {
+    const products: EnrichedProduct[] = [
+      { ...product, _id: "budget", price: 450 },
+      { ...product, _id: "stretch", price: 520 },
+      { ...product, _id: "premium", price: 900 },
+    ];
+
+    const strict = filterProductsByPriceIntent(products, { maxPrice: 500 }, 0);
+    expect(strict.map((item) => item._id)).toEqual(["budget"]);
+
+    const tolerant = filterProductsByPriceIntent(products, { maxPrice: 500 }, 10);
+    expect(tolerant.map((item) => item._id)).toEqual(["budget", "stretch"]);
+
+    const around = filterProductsByPriceIntent(products, { targetPrice: 500 }, 0);
+    expect(around.map((item) => item._id)).toEqual(["budget", "stretch"]);
+  });
+
+  it("uses prompt-mentioned material for material score", () => {
+    const result = scoreProduct({
+      product,
+      vision: { ...vision, material: null },
+      weights: { ...DEFAULT_SCORE_WEIGHTS, w_mat: 0.2 },
+      lexicalScore: 0,
+      vectorScore: 0,
+      materials: ["Walnut", "Oak"],
+      userPrompt: "show me walnut options",
+    });
+
+    expect(result.breakdown.mat).toBe(1);
+    expect(result.contributions.mat).toBeCloseTo(0.2);
   });
 });

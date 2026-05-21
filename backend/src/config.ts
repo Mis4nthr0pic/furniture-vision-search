@@ -1,4 +1,20 @@
+import { existsSync } from "node:fs";
+import path from "node:path";
+import { loadEnvFile } from "node:process";
 import { z } from "zod";
+
+function loadLocalEnvFile(): void {
+  if (process.env.NODE_ENV === "test" || process.env.VITEST) return;
+
+  const candidates = [path.resolve(process.cwd(), ".env"), path.resolve(process.cwd(), "../.env")];
+  for (const envPath of candidates) {
+    if (!existsSync(envPath)) continue;
+    loadEnvFile(envPath);
+    return;
+  }
+}
+
+loadLocalEnvFile();
 
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),

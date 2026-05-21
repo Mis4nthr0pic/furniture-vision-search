@@ -2,14 +2,14 @@
 
 Incremental delivery: one branch and one pull request per step. Each PR is small, reviewable, and maps to a measurable capability.
 
-**User-facing docs:** [README](../README.md) · [Evaluation guide](./EVAL.md) · [Testing guide](./TESTING.md) · [Changelog](../CHANGELOG.md)
+**User-facing docs:** [README](../README.md) · [Evaluation guide](./EVAL.md) · [Testing guide](./TESTING.md) · [Decision log](./changelog/README.md)
 
 ## Workflow
 
 ```bash
 git checkout main && git pull
 git checkout -b step/N-short-name
-# implement, test, update CHANGELOG.md
+# implement, test, add docs/changelog/your-entry.md (new file only)
 git push -u origin step/N-short-name
 gh pr create --base main --title "Step 5: Hybrid search pipeline" --body "## Summary
 ...
@@ -21,7 +21,7 @@ Closes #6"
 
 **Rules:**
 - One step per PR — no bundling unrelated work
-- Every PR updates `CHANGELOG.md`
+- Every PR adds **one new file** under `docs/changelog/` — do **not** edit `CHANGELOG.md` or existing changelog entries (avoids merge conflicts)
 - Merge to `main` only after **CI passes** (backend + frontend tests in GitHub Actions)
 - **Link the issue** — put `Closes #N` in the PR body (plain text, not backticks). Issue number = step + 1 (step 5 → `Closes #6`).
 - Backup: merging a `step/N-*` branch auto-closes the pipeline issue via GitHub Action.
@@ -63,7 +63,7 @@ Closes #6"
 | 11 | Frontend admin page | `step/11-admin-ui` | ✅ Done | [#28](https://github.com/Mis4nthr0pic/furniture-vision-search/pull/28) |
 | — | Reindex performance + rate limits | `step/11-reindex-polish` | ✅ Done | (follow-up PR) |
 | 12 | Edge cases | `step/12-edge-cases` | ✅ Done (via #15–#16 + this PR) | — |
-| 13 | Vitest suite | `step/13-tests` | 🔄 In PR | — |
+| 13 | Vitest suite | `step/13-tests` | ✅ Done | [#34](https://github.com/Mis4nthr0pic/furniture-vision-search/pull/34) |
 | 14 | Docs + polish | `step/14-docs` | ✅ Done | [#30](https://github.com/Mis4nthr0pic/furniture-vision-search/pull/30) |
 | 15 | Security hygiene | `step/15-security-hygiene` | ✅ Done | [#31](https://github.com/Mis4anthr0pic/furniture-vision-search/pull/31) |
 | 16 | Code quality | `step/16-code-quality-fixes` | ✅ Done | [#32](https://github.com/Mis4nthr0pic/furniture-vision-search/pull/32) |
