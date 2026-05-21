@@ -1,153 +1,128 @@
-import { useEffect, useState } from "react";
-import { rateResult, searchProducts } from "../api/client";
-import { FeaturesPanel } from "../components/FeaturesPanel";
-import { ImageDropzone } from "../components/ImageDropzone";
-import { ResultCard } from "../components/ResultCard";
-import { WarningsBanner } from "../components/WarningsBanner";
-import { getLlmConfigForRequest, useStore } from "../store";
+import { useState } from "react";
+import { useObjectUrl } from "../hooks/useObjectUrl";
+import { useSearchActions, useSearchState } from "../hooks/useSearch";
+import { FeaturesPanel } from "../components/search/FeaturesPanel";
+import { ImageDropzone } from "../components/search/ImageDropzone";
+import { ResultsList } from "../components/search/ResultsList";
+import { SearchLoadingPanel } from "../components/search/SearchLoadingPanel";
+import { WarningsBanner } from "../components/search/WarningsBanner";
+import { Alert } from "../components/ui/Alert";
+import { Button } from "../components/ui/Button";
+import { Card, CardHeader } from "../components/ui/Card";
+import { Input } from "../components/ui/Input";
 
 export function SearchPage() {
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [userPrompt, setUserPrompt] = useState("");
+  const previewUrl = useObjectUrl(imageFile);
 
-  const apiKey = useStore((state) => state.apiKey);
-  const setApiKey = useStore((state) => state.setApiKey);
-  const retrievalConfig = useStore((state) => state.retrievalConfig);
-  const llmConfig = useStore((state) => state.llmConfig);
-  const searchLoading = useStore((state) => state.searchLoading);
-  const searchError = useStore((state) => state.searchError);
-  const lastSearchId = useStore((state) => state.lastSearchId);
-  const visionFeatures = useStore((state) => state.visionFeatures);
-  const ranked = useStore((state) => state.ranked);
-  const warnings = useStore((state) => state.warnings);
-  const rerankError = useStore((state) => state.rerankError);
-  const timings = useStore((state) => state.timings);
-  const ratings = useStore((state) => state.ratings);
-  const setSearchLoading = useStore((state) => state.setSearchLoading);
-  const setSearchError = useStore((state) => state.setSearchError);
-  const applySearchResult = useStore((state) => state.applySearchResult);
-  const setRating = useStore((state) => state.setRating);
+  const {
+    apiKey,
+    setApiKey,
+    searchLoading,
+    searchError,
+    lastSearchId,
+    visionFeatures,
+    ranked,
+    warnings,
+    rerankError,
+    timings,
+    ratings,
+  } = useSearchState();
 
-  useEffect(() => {
-    if (!imageFile) {
-      setPreviewUrl(null);
-      return;
-    }
-    const url = URL.createObjectURL(imageFile);
-    setPreviewUrl(url);
-    return () => URL.revokeObjectURL(url);
-  }, [imageFile]);
+  const { runSearch, rateProduct } = useSearchActions();
 
   async function handleSearch() {
-    if (!imageFile) {
-      setSearchError("Please choose an image first.");
-      return;
-    }
-
-    setSearchLoading(true);
-    setSearchError(null);
-
-    try {
-      const result = await searchProducts({
-        image: imageFile,
-        userPrompt,
-        llmConfig: getLlmConfigForRequest({ apiKey, llmConfig }),
-        retrievalConfig,
-      });
-      applySearchResult(result);
-    } catch (err) {
-      setSearchError(err instanceof Error ? err.message : "Search failed");
-    } finally {
-      setSearchLoading(false);
-    }
+    if (!imageFile) return;
+    await runSearch(imageFile, userPrompt);
   }
 
-  async function handleRate(productId: string, relevant: boolean) {
-    if (!lastSearchId) return;
-    setRating(productId, relevant);
-    try {
-      await rateResult({ searchId: lastSearchId, productId, relevant });
-    } catch (err) {
-      setSearchError(err instanceof Error ? err.message : "Failed to save rating");
-    }
-  }
+  const showEmptyResults = !searchLoading && lastSearchId && ranked.length === 0;
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">Furniture Vision Search</h1>
-        <p className="mt-2 max-w-2xl text-slate-600">
-          Upload a furniture photo, optionally refine with text, and get ranked catalog matches with
-          reasoning.
+    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
+      <section className="mb-8 max-w-3xl animate-fade-in">
+        <p className="text-sm font-semibold uppercase tracking-[0.14em] text-brand-700">
+          Image-based product search
         </p>
-      </div>
+        <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight text-stone-900 sm:text-5xl">
+          Find furniture that fits your photo
+        </h1>
+        <p className="mt-3 text-balance text-base leading-relaxed text-stone-600 sm:text-lg">
+          Upload a room photo, optionally describe what you want, and explore ranked catalog matches
+          with transparent scoring and rerank reasoning.
+        </p>
+      </section>
 
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <div className="space-y-6">
-          <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-            <label className="block text-sm font-medium text-slate-700">
-              OpenRouter API key
-              <input
-                type="password"
-                value={apiKey}
-                onChange={(event) => setApiKey(event.target.value)}
-                placeholder="sk-or-v1-… (memory only, not saved to disk)"
-                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none ring-indigo-500 focus:ring-2"
-              />
-            </label>
-            <p className="mt-1 text-xs text-slate-500">
-              Stored in memory for this session only — not saved to disk.
-            </p>
-          </section>
+      <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_340px]">
+        <div className="space-y-5">
+          <Card>
+            <CardHeader
+              title="Connection"
+              description="Your OpenRouter key stays in memory for this tab only."
+            />
+            <Input
+              label="OpenRouter API key"
+              type="password"
+              value={apiKey}
+              onChange={(event) => setApiKey(event.target.value)}
+              placeholder="sk-or-v1-…"
+              hint="Never written to disk or localStorage."
+              autoComplete="off"
+            />
+          </Card>
 
-          <ImageDropzone file={imageFile} previewUrl={previewUrl} onFileSelect={setImageFile} />
+          <Card padding="lg" className="space-y-5">
+            <CardHeader
+              title="Upload & search"
+              description="Drag a furniture photo or click to browse."
+            />
 
-          <section className="space-y-3">
-            <label className="block text-sm font-medium text-slate-700">
-              Optional prompt
-              <input
-                type="text"
-                value={userPrompt}
-                onChange={(event) => setUserPrompt(event.target.value)}
-                placeholder="e.g. walnut bookshelf with open shelves"
-                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none ring-indigo-500 focus:ring-2"
-              />
-            </label>
+            <ImageDropzone
+              file={imageFile}
+              previewUrl={previewUrl}
+              onFileSelect={setImageFile}
+              disabled={searchLoading}
+            />
 
-            <button
-              type="button"
+            <Input
+              label="Optional prompt"
+              value={userPrompt}
+              onChange={(event) => setUserPrompt(event.target.value)}
+              placeholder="e.g. walnut bookshelf with open shelves"
+              disabled={searchLoading}
+            />
+
+            <Button
               onClick={handleSearch}
               disabled={searchLoading || !imageFile}
-              className="rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+              loading={searchLoading}
+              className="w-full sm:w-auto"
             >
-              {searchLoading ? "Searching… (may take 10–30s, longer on first embed build)" : "Search catalog"}
-            </button>
-          </section>
+              {searchLoading ? "Searching catalog…" : "Search catalog"}
+            </Button>
+          </Card>
 
-          {searchError && (
-            <div className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
-              {searchError}
-            </div>
-          )}
-
+          {searchError && <Alert tone="error">{searchError}</Alert>}
+          {searchLoading && <SearchLoadingPanel />}
           <WarningsBanner warnings={warnings} rerankError={rerankError} />
 
-          {ranked.length > 0 && (
-            <section className="space-y-4">
-              <h2 className="text-xl font-semibold text-slate-900">Results</h2>
-              {ranked.map((product, index) => (
-                <ResultCard
-                  key={product.id}
-                  rank={index + 1}
-                  product={product}
-                  rating={ratings[product.id]}
-                  disabled={!lastSearchId || searchLoading}
-                  onRate={(relevant) => handleRate(product.id, relevant)}
-                />
-              ))}
-            </section>
+          {showEmptyResults && (
+            <Alert tone="info" title="No matches returned">
+              Try a clearer photo, adjust your prompt, or tune retrieval settings in Admin.
+            </Alert>
           )}
+
+          <ResultsList
+            ranked={ranked}
+            ratings={ratings}
+            lastSearchId={lastSearchId}
+            searchLoading={searchLoading}
+            onRate={(productId, relevant) => {
+              if (!lastSearchId) return;
+              void rateProduct(lastSearchId, productId, relevant);
+            }}
+          />
         </div>
 
         <FeaturesPanel visionFeatures={visionFeatures} timings={timings} />
