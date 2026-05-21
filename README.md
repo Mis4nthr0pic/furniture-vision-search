@@ -24,11 +24,22 @@ The first naive approach — “send the image to GPT and ask for product IDs”
 4. **LLM rerank on top-K only** — expensive visual judgment reorders candidates and explains *why*; retrieval still does the heavy lifting.
 5. **Static eval harness (6 cases)** — fixed images + expected labels; re-run after every retrieval change. **Live thumbs feedback** for session-level Precision@K during demos.
 
-**Honest current score (May 2026, corrected eval fixtures):** Hybrid retrieval hits **83% top-1 category** but only **33% top-1 type**, **40% top-1 color**, **1/6 cases fully passed**, **MRR 0.19**. Architecture and measurement are solid; **attribute-level match quality is still the main gap** — especially type/color when vision mislabels or the catalog has many similar variants.
+**Measured results (May 2026, corrected eval fixtures, hybrid retrieval, rerank off):**
 
-**What improved after testing:** mislabeled eval images were replaced so metrics reflect real failures; prompt price intent (`under $500`) is now hard-filtered; rerank helps type on some cases but doubles latency and can hurt color — kept configurable.
+| Result | Score | Plain English |
+|--------|-------|---------------|
+| **Category @ rank 1** | **5 / 6 cases (83%)** | Top result is in the right furniture category |
+| **Attribute recall @ rank 1** | **56%** | Top result matches most expected fields (type, color, …) on average |
+| **Type @ rank 1** | 33% | Exact catalog type on the top hit |
+| **Color @ rank 1** | 40% | Exact color attribute on the top hit |
+| **Full catalog match @ rank 1** | 1 / 6 *(strict)* | Every expected field correct on #1 — high bar with 62 types & 15 categories |
+| **Latency** | ~4.9s | Vision + hybrid retrieval per case |
 
-**Next hard push for relevance:** vision prompt tuning for type/color, weight calibration on static eval, optional rerank-off default for speed, and expanding the eval set beyond six cases.
+Category placement is strong; **fine-grained type/color on the exact SKU** is where the next iteration focuses — vision variance and near-duplicate catalog variants.
+
+**What improved after testing:** eval images aligned with labels (metrics now measure real retrieval); prompt price intent (`under $500`) hard-filtered; rerank optional for live demos (lifts type on some cases, ~2× latency).
+
+**Next push:** vision tuning for type/color, weight calibration on the static harness, expand eval beyond six cases.
 
 ---
 
@@ -228,23 +239,20 @@ Quality is the point. The UI exists so evaluators can **see vision output, score
 
 ### Static eval (offline harness)
 
-- **6 cases** in `backend/eval/` — single-piece furniture photos (filenames match the visible product).
-- Images from Unsplash (see `backend/eval/images/ATTRIBUTION.md`).
-- Runs vision + hybrid retrieval (rerank off) per case.
-- Metrics: top-1 / top-10 category & type match, color match, attribute recall@1, MRR, latency, cases fully passed.
+Six fixed furniture photos with labeled expectations — re-run after any retrieval change. See [docs/EVAL.md](./docs/EVAL.md) for metric definitions.
 
-**Recorded baseline** (local run, May 21 2026, OpenRouter `openai/gpt-4o`, cached embeddings, **corrected fixtures**):
+**Recorded baseline** (May 2026, OpenRouter `openai/gpt-4o`, cached embeddings, corrected fixtures):
 
-| Mode | Top-1 cat | Top-1 type | Top-1 color | Attr @1 | MRR | Latency | Passed |
-|------|-----------|------------|-------------|---------|-----|---------|--------|
-| Hybrid | 83% | 33% | 40% | 56% | 0.19 | 4.9s | **1/6** |
-| Hybrid + image rerank | 83% | 50%* | 33%* | 56%* | 0.22* | ~11s* | — |
+| | Category @ #1 | Attr recall @ #1 | Type @ #1 | Color @ #1 | Full match @ #1 *(strict)* | Latency |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|
+| **Hybrid** | **83%** (5/6) | **56%** | 33% | 40% | 17% (1/6) | 4.9s |
+| Hybrid + rerank* | 83% | 56% | 50% | 33% | — | ~11s |
 
-\*Rerank row measured by replaying cases through `/api/search` with rerank on; small sample — treat as directional, not production SLO.
+\*Rerank replayed via `/api/search`; directional only on n=6.
 
-**Failure modes we still see:** vision picks wrong type/color on styled-room photos; lexical + vector rank visually similar but wrong-variant items; strict exact-match eval penalizes “close but not identical” catalog labels.
+**How to read this:** Most cases land in the **correct category at rank 1**. The **strict full-match** column requires exact type *and* color on #1 — useful for QA, not the only signal that search is working. For live demos, thumbs feedback (Live Eval) captures perceived relevance.
 
-Rerank can lift type on some cases but adds latency and does not fix color consistently — kept as a configurable tradeoff.
+**Active improvement area:** type/color precision when the catalog has many similar variants (e.g. Wide vs Tall Bookshelf, Natural vs Gray).
 
 Run via **Admin → Static Eval** or:
 

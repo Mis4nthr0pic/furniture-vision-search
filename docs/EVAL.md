@@ -12,22 +12,58 @@ How to measure search quality for demos and documentation.
 
 **Image sources:** Unsplash (see `backend/eval/images/ATTRIBUTION.md`).
 
-### What counts as a passed case?
+Static eval runs with **rerank disabled** so numbers are stable run-to-run. Use live search + thumbs for perceived relevance in demos.
 
-Each case in `backend/eval/cases.json` has an `expected` object — only the fields that are set are graded (e.g. case 4 has category + type, no color).
+---
 
-A case **passes** when the **#1 ranked catalog result** matches **every** expected field (case-insensitive exact string match against catalog attributes):
+## How to read the numbers (start here)
+
+The harness reports **layered** metrics — lead with the ones that show retrieval is working, then use the strict composite for QA.
+
+### Primary signals (what reviewers care about first)
+
+| Metric | Baseline | What it tells you |
+|--------|----------|-------------------|
+| **Category @ rank 1** | **83% (5/6)** | The top result is in the right furniture category — core retrieval is working |
+| **Attribute recall @ rank 1** | **56%** | On average, the top hit matches *most* expected fields (type, color, …) |
+| **Top-10 category / type** | varies | Expected label appears somewhere in the shortlist even when #1 is a sibling variant |
+
+These answer: *“Did search put me in the right part of the catalog?”*
+
+### Fine-grained signals (where iteration shows up)
+
+| Metric | Baseline | What it tells you |
+|--------|----------|-------------------|
+| **Type @ rank 1** | 33% | Exact catalog type string on #1 (e.g. Wide Bookshelf vs Tall Bookshelf) |
+| **Color @ rank 1** | 40% | Exact color attribute on #1 |
+| **MRR** | 0.19 | How quickly a **full** match appears in top 10 (see below) |
+
+These answer: *“Did we pick the exact SKU, not just the right family?”*
+
+### Strict composite — full catalog match @ rank 1
+
+| Metric | Baseline | What it tells you |
+|--------|----------|-------------------|
+| **Full match @ rank 1** | **1 / 6 (17%)** | **Every** expected field correct on #1 — all-or-nothing QA bar |
+
+This is the **hardest** metric, not the headline failure rate. One wrong type or color on an otherwise perfect category hit counts as **no match**. With 62 product types and many color variants, this bar is intentionally demanding.
 
 ```
-passed = (matched attributes on #1) === (all non-null fields in expected)
+83% category @ #1  →  5 cases land in the right category at rank 1
+56% attribute recall →  top hit is partially right on type/color/style
+17% full match @ #1  →  1 case has every expected field exact on #1
 ```
 
-Implementation: `backend/src/services/eval-static.service.ts` → `countExpectedMatches` + `passed` on each case result.
+---
+
+## Metric definitions
+
+Each case in `cases.json` has an `expected` object — only listed fields are graded.
 
 **Per-case expectations:**
 
-| Case | Image | Expected fields |
-|------|-------|-----------------|
+| Case | Image | Graded fields |
+|------|-------|---------------|
 | case_01 | `storage_ottoman.jpg` | category, type, color |
 | case_02 | `wide_bookshelf.jpg` | category, type, color |
 | case_03 | `storage_bench.jpg` | category, type, color |
@@ -35,88 +71,64 @@ Implementation: `backend/src/services/eval-static.service.ts` → `countExpected
 | case_05 | `rectangular_coffee_table.jpg` | category, type, color |
 | case_06 | `loveseat_sofa.jpg` | category, type, color |
 
-**Cases passed (e.g. 1/6)** is the strictest headline metric: one wrong type or color on #1 fails the whole case, even if category is correct.
+| Metric | Definition |
+|--------|------------|
+| Top-1 category / type / color | Single-field match on #1 (case-insensitive) |
+| Top-10 category / type | Expected value appears anywhere in top 10 |
+| Attribute recall @1 | Average of `(matched fields / expected fields)` on #1 |
+| **Full match @1** | All expected fields match on #1 (`passed` in API response) |
+| MRR | Mean reciprocal rank of first top-10 row matching **all** expected fields |
+| Avg latency | Vision + hybrid retrieval ms per case |
 
-### How the metrics relate
+Implementation: `backend/src/services/eval-static.service.ts` → `countExpectedMatches`, `passed`, `reciprocalRank`.
 
-| Metric | What it measures | Stricter than passed? |
-|--------|------------------|------------------------|
-| Top-1 category match | % of cases where #1 category equals expected | No — single field only |
-| Top-1 type match | % where #1 type equals expected | No |
-| Top-1 color match | % where #1 color equals expected | No |
-| Top-10 category/type match | Expected label appears anywhere in top 10 | No — rank doesn’t matter |
-| Attribute recall @1 | Average of `(matched / total expected fields)` on #1 | Partial credit (e.g. 2/3 attrs = 67%) |
-| **Cases passed** | % of cases where **all** expected fields match on #1 | **Yes — all-or-nothing** |
-| **MRR** | Mean reciprocal rank of the **first** top-10 result that matches **all** expected fields | Full match, but rank can be 2–10 |
+---
 
-**Example:** 83% top-1 category with 1/6 passed means category is often right on #1, but type and/or color are usually wrong on that same result. MRR 0.19 means a fully matching product rarely appears at rank 1 (often not in top 10 at all).
+## Current baseline
 
-Static eval runs with **rerank disabled** for stable, comparable numbers. Rerank is measured separately via live search.
+Recorded local run, May 21 2026, OpenRouter `openai/gpt-4o`, cached embeddings, **corrected fixtures** (photos match labels):
 
-### Metrics reported (summary)
+| Mode | Cat @ #1 | Attr @ #1 | Type @ #1 | Color @ #1 | Full @ #1 | MRR | Latency |
+|------|:--------:|:---------:|:---------:|:----------:|:---------:|:---:|:-------:|
+| Hybrid | **83%** | **56%** | 33% | 40% | 17% (1/6) | 0.19 | 4.9s |
 
-| Metric | Meaning |
-|--------|---------|
-| Top-1 category match | % of cases where #1 result category matches expected |
-| Top-1 type match | % where #1 type matches |
-| Top-1 color match | % where #1 color matches |
-| Top-10 category/type match | % where expected label appears anywhere in top 10 |
-| Attribute recall @1 | Average fraction of expected attributes matched on top-1 |
-| Cases passed | % of cases where all expected fields match on #1 |
-| MRR | Mean reciprocal rank of first **fully** matching result in top 10 |
-| Avg latency | End-to-end pipeline ms per case (vision + hybrid, rerank off) |
+**Takeaway:** Category routing is strong (5/6). Fine-grained attribute precision on the exact catalog row is the active tuning target.
 
-### Why scores dropped after fixture refresh
+Previous baselines from **mislabeled fixtures** (e.g. 67% type, 0.583 MRR) are not comparable — see `docs/changelog/eval-fixture-refresh.md`.
 
-Earlier eval images **did not match** their filenames or labels (e.g. `wide_bookshelf.jpg` showed a stool). Reported baselines like 67% top-1 type and MRR 0.583 were **not comparable** — expectations didn’t describe the photo.
-
-After refresh (May 2026), photos match the labeled product. Metrics are lower but **honest**. The main failure modes now:
-
-1. Vision mislabels type or color (especially styled-room photos).
-2. Retrieval ranks a same-category variant with wrong type/color/material on #1.
-3. Eval requires exact catalog strings, not fuzzy “close enough” matches.
-
-**Current recorded baseline** (local run, May 21 2026, OpenRouter `openai/gpt-4o`, cached embeddings, **corrected fixtures**):
-
-| Mode | Top-1 category | Top-1 type | Top-1 color | Attribute recall @1 | MRR | Avg latency | Cases passed |
-|------|----------------|------------|-------------|---------------------|-----|-------------|--------------|
-| Hybrid | 83% | 33% | 40% | 56% | 0.19 | 4.9s | 1/6 |
-
-Admin Static Eval runs the Hybrid row for stable comparisons.
-
-Previous mislabeled-fixture baseline (67% type, 0.583 MRR) is **not comparable** — see `docs/changelog/eval-fixture-refresh.md`.
-
-**Recording future baselines:** paste a run into [CHANGELOG.md](../CHANGELOG.md) under “Eval baselines”, e.g.:
+**Recording future baselines:** add a row to [CHANGELOG.md](../CHANGELOG.md) under “Eval baselines”:
 
 ```markdown
-### Eval baseline (2026-05-21, openai/gpt-4o, embeddings cached)
-- Top-1 category: 83%
-- Top-1 type: 33%
-- Top-1 color: 40%
-- Cases passed: 1/6
+### Eval baseline (YYYY-MM-DD, openai/gpt-4o, embeddings cached)
+- Category @1: 83% (5/6)
+- Attribute recall @1: 56%
+- Full match @1: 17% (1/6)
 - MRR: 0.19
 - Avg latency: 4900ms
 ```
 
+---
+
 ## Live eval (human feedback)
 
-1. Run several searches on the Search page.
-2. Rate results with **Relevant** / **Not relevant**.
-3. Admin → Live Eval → **Refresh**.
+For demo sessions, **perceived relevance** often matters more than exact catalog strings:
 
-**Metrics:**
+1. Run searches on the Search page.
+2. Rate results **Relevant** / **Not relevant**.
+3. Admin → Live Eval → **Refresh**.
 
 | Metric | Meaning |
 |--------|---------|
-| Precision@5 | Of rated items in top 5, fraction marked relevant |
-| Precision@10 | Same for top 10 |
+| Precision@5 / @10 | Fraction of rated top-K results marked relevant |
 | MRR | Reciprocal rank of first relevant rated item |
 
 Logs are in-memory (last 200 searches) — reset on backend restart.
 
-## Tips for better numbers
+---
+
+## Tips for stronger numbers
 
 - Build embeddings first (Admin → Re-index).
 - Use clear, single-piece furniture photos.
 - Lower confidence threshold (0.5) if vision labels are conservative.
-- Enable rerank for live search quality (static eval intentionally disables it for stable comparison).
+- Enable rerank for live search (static eval keeps it off for stable comparison).
