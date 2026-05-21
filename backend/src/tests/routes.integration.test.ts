@@ -14,10 +14,21 @@ describe("HTTP routes", () => {
     resetRateLimitersForTests();
   });
 
-  it("GET /api/health returns JSON", async () => {
+  it("GET /api/health returns JSON with bootstrap fields", async () => {
     const res = await request(app).get("/api/health");
     expect(res.status).toBe(200);
-    expect(res.body).toHaveProperty("ok");
+    expect(res.body).toMatchObject({
+      ok: expect.any(Boolean),
+      productCount: expect.any(Number),
+      lexicalReady: expect.any(Boolean),
+      embeddingsReady: expect.any(Boolean),
+    });
+  });
+
+  it("POST /api/admin/reindex with empty llmConfig returns 400", async () => {
+    const res = await request(app).post("/api/admin/reindex").send({ llmConfig: {} });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe("VALIDATION_ERROR");
   });
 
   it("POST /api/search without image returns 400", async () => {
