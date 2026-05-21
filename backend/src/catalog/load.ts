@@ -1,7 +1,8 @@
 import type { Db } from "mongodb";
+import { config } from "../config.js";
 import { enrichProducts } from "./enrich.js";
 import { deriveCounts, deriveVocab } from "./vocab.js";
-import type { CatalogMeta, EnrichedProduct, Product } from "../types.js";
+import type { EnrichedProduct, Product } from "../types.js";
 import { logger } from "../utils/logger.js";
 
 let cachedProducts: EnrichedProduct[] | null = null;
@@ -25,7 +26,7 @@ function toProduct(doc: Record<string, unknown>): Product {
 export async function loadCatalog(db: Db): Promise<EnrichedProduct[]> {
   if (cachedProducts) return cachedProducts;
 
-  const docs = await db.collection("products").find({}).toArray();
+  const docs = await db.collection(config.mongodb.productsCollection).find({}).toArray();
   const products = docs.map((doc) => toProduct(doc as Record<string, unknown>));
   cachedProducts = enrichProducts(products);
   cachedVocab = deriveVocab(cachedProducts);
@@ -55,21 +56,6 @@ export function getCatalogVocab() {
     throw new Error("Catalog not loaded");
   }
   return { vocab: cachedVocab, counts: cachedCounts };
-}
-
-export function getCatalogMeta(): CatalogMeta {
-  const products = getCatalogProducts();
-  const { vocab, counts } = getCatalogVocab();
-
-  return {
-    ...vocab,
-    productCount: products.length,
-    categoryCounts: counts.categoryCounts,
-    typeCounts: counts.typeCounts,
-    embeddingsReady: false,
-    embeddingsItemCount: 0,
-    embeddingsLastIndexed: null,
-  };
 }
 
 export function clearCatalogCache(): void {

@@ -2,6 +2,7 @@ import { config } from "../config.js";
 import type { LLMConfig } from "../schemas/llm.js";
 import type { ChatMessage, ImageInput, LLMClient } from "./client.js";
 import { AppError } from "../utils/errors.js";
+import { extractJsonFromText } from "../utils/json-parse.js";
 
 interface OpenAIChatResponse {
   choices?: Array<{ message?: { content?: string | null } }>;
@@ -28,9 +29,9 @@ function buildHeaders(llmConfig: LLMConfig): Record<string, string> {
     Authorization: `Bearer ${llmConfig.apiKey}`,
   };
 
-  if (llmConfig.baseUrl.includes("openrouter.ai")) {
-    headers["HTTP-Referer"] = config.openRouterReferer;
-    headers["X-Title"] = config.openRouterTitle;
+  if (llmConfig.baseUrl.includes(config.openRouter.host)) {
+    headers["HTTP-Referer"] = config.openRouter.referer;
+    headers["X-Title"] = config.openRouter.title;
   }
 
   return headers;
@@ -47,6 +48,7 @@ async function postJson<T>(
       method: "POST",
       headers: buildHeaders(llmConfig),
       body: JSON.stringify(body),
+      signal: AbortSignal.timeout(config.llm.requestTimeoutMs),
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Network request failed";
@@ -89,7 +91,9 @@ function extractChatContent(response: OpenAIChatResponse): string {
 
 export function createOpenAICompatibleClient(llmConfig: LLMConfig): LLMClient {
   const baseUrl = normalizeBaseUrl(llmConfig.baseUrl);
-  const embedBaseUrl = normalizeBaseUrl(llmConfig.embedBaseUrl ?? llmConfig.baseUrl);
+  const embedBaseUrl = normalizeBaseUrl(
+    llmConfig.embedBaseUrl ?? config.llm.embedBaseUrl ?? llmConfig.baseUrl,
+  );
 
   return {
     async vision({ imageBase64, mimeType, systemPrompt, userPrompt }) {
@@ -111,7 +115,7 @@ export function createOpenAICompatibleClient(llmConfig: LLMConfig): LLMClient {
       });
 
       const text = extractChatContent(response);
-      return JSON.parse(text) as unknown;
+      return extractJsonFromText(text);
     },
 
     async embed({ input }) {

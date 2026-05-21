@@ -2,21 +2,15 @@ import { Router } from "express";
 import { z } from "zod";
 import { multerErrorHandler, upload } from "../middleware/upload.js";
 import { parseLLMConfig } from "../schemas/llm.js";
-import { extractVisionFeatures } from "../services/vision.js";
+import { VisionService } from "../services/vision.service.js";
 import { AppError } from "../utils/errors.js";
+import { parseBody, parseJsonField } from "../utils/validation.js";
 
 const debugBodySchema = z.object({
   llmConfig: z.unknown(),
   userPrompt: z.string().optional(),
   systemPrompt: z.string().optional(),
 });
-
-function parseJsonField(value: unknown): unknown {
-  if (typeof value === "string") {
-    return JSON.parse(value);
-  }
-  return value;
-}
 
 export const visionRouter = Router();
 
@@ -42,11 +36,11 @@ visionRouter.post("/debug", (req, res, next) => {
           systemPrompt: req.body.systemPrompt,
         };
 
-    const payload = debugBodySchema.parse(rawPayload);
+    const payload = parseBody(debugBodySchema, rawPayload);
     const llmConfig = parseLLMConfig(payload.llmConfig);
     const mimeType = req.file.mimetype || "image/jpeg";
 
-    const features = await extractVisionFeatures({
+    const features = await VisionService.extractFeatures({
       imageBuffer: req.file.buffer,
       mimeType,
       llmConfig,
@@ -56,10 +50,6 @@ visionRouter.post("/debug", (req, res, next) => {
 
     res.json({ visionFeatures: features });
   } catch (err) {
-    if (err instanceof z.ZodError) {
-      next(new AppError("VALIDATION_ERROR", err.errors[0]?.message ?? "Invalid request", 400));
-      return;
-    }
     next(err);
   }
 });

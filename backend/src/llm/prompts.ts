@@ -1,4 +1,3 @@
-import { config } from "../config.js";
 import type { CatalogVocab } from "../types.js";
 
 export function buildVisionSystemPrompt(vocab: CatalogVocab): string {
@@ -50,7 +49,3 @@ Output ONLY valid JSON:
 
 Score by visual similarity: form, proportions, color, style, material appearance, ornamentation.
 Prefer candidates that match the image over text-only attribute overlap.`;
-
-export function buildDefaultVisionSystemPrompt(vocab: CatalogVocab): string {
-  return buildVisionSystemPrompt(vocab);
-}

@@ -9,6 +9,8 @@ cp .env.example .env
 docker compose up --build
 ```
 
+All backend tunables (MongoDB, upload limits, LLM defaults, CORS) live in `.env` — see `.env.example`. No secrets or connection strings are hardcoded in source.
+
 - Frontend: http://localhost:5173
 - Backend health: http://localhost:4000/api/health
 

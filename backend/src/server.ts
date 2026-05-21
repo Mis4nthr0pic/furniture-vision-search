@@ -1,43 +1,26 @@
 import cors from "cors";
 import express, { type NextFunction, type Request, type Response } from "express";
-import { initLexicalIndex } from "./catalog/lexical.js";
-import { loadCatalog } from "./catalog/load.js";
-import { connectMongo } from "./db/mongo.js";
+import { bootstrapApplication } from "./app/bootstrap.js";
+import { getAppState } from "./app/state.js";
+import { config } from "./config.js";
 import { adminRouter } from "./routes/admin.js";
 import { lexicalRouter } from "./routes/lexical.js";
 import { visionRouter } from "./routes/vision.js";
 import { AppError } from "./utils/errors.js";
 import { logger } from "./utils/logger.js";
 
-export interface AppState {
-  productCount: number;
-  lexicalReady: boolean;
-  embeddingsReady: boolean;
-  mongoOk: boolean;
-}
-
-let appState: AppState = {
-  productCount: 0,
-  lexicalReady: false,
-  embeddingsReady: false,
-  mongoOk: false,
-};
-
-export function getAppState(): AppState {
-  return appState;
-}
-
-export function setAppState(partial: Partial<AppState>): void {
-  appState = { ...appState, ...partial };
-}
-
 export function createServer(): express.Application {
   const app = express();
 
-  app.use(cors());
-  app.use(express.json({ limit: "1mb" }));
+  app.use(
+    cors({
+      origin: config.cors.origin === "*" ? true : config.cors.origin,
+    }),
+  );
+  app.use(express.json({ limit: config.http.jsonBodyLimit }));
 
   app.get("/api/health", (_req, res) => {
+    const appState = getAppState();
     res.json({
       ok: appState.mongoOk,
       productCount: appState.productCount,
@@ -65,18 +48,6 @@ export function createServer(): express.Application {
   return app;
 }
 
-export async function bootstrap(): Promise<void> {
-  try {
-    const db = await connectMongo();
-    const products = await loadCatalog(db);
-    initLexicalIndex(products);
-    setAppState({
-      mongoOk: true,
-      productCount: products.length,
-      lexicalReady: true,
-    });
-  } catch (err) {
-    logger.error({ err }, "Failed to bootstrap catalog — health will report ok=false");
-    setAppState({ mongoOk: false, productCount: 0 });
-  }
+export async function startServer(): Promise<void> {
+  await bootstrapApplication();
 }

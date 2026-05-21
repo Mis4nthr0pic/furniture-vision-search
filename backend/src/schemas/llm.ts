@@ -1,11 +1,14 @@
 import { z } from "zod";
+import { getLLMDefaults } from "../config.js";
+
+const llmDefaults = getLLMDefaults();
 
 export const llmConfigSchema = z.object({
   apiKey: z.string().min(1, "API key is required"),
-  baseUrl: z.string().url().default("https://api.openai.com/v1"),
-  visionModel: z.string().default("gpt-4o"),
-  embedModel: z.string().default("text-embedding-3-small"),
-  chatModel: z.string().default("gpt-4o"),
+  baseUrl: z.string().url().default(llmDefaults.baseUrl),
+  visionModel: z.string().default(llmDefaults.visionModel),
+  embedModel: z.string().default(llmDefaults.embedModel),
+  chatModel: z.string().default(llmDefaults.chatModel),
   embedBaseUrl: z.string().url().optional(),
 });
 
@@ -36,15 +39,9 @@ export const visionFeaturesSchema = z.object({
 
 export type VisionFeatures = z.infer<typeof visionFeaturesSchema>;
 
-export const defaultLLMConfigValues = {
-  baseUrl: "https://api.openai.com/v1",
-  visionModel: "gpt-4o",
-  embedModel: "text-embedding-3-small",
-  chatModel: "gpt-4o",
-} as const;
-
 export function parseLLMConfig(input: unknown): LLMConfig {
-  return llmConfigSchema.parse(input);
+  const partial = typeof input === "object" && input !== null ? input : {};
+  return llmConfigSchema.parse({ ...llmDefaults, ...partial });
 }
 
 export function parseVisionFeatures(input: unknown): VisionFeatures {
