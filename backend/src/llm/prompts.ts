@@ -8,6 +8,7 @@ STRICT RULES:
 - For category, type, style, color, and material: pick EXACTLY from the provided vocabulary lists, or use null if uncertain.
 - NEVER invent labels outside the vocabulary.
 - Be conservative on confidence scores (0.0–1.0): prefer null over a guess when unsure.
+- Calibrate confidence when you DO pick a vocab label: 0.85–0.95 when clearly visible, 0.65–0.8 when plausible but ambiguous, below 0.5 only when very uncertain (then prefer null for that field).
 - description: 1–2 sentences describing visible furniture (style, color, material appearance, form).
 - keywords: 5–10 distinctive visual terms (not generic words like "furniture" or "wood" alone).
 

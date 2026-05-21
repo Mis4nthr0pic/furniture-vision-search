@@ -1,6 +1,12 @@
 import { memo } from "react";
 import type { SearchTimings, VisionFeatures } from "../../types";
 import { formatMs } from "../../utils/format";
+import {
+  confidenceTone,
+  confidenceToneClass,
+  formatConfidencePercent,
+  isLowVisionConfidence,
+} from "../../utils/vision";
 import { Badge } from "../ui/Badge";
 import { Card, CardHeader } from "../ui/Card";
 
@@ -28,26 +34,46 @@ export const FeaturesPanel = memo(function FeaturesPanel({
   }
 
   const attributes = [
-    ["Category", visionFeatures.category],
-    ["Type", visionFeatures.type],
-    ["Style", visionFeatures.style],
-    ["Color", visionFeatures.color],
-    ["Material", visionFeatures.material],
+    ["Category", visionFeatures.category, visionFeatures.confidence.category],
+    ["Type", visionFeatures.type, visionFeatures.confidence.type],
+    ["Style", visionFeatures.style, visionFeatures.confidence.style],
+    ["Color", visionFeatures.color, visionFeatures.confidence.color],
+    ["Material", visionFeatures.material, null],
   ] as const;
+
+  const lowConfidence = isLowVisionConfidence(visionFeatures);
 
   return (
     <Card className="sticky top-24 animate-fade-in">
       <CardHeader title="Vision analysis" description="Catalog-aware extraction" />
+
+      {lowConfidence && (
+        <p className="mb-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-relaxed text-amber-950">
+          Extraction confidence is low — category/type filters won&apos;t narrow the catalog. Ranking
+          still uses description, keywords, vectors, and rerank. Try a clearer photo or lower{" "}
+          <strong>Confidence threshold</strong> in Admin.
+        </p>
+      )}
 
       <p className="rounded-xl bg-brand-50 px-3 py-2.5 text-sm leading-relaxed text-stone-700">
         {visionFeatures.description}
       </p>
 
       <dl className="mt-4 space-y-2">
-        {attributes.map(([label, value]) => (
+        {attributes.map(([label, value, confidence]) => (
           <div key={label} className="flex items-center justify-between gap-3 text-sm">
             <dt className="text-stone-500">{label}</dt>
-            <dd className="font-medium text-stone-900">{value ?? "—"}</dd>
+            <dd className="flex items-center gap-2 font-medium text-stone-900">
+              <span>{value ?? "—"}</span>
+              {confidence != null && (
+                <span
+                  className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${confidenceToneClass[confidenceTone(confidence)]}`}
+                  title="Model confidence for this field (not match quality)"
+                >
+                  {formatConfidencePercent(confidence)}
+                </span>
+              )}
+            </dd>
           </div>
         ))}
       </dl>

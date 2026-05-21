@@ -57,6 +57,7 @@ export const ResultCard = memo(function ResultCard({
                 rerank {product.rerankScore.toFixed(2)}
               </p>
             )}
+            <p className="text-[10px] text-stone-400">hybrid score</p>
           </button>
           <p className="mt-1 text-sm font-medium text-stone-700">{formatPrice(product.price)}</p>
         </div>
