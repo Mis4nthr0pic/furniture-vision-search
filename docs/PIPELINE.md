@@ -33,11 +33,11 @@ Closes #6"
 | 4 | [#5](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/5) ✅ |
 | 5 | [#6](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/6) ✅ |
 | 6 | [#7](https://github.com/Mis4anthr0pic/furniture-vision-search/issues/7) |
-| 7 | [#8](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/8) |
-| 8 | [#9](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/9) |
-| 9 | [#10](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/10) |
-| 10 | [#11](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/11) |
-| 11 | [#12](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/12) |
+| 7 | [#8](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/8) ✅ |
+| 8 | [#9](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/9) ✅ |
+| 9 | [#10](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/10) ✅ |
+| 10 | [#11](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/11) ✅ |
+| 11 | [#12](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/12) ✅ |
 | 12 | [#13](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/13) |
 | 13 | [#14](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/14) |
 | 14 | [#15](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/15) |
