@@ -1,14 +1,14 @@
 import type { LLMConfig, VisionFeatures } from "../schemas/llm.js";
 import type { RetrievalConfig } from "../schemas/retrieval.js";
 import { EmbeddingsService } from "./embeddings.service.js";
+import { LiveEvalService } from "./eval-live.service.js";
 import {
-  RerankService,
   type DiscardedSearchResult,
   type RankedSearchResult,
+  RerankService,
 } from "./rerank.service.js";
-import { retrieveTopK, toRankedResult, type Retriever } from "./retrieval.service.js";
+import { type Retriever, retrieveTopK, toRankedResult } from "./retrieval.service.js";
 import { VisionService } from "./vision.service.js";
-import { LiveEvalService } from "./eval-live.service.js";
 
 export interface SearchTimings {
   visionMs: number;
@@ -48,8 +48,7 @@ export const SearchService = {
     });
     const visionMs = Date.now() - visionStarted;
 
-    const retriever =
-      args.retriever ?? (await EmbeddingsService.ensureReady(args.llmConfig));
+    const retriever = args.retriever ?? (await EmbeddingsService.ensureReady(args.llmConfig));
 
     const retrievalStarted = Date.now();
     const { results, warnings: retrievalWarnings } = await retrieveTopK({

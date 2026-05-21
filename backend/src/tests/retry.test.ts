@@ -19,9 +19,9 @@ describe("retry utils", () => {
   });
 
   it("prefers Retry-After delay when provided", () => {
-    expect(
-      computeRetryDelayMs({ attempt: 1, baseMs: 1000, maxMs: 5000, retryAfterMs: 3500 }),
-    ).toBe(3500);
+    expect(computeRetryDelayMs({ attempt: 1, baseMs: 1000, maxMs: 5000, retryAfterMs: 3500 })).toBe(
+      3500,
+    );
   });
 
   it("detects rate limit errors", () => {

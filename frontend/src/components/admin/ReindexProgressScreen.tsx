@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { EmbeddingsProgress } from "../../types";
+import { cn } from "../../utils/format";
 import {
   formatReindexStatusLine,
   getActiveStepIndex,
@@ -7,7 +8,6 @@ import {
   getReindexProgressPercent,
   reindexSteps,
 } from "../../utils/reindex";
-import { cn } from "../../utils/format";
 import { Button } from "../ui/Button";
 
 interface ReindexProgressScreenProps {
@@ -146,8 +146,8 @@ export function ReindexProgressScreen({
           <p className="mt-3 min-h-[1.25rem] text-sm text-stone-600">{statusLine}</p>
           {progress && progress.total > 0 && !isError && (
             <p className="mt-1 text-xs text-stone-400">
-              Batch progress: {progress.current.toLocaleString()} / {progress.total.toLocaleString()}{" "}
-              products
+              Batch progress: {progress.current.toLocaleString()} /{" "}
+              {progress.total.toLocaleString()} products
             </p>
           )}
         </div>

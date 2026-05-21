@@ -49,9 +49,9 @@ export const FeaturesPanel = memo(function FeaturesPanel({
 
       {lowConfidence && (
         <p className="mb-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-relaxed text-amber-950">
-          Extraction confidence is low — category/type filters won&apos;t narrow the catalog. Ranking
-          still uses description, keywords, vectors, and rerank. Try a clearer photo or lower{" "}
-          <strong>Confidence threshold</strong> in Admin.
+          Extraction confidence is low — category/type filters won&apos;t narrow the catalog.
+          Ranking still uses description, keywords, vectors, and rerank. Try a clearer photo or
+          lower <strong>Confidence threshold</strong> in Admin.
         </p>
       )}
 

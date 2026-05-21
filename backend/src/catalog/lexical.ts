@@ -1,9 +1,9 @@
 import MiniSearch from "minisearch";
 import { config } from "../config.js";
-import { getCatalogProducts } from "./load.js";
 import type { EnrichedProduct } from "../types.js";
-import { tokenize } from "../utils/tokenize.js";
 import { logger } from "../utils/logger.js";
+import { tokenize } from "../utils/tokenize.js";
+import { getCatalogProducts } from "./load.js";
 
 export interface LexicalSearchResult {
   id: string;
@@ -88,7 +88,10 @@ function normalizeScores(
   }));
 }
 
-export function searchLexical(query: string, limit = config.lexical.defaultLimit): LexicalSearchResult[] {
+export function searchLexical(
+  query: string,
+  limit = config.lexical.defaultLimit,
+): LexicalSearchResult[] {
   if (!index || !productById) {
     throw new Error("Lexical index not initialized");
   }

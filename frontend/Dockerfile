@@ -1,7 +1,7 @@
 FROM node:22-alpine AS builder
 WORKDIR /app
 COPY package.json package-lock.json* ./
-RUN npm ci 2>/dev/null || npm install
+RUN npm ci
 COPY index.html vite.config.ts tsconfig.json tailwind.config.js postcss.config.js ./
 COPY src ./src
 RUN npm run build

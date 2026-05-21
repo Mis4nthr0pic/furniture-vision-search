@@ -1,14 +1,14 @@
-import { defaultScoreWeights } from "../../store";
 import { useAdminConfig } from "../../hooks/useAdminConfig";
 import { useReindex } from "../../hooks/useReindex";
-import { ReindexProgressScreen } from "./ReindexProgressScreen";
+import { defaultScoreWeights } from "../../store";
+import type { ScoreWeights } from "../../types";
 import { Alert } from "../ui/Alert";
 import { Button } from "../ui/Button";
 import { Card, CardHeader } from "../ui/Card";
 import { Input } from "../ui/Input";
 import { Select } from "../ui/Select";
 import { TextArea } from "../ui/TextArea";
-import type { ScoreWeights } from "../../types";
+import { ReindexProgressScreen } from "./ReindexProgressScreen";
 
 const modelOptions = [
   { value: "openai/gpt-4o", label: "openai/gpt-4o" },
@@ -40,8 +40,14 @@ export function ConfigTab() {
     resetToDefaults,
   } = useAdminConfig();
 
-  const { progress, running, error: reindexError, progressOpen, startReindex, dismissProgress } =
-    useReindex();
+  const {
+    progress,
+    running,
+    error: reindexError,
+    progressOpen,
+    startReindex,
+    dismissProgress,
+  } = useReindex();
   const weights = { ...defaultScoreWeights, ...retrievalConfig.weights };
 
   return (
@@ -63,7 +69,10 @@ export function ConfigTab() {
       </Card>
 
       <Card>
-        <CardHeader title="Models" description="Vision, chat/rerank, and embedding models via OpenRouter." />
+        <CardHeader
+          title="Models"
+          description="Vision, chat/rerank, and embedding models via OpenRouter."
+        />
         <div className="grid gap-4 sm:grid-cols-2">
           <Select
             label="Vision model"
@@ -227,7 +236,9 @@ export function ConfigTab() {
             Re-index catalog
           </Button>
           {progress?.phase === "done" && !running && (
-            <span className="text-sm font-medium text-emerald-700">Last run completed successfully</span>
+            <span className="text-sm font-medium text-emerald-700">
+              Last run completed successfully
+            </span>
           )}
         </div>
         {reindexError && !progressOpen && (

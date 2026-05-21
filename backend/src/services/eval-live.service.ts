@@ -85,7 +85,11 @@ export const LiveEvalService = {
     }
 
     if (!log.resultIds.includes(args.productId)) {
-      throw new AppError("PRODUCT_NOT_IN_RESULTS", "Product was not in this search result set", 400);
+      throw new AppError(
+        "PRODUCT_NOT_IN_RESULTS",
+        "Product was not in this search result set",
+        400,
+      );
     }
 
     log.ratings[args.productId] = args.relevant;

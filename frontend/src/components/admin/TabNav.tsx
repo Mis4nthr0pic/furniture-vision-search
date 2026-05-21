@@ -9,6 +9,10 @@ const tabs: Array<{ id: AdminTab; label: string }> = [
   { id: "catalog", label: "Catalog Meta" },
 ];
 
+export function tabPanelId(tab: AdminTab): string {
+  return `admin-tabpanel-${tab}`;
+}
+
 export function TabNav({
   active,
   onChange,
@@ -17,11 +21,19 @@ export function TabNav({
   onChange: (tab: AdminTab) => void;
 }) {
   return (
-    <div className="flex flex-wrap gap-1 rounded-xl bg-white/80 p-1 ring-1 ring-surface-border">
+    <div
+      role="tablist"
+      aria-label="Admin sections"
+      className="flex flex-wrap gap-1 rounded-xl bg-white/80 p-1 ring-1 ring-surface-border"
+    >
       {tabs.map((tab) => (
         <button
           key={tab.id}
+          id={`admin-tab-${tab.id}`}
           type="button"
+          role="tab"
+          aria-selected={active === tab.id}
+          aria-controls={tabPanelId(tab.id)}
           onClick={() => onChange(tab.id)}
           className={cn(
             "rounded-lg px-3.5 py-2 text-sm font-medium transition",

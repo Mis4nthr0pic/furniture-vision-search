@@ -1,6 +1,6 @@
+import { existsSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { loadEvalCases, resolveEvalImagePath } from "../services/eval-static.service.js";
-import { existsSync } from "node:fs";
 
 describe("static eval cases", () => {
   it("loads 6 cases from cases.json", () => {

@@ -1,8 +1,8 @@
 import {
+  type LexicalSearchResult,
   initLexicalIndex,
   isLexicalReady,
   searchLexical,
-  type LexicalSearchResult,
 } from "../catalog/lexical.js";
 import { config } from "../config.js";
 import type { EnrichedProduct } from "../types.js";

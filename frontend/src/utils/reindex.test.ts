@@ -1,10 +1,6 @@
 import { describe, expect, it } from "vitest";
-import {
-  formatReindexStatusLine,
-  getActiveStepIndex,
-  getReindexProgressPercent,
-} from "./reindex";
 import type { EmbeddingsProgress } from "../types";
+import { formatReindexStatusLine, getActiveStepIndex, getReindexProgressPercent } from "./reindex";
 
 describe("reindex utils", () => {
   it("computes percent from current and total", () => {
@@ -22,8 +18,8 @@ describe("reindex utils", () => {
   });
 
   it("formats status line with counts", () => {
-    expect(
-      formatReindexStatusLine({ phase: "embedding", current: 100, total: 2500 }),
-    ).toBe("100 of 2,500 products embedded");
+    expect(formatReindexStatusLine({ phase: "embedding", current: 100, total: 2500 })).toBe(
+      "100 of 2,500 products embedded",
+    );
   });
 });

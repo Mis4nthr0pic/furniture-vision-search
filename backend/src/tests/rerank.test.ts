@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { parseRerankResponse } from "../schemas/rerank.js";
-import { extractJsonFromText } from "../utils/json-parse.js";
 import { applyRerankOrder } from "../services/rerank.service.js";
+import { extractJsonFromText } from "../utils/json-parse.js";
 
 const candidates = [
   {

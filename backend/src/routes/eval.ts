@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { z } from "zod";
-import { createRateLimiter } from "../middleware/rate-limit.js";
 import { config } from "../config.js";
+import { createRateLimiter } from "../middleware/rate-limit.js";
 import { parseLLMConfig } from "../schemas/llm.js";
 import { parseRetrievalConfig } from "../schemas/retrieval.js";
 import { LiveEvalService } from "../services/eval-live.service.js";

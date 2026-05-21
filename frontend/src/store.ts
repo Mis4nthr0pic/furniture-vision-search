@@ -59,6 +59,7 @@ interface AppState {
   setSearchError: (error: string | null) => void;
   applySearchResult: (result: SearchResponse) => void;
   setRating: (productId: string, relevant: boolean) => void;
+  clearRating: (productId: string) => void;
   resetSearch: () => void;
 }
 
@@ -114,6 +115,11 @@ export const useStore = create<AppState>((set) => ({
     set((state) => ({
       ratings: { ...state.ratings, [productId]: relevant },
     })),
+  clearRating: (productId) =>
+    set((state) => {
+      const { [productId]: _removed, ...ratings } = state.ratings;
+      return { ratings };
+    }),
   resetSearch: () =>
     set({
       searchLoading: false,

@@ -17,8 +17,12 @@ const debugBodySchema = z.object({
 
 export const lexicalRouter = Router();
 
-lexicalRouter.post("/debug", (req, res) => {
-  const { query, limit } = parseBody(debugBodySchema, req.body);
-  const results = LexicalService.debugSearch(query, limit);
-  res.json({ query, count: results.length, results });
+lexicalRouter.post("/debug", async (req, res, next) => {
+  try {
+    const { query, limit } = parseBody(debugBodySchema, req.body);
+    const results = LexicalService.debugSearch(query, limit);
+    res.json({ query, count: results.length, results });
+  } catch (err) {
+    next(err);
+  }
 });

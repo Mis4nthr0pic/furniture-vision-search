@@ -1,8 +1,5 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useObjectUrl } from "../hooks/useObjectUrl";
-import { useHasApiKey } from "../hooks/useAdminConfig";
-import { useSearchActions, useSearchState } from "../hooks/useSearch";
 import { FeaturesPanel } from "../components/search/FeaturesPanel";
 import { ImageDropzone } from "../components/search/ImageDropzone";
 import { ResultsList } from "../components/search/ResultsList";
@@ -12,6 +9,9 @@ import { Alert } from "../components/ui/Alert";
 import { Button } from "../components/ui/Button";
 import { Card, CardHeader } from "../components/ui/Card";
 import { Input } from "../components/ui/Input";
+import { useHasApiKey } from "../hooks/useAdminConfig";
+import { useObjectUrl } from "../hooks/useObjectUrl";
+import { useSearchActions, useSearchState } from "../hooks/useSearch";
 
 export function SearchPage() {
   const [imageFile, setImageFile] = useState<File | null>(null);

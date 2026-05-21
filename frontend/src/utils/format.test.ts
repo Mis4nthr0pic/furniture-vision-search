@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { formatMs, formatPrice, formatScoreBreakdown } from "./format";
 import type { RankedProduct } from "../types";
+import { formatMs, formatPrice, formatScoreBreakdown } from "./format";
 
 const product: RankedProduct = {
   id: "1",

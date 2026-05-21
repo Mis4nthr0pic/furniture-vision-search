@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { LiveEvalService } from "../services/eval-live.service.js";
 import type { VisionFeatures } from "../schemas/llm.js";
 import { parseRetrievalConfig } from "../schemas/retrieval.js";
+import { LiveEvalService } from "../services/eval-live.service.js";
 
 const vision: VisionFeatures = {
   category: "Bookshelves",

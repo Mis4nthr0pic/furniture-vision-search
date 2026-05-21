@@ -8,6 +8,16 @@ import type {
   StaticEvalResponse,
 } from "../types";
 
+function serializeLlmConfig(llmConfig: LLMConfig) {
+  return {
+    apiKey: llmConfig.apiKey,
+    baseUrl: llmConfig.baseUrl,
+    visionModel: llmConfig.visionModel,
+    chatModel: llmConfig.chatModel,
+    embedModel: llmConfig.embedModel,
+  };
+}
+
 async function parseJson<T>(response: Response): Promise<T> {
   const data = (await response.json()) as T | { error?: { message?: string } };
   if (!response.ok) {
@@ -29,13 +39,7 @@ export async function searchProducts(args: {
     "payload",
     JSON.stringify({
       userPrompt: args.userPrompt?.trim() || undefined,
-      llmConfig: {
-        apiKey: args.llmConfig.apiKey,
-        baseUrl: args.llmConfig.baseUrl,
-        visionModel: args.llmConfig.visionModel,
-        chatModel: args.llmConfig.chatModel,
-        embedModel: args.llmConfig.embedModel,
-      },
+      llmConfig: serializeLlmConfig(args.llmConfig),
       retrievalConfig: args.retrievalConfig,
     }),
   );
@@ -72,13 +76,7 @@ export async function triggerReindex(llmConfig: LLMConfig): Promise<void> {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      llmConfig: {
-        apiKey: llmConfig.apiKey,
-        baseUrl: llmConfig.baseUrl,
-        visionModel: llmConfig.visionModel,
-        chatModel: llmConfig.chatModel,
-        embedModel: llmConfig.embedModel,
-      },
+      llmConfig: serializeLlmConfig(llmConfig),
     }),
   });
 
@@ -115,13 +113,7 @@ export async function runStaticEval(args: {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      llmConfig: {
-        apiKey: args.llmConfig.apiKey,
-        baseUrl: args.llmConfig.baseUrl,
-        visionModel: args.llmConfig.visionModel,
-        chatModel: args.llmConfig.chatModel,
-        embedModel: args.llmConfig.embedModel,
-      },
+      llmConfig: serializeLlmConfig(args.llmConfig),
       retrievalConfig: args.retrievalConfig,
     }),
   });

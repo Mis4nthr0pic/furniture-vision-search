@@ -70,8 +70,7 @@ export async function retryWithBackoff<T>(
         throw err;
       }
 
-      const retryAfterMs =
-        err instanceof AppError ? err.retryAfterMs ?? null : null;
+      const retryAfterMs = err instanceof AppError ? (err.retryAfterMs ?? null) : null;
       const delayMs = computeRetryDelayMs({
         attempt,
         baseMs: options.baseDelayMs,

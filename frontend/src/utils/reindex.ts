@@ -5,7 +5,8 @@ export type ReindexPhase = EmbeddingsProgress["phase"];
 export function getReindexProgressPercent(progress: EmbeddingsProgress | null): number {
   if (!progress) return 0;
   if (progress.phase === "done") return 100;
-  if (progress.phase === "error") return progress.total > 0 ? Math.round((progress.current / progress.total) * 100) : 0;
+  if (progress.phase === "error")
+    return progress.total > 0 ? Math.round((progress.current / progress.total) * 100) : 0;
   if (progress.total > 0) return Math.round((progress.current / progress.total) * 100);
   if (progress.phase === "writing") return 98;
   if (progress.phase === "start") return 2;

@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
-import { describe, expect, it, beforeEach } from "vitest";
-import { AppError } from "../utils/errors.js";
+import { beforeEach, describe, expect, it } from "vitest";
 import { createRateLimiter, resetRateLimitersForTests } from "../middleware/rate-limit.js";
+import type { AppError } from "../utils/errors.js";
 
 function mockReq(ip = "127.0.0.1"): Request {
   return { ip, socket: { remoteAddress: ip } } as Request;
@@ -12,10 +12,14 @@ function runLimiter(
   ip = "127.0.0.1",
 ): Promise<void> {
   return new Promise((resolve, reject) => {
-    limiter(mockReq(ip), {} as Response, ((err?: unknown) => {
-      if (err) reject(err);
-      else resolve();
-    }) as NextFunction);
+    limiter(
+      mockReq(ip),
+      {} as Response,
+      ((err?: unknown) => {
+        if (err) reject(err);
+        else resolve();
+      }) as NextFunction,
+    );
   });
 }
 

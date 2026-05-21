@@ -1,9 +1,9 @@
 import type { Db } from "mongodb";
 import { config } from "../config.js";
-import { enrichProducts } from "./enrich.js";
-import { deriveCounts, deriveVocab } from "./vocab.js";
 import type { EnrichedProduct, Product } from "../types.js";
 import { logger } from "../utils/logger.js";
+import { enrichProducts } from "./enrich.js";
+import { deriveCounts, deriveVocab } from "./vocab.js";
 
 let cachedProducts: EnrichedProduct[] | null = null;
 let cachedVocab: ReturnType<typeof deriveVocab> | null = null;

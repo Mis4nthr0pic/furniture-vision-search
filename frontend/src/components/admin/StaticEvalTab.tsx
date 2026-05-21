@@ -4,11 +4,11 @@ import { useAdminConfig } from "../../hooks/useAdminConfig";
 import { getLlmConfigForRequest, getRetrievalConfigForRequest } from "../../store";
 import type { StaticEvalResponse } from "../../types";
 import { formatMs, formatPercent } from "../../utils/format";
-import { MetricCard } from "./MetricCard";
 import { Alert } from "../ui/Alert";
 import { Badge } from "../ui/Badge";
 import { Button } from "../ui/Button";
 import { Card, CardHeader } from "../ui/Card";
+import { MetricCard } from "./MetricCard";
 
 export function StaticEvalTab() {
   const { apiKey, llmConfig, retrievalConfig } = useAdminConfig();
@@ -64,7 +64,10 @@ export function StaticEvalTab() {
             <MetricCard label="Top-1 type" value={formatPercent(summary.top1_type_match)} />
             <MetricCard label="Top-1 color" value={formatPercent(summary.top1_color_match)} />
             <MetricCard label="MRR" value={summary.mrr.toFixed(3)} />
-            <MetricCard label="Top-10 category" value={formatPercent(summary.top10_category_match)} />
+            <MetricCard
+              label="Top-10 category"
+              value={formatPercent(summary.top10_category_match)}
+            />
             <MetricCard label="Top-10 type" value={formatPercent(summary.top10_type_match)} />
             <MetricCard
               label="Attribute recall @1"

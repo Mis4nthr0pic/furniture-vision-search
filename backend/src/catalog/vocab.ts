@@ -1,4 +1,4 @@
-import type { EnrichedProduct, CatalogVocab } from "../types.js";
+import type { CatalogVocab, EnrichedProduct } from "../types.js";
 
 function uniqueSorted(values: string[]): string[] {
   return [...new Set(values.filter(Boolean))].sort((a, b) => a.localeCompare(b));

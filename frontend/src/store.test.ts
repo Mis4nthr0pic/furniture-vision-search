@@ -1,4 +1,4 @@
-import { describe, expect, it, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { getLlmConfigForRequest, useStore } from "./store";
 
 describe("useStore", () => {
@@ -21,6 +21,12 @@ describe("useStore", () => {
     const config = getLlmConfigForRequest(useStore.getState());
     expect(config.apiKey).toBe("sk-test-key");
     expect(config.visionModel).toBe("openai/gpt-4o");
+  });
+
+  it("clears a single rating", () => {
+    useStore.getState().setRating("abc", true);
+    useStore.getState().clearRating("abc");
+    expect(useStore.getState().ratings).toEqual({});
   });
 
   it("applies search results and clears prior ratings", () => {

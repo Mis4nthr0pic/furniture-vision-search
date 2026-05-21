@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { computeCatalogHash, embeddingText } from "../utils/catalog-hash.js";
-import type { EnrichedProduct } from "../types.js";
-import { CachedEmbeddingRetriever } from "../services/embedding-retriever.js";
 import type { LLMClient } from "../llm/client.js";
+import { CachedEmbeddingRetriever } from "../services/embedding-retriever.js";
+import type { EnrichedProduct } from "../types.js";
+import { computeCatalogHash, embeddingText } from "../utils/catalog-hash.js";
 
 const sample: EnrichedProduct = {
   _id: "abc",

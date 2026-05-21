@@ -281,6 +281,10 @@ fortune/
 ### Tests
 
 ```bash
+npm install          # root Biome tooling
+npm run check        # lint + typecheck + tests (backend + frontend)
+
+# Or run packages individually:
 cd backend && npm test
 cd frontend && npm test
 ```

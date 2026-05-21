@@ -56,15 +56,20 @@ export function useReindex() {
     setRunning(true);
     setError(null);
     setProgressOpen(true);
-    setProgress({ phase: "start", current: 0, total: 0, message: "Connecting to embedding service…" });
+    setProgress({
+      phase: "start",
+      current: 0,
+      total: 0,
+      message: "Connecting to embedding service…",
+    });
 
     try {
       await triggerReindex(getLlmConfigForRequest({ apiKey, llmConfig }));
     } catch (err) {
       setRunning(false);
       setError(err instanceof Error ? err.message : "Reindex request failed");
-      setProgress((current) =>
-        current ?? { phase: "error", current: 0, total: 0, message: "Request failed" },
+      setProgress(
+        (current) => current ?? { phase: "error", current: 0, total: 0, message: "Request failed" },
       );
     }
   }

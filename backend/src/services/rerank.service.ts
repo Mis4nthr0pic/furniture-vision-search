@@ -1,10 +1,7 @@
 import { createOpenAICompatibleClient } from "../llm/openai-compatible.js";
-import {
-  buildRerankUserPrompt,
-  DEFAULT_RERANK_SYSTEM_PROMPT,
-} from "../llm/prompts.js";
+import { DEFAULT_RERANK_SYSTEM_PROMPT, buildRerankUserPrompt } from "../llm/prompts.js";
 import type { LLMConfig, VisionFeatures } from "../schemas/llm.js";
-import { parseRerankResponse, type RerankResponse } from "../schemas/rerank.js";
+import { type RerankResponse, parseRerankResponse } from "../schemas/rerank.js";
 import { extractJsonFromText } from "../utils/json-parse.js";
 import { logger } from "../utils/logger.js";
 import type { toRankedResult } from "./retrieval.service.js";

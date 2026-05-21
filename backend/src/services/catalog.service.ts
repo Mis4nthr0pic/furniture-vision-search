@@ -1,6 +1,6 @@
+import { getCatalogProducts, getCatalogVocab } from "../catalog/load.js";
 import { EmbeddingsService } from "../services/embeddings.service.js";
 import type { CatalogMeta } from "../types.js";
-import { getCatalogProducts, getCatalogVocab } from "../catalog/load.js";
 
 export const CatalogService = {
   getMeta(): CatalogMeta {
