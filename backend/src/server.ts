@@ -2,7 +2,7 @@ import cors from "cors";
 import express, { type NextFunction, type Request, type Response } from "express";
 import { bootstrapApplication } from "./app/bootstrap.js";
 import { getAppState } from "./app/state.js";
-import { config } from "../config.js";
+import { config } from "./config.js";
 import { adminRouter } from "./routes/admin.js";
 import { evalRouter } from "./routes/eval.js";
 import { lexicalRouter } from "./routes/lexical.js";
