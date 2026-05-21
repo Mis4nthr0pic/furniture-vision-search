@@ -8,10 +8,10 @@ let db: Db | null = null;
 export async function connectMongo(): Promise<Db> {
   if (db) return db;
 
-  client = new MongoClient(config.mongodbUri);
+  client = new MongoClient(config.mongodb.uri);
   await client.connect();
-  db = client.db("catalog");
-  logger.info("Connected to MongoDB catalog");
+  db = client.db(config.mongodb.dbName);
+  logger.info({ dbName: config.mongodb.dbName }, "Connected to MongoDB");
   return db;
 }
 

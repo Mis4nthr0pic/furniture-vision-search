@@ -1,27 +1,24 @@
 import { Router } from "express";
 import { z } from "zod";
-import { searchLexical, isLexicalReady } from "../catalog/lexical.js";
-import { AppError } from "../utils/errors.js";
+import { config } from "../config.js";
+import { LexicalService } from "../services/lexical.service.js";
+import { parseBody } from "../utils/validation.js";
 
 const debugBodySchema = z.object({
   query: z.string().min(1),
-  limit: z.number().int().min(1).max(100).optional().default(20),
+  limit: z
+    .number()
+    .int()
+    .min(1)
+    .max(config.lexical.maxLimit)
+    .optional()
+    .default(config.lexical.defaultLimit),
 });
 
 export const lexicalRouter = Router();
 
 lexicalRouter.post("/debug", (req, res) => {
-  if (!isLexicalReady()) {
-    throw new AppError("LEXICAL_NOT_READY", "Lexical index is not ready", 503);
-  }
-
-  const parsed = debugBodySchema.safeParse(req.body);
-  if (!parsed.success) {
-    throw new AppError("VALIDATION_ERROR", parsed.error.errors[0]?.message ?? "Invalid request", 400);
-  }
-
-  const { query, limit } = parsed.data;
-  const results = searchLexical(query, limit);
-
+  const { query, limit } = parseBody(debugBodySchema, req.body);
+  const results = LexicalService.debugSearch(query, limit);
   res.json({ query, count: results.length, results });
 });

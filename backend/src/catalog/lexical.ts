@@ -1,4 +1,5 @@
 import MiniSearch from "minisearch";
+import { config } from "../config.js";
 import { getCatalogProducts } from "./load.js";
 import type { EnrichedProduct } from "../types.js";
 import { tokenize } from "../utils/tokenize.js";
@@ -87,7 +88,7 @@ function normalizeScores(
   }));
 }
 
-export function searchLexical(query: string, limit = 20): LexicalSearchResult[] {
+export function searchLexical(query: string, limit = config.lexical.defaultLimit): LexicalSearchResult[] {
   if (!index || !productById) {
     throw new Error("Lexical index not initialized");
   }
@@ -108,7 +109,7 @@ export function searchLexical(query: string, limit = 20): LexicalSearchResult[] 
 }
 
 export function getLexicalScoreForProduct(query: string, productId: string): number {
-  const results = searchLexical(query, productById?.size ?? 2500);
+  const results = searchLexical(query, getCatalogProducts().length);
   const match = results.find((result) => result.id === productId);
   return match?.score ?? 0;
 }
