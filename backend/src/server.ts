@@ -16,11 +16,8 @@ export function createServer(): express.Application {
 
   app.set("trust proxy", 1);
 
-  app.use(
-    cors({
-      origin: config.cors.origin === "*" ? true : config.cors.origin,
-    }),
-  );
+  // Demo/test deploy: allow all origins. Re-enable origin lockdown before production.
+  app.use(cors());
   app.use(express.json({ limit: config.http.jsonBodyLimit }));
 
   app.get("/api/health", (_req, res) => {

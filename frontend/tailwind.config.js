@@ -1,6 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  darkMode: "class",
   theme: {
     extend: {
       fontFamily: {
@@ -9,23 +10,24 @@ export default {
         emphasis: ['"Newsreader"', "Georgia", "serif"],
       },
       colors: {
-        bg: "#FAFAF7",
-        panel: "#F2F1EC",
-        panelDeep: "#E8E6DD",
+        bg: "rgb(var(--bg) / <alpha-value>)",
+        panel: "rgb(var(--panel) / <alpha-value>)",
+        panelDeep: "rgb(var(--panel-deep) / <alpha-value>)",
+        panelInk: "rgb(var(--panel-ink) / <alpha-value>)",
         ink: {
-          DEFAULT: "#101113",
-          soft: "#3A3D42",
-          muted: "#7A7D82",
+          DEFAULT: "rgb(var(--ink) / <alpha-value>)",
+          soft: "rgb(var(--ink-soft) / <alpha-value>)",
+          muted: "rgb(var(--ink-muted) / <alpha-value>)",
         },
         accent: {
-          DEFAULT: "#FF5B22",
-          deep: "#C9421A",
+          DEFAULT: "rgb(var(--accent) / <alpha-value>)",
+          deep: "rgb(var(--accent-deep) / <alpha-value>)",
         },
-        signal: "#1F8A5B",
-        warn: "#C7A030",
-        danger: "#B83A2E",
-        hair: "#D4D2C8",
-        hairStrong: "#A8A69A",
+        signal: "rgb(var(--signal) / <alpha-value>)",
+        warn: "rgb(var(--warn) / <alpha-value>)",
+        danger: "rgb(var(--danger) / <alpha-value>)",
+        hair: "rgb(var(--hair) / <alpha-value>)",
+        hairStrong: "rgb(var(--hair-strong) / <alpha-value>)",
       },
       fontSize: {
         ui: ["13px", { lineHeight: "1.45" }],
