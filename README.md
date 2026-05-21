@@ -1,16 +1,288 @@
 # Furniture Vision Search
 
-**Image → ranked catalog matches** for a ~2,500-item furniture catalog — with constrained vision extraction, hybrid retrieval, LLM rerank, transparent scoring, and a static eval harness so quality is measurable, not vibes.
-
-| | |
-|---|---|
-| **Try locally** | [http://localhost:5173](http://localhost:5173) after `docker compose up --build` |
-| **Hosted demo** | Not deployed yet — see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) |
-| **What to judge** | Match quality + eval tooling + retrieval architecture (UI is for inspection, not the product) |
+**Image → ranked catalog matches** for a ~2,500-item furniture catalog — constrained vision extraction, hybrid retrieval, LLM rerank, transparent scoring, and a static eval harness.
 
 ---
 
-## Engineering judgment (read this first)
+## For evaluators — run and test (start here)
+
+This section is the full path from clone to verified search and automated quality checks. Read this first; architecture and design rationale are below.
+
+### What you need
+
+| Requirement | Details |
+|-------------|---------|
+| **Docker** | Docker Desktop (Mac/Windows) or Docker Engine + Compose v2 (Linux) |
+| **MongoDB URI** | Read-only connection string to the furniture catalog (~2,500 products). Set in `.env` as `MONGODB_URI`. |
+| **OpenRouter API key** | [openrouter.ai/keys](https://openrouter.ai/keys) — used for vision, embeddings, and rerank. Entered in the **Admin UI** at runtime (not committed to git). |
+| **Git** | To clone the repository |
+
+Optional for local dev without Docker: Node.js **22+** and npm.
+
+---
+
+### Step 1 — Clone and configure environment
+
+```bash
+git clone https://github.com/Mis4nthr0pic/furniture-vision-search.git
+cd furniture-vision-search
+cp .env.example .env
+```
+
+Edit `.env` at the **repo root** (same folder as `docker-compose.yml`):
+
+```bash
+# Required — paste your read-only catalog URI
+MONGODB_URI=mongodb+srv://<user>:<password>@<cluster>/<db>
+
+# Defaults below usually work for local Docker; leave unless you know you need to change them
+MONGODB_DB_NAME=catalog
+MONGODB_PRODUCTS_COLLECTION=products
+CORS_ORIGIN=http://localhost:5173
+OPENROUTER_REFERER=http://localhost:5173
+OPENROUTER_TITLE=Furniture Search
+```
+
+**Where env is loaded**
+
+| Setup | Backend reads config from |
+|-------|---------------------------|
+| **Docker Compose** (recommended) | Root `.env` → injected into the backend container via `docker-compose.yml` |
+| **Local `npm run dev` in `backend/`** | `backend/.env` if present, else `../.env` (repo root) |
+| **Hosted (Render, etc.)** | Platform environment variables on the **backend service only** — no `.env` file in the image |
+
+The **frontend container does not use `.env`**. In Docker, nginx proxies `/api` to the backend on the same stack (no CORS setup needed locally).
+
+Optional: `OPENROUTER_API_KEY=sk-or-v1-…` in `.env` is a **local dev fallback** only (`NODE_ENV=development`). Evaluators should use **Admin → Config** instead so keys are never written to disk.
+
+---
+
+### Step 2 — Start the app (Docker)
+
+From the repo root:
+
+```bash
+docker compose up --build
+```
+
+Leave this terminal open. First build takes a few minutes; later starts are faster.
+
+| Service | URL | Role |
+|---------|-----|------|
+| **Frontend** | http://localhost:5173 | React UI (nginx serves static files + proxies `/api`) |
+| **Backend** | http://localhost:4000 | Express API (also reachable directly for health/debug) |
+
+Stop with `Ctrl+C`, or run detached: `docker compose up --build -d` and `docker compose down` to stop.
+
+---
+
+### Step 3 — Verify the stack is healthy
+
+**Backend health** (run in a second terminal):
+
+```bash
+curl -s http://localhost:4000/api/health | jq
+```
+
+**Expected response** (approximate):
+
+```json
+{
+  "ok": true,
+  "productCount": 2500,
+  "lexicalReady": true,
+  "embeddingsReady": true
+}
+```
+
+| Field | Meaning |
+|-------|---------|
+| `ok` | MongoDB connection and catalog load succeeded |
+| `productCount` | Should be ~2500 |
+| `lexicalReady` | In-memory MiniSearch index built |
+| `embeddingsReady` | Vector cache exists at `backend/data/embeddings.json` (persisted in Docker volume `backend-data`) |
+
+If `ok` is `false` or `productCount` is 0 → check `MONGODB_URI`, network access to Atlas, and IP allowlist on the cluster.
+
+If `embeddingsReady` is `false` → hybrid search still runs (lexical + attributes) but vector signal is off until you **Re-index** (Step 5).
+
+**Frontend smoke check:** open http://localhost:5173 — you should see **Furniture Search** in the header with **Search** and **Admin** tabs.
+
+---
+
+### Step 4 — Add your OpenRouter API key
+
+1. Open http://localhost:5173/admin (or click **Admin** in the header).
+2. Go to the **Config** tab (default).
+3. Paste your OpenRouter key into **OpenRouter API key**.
+4. Leave models at defaults unless testing alternatives:
+   - Vision: `openai/gpt-4o`
+   - Chat / rerank: `openai/gpt-4o`
+   - Embeddings: `openai/text-embedding-3-small`
+
+**Key policy (important for review)**
+
+- Stored in **browser memory only** (Zustand) — not `localStorage`, not the server, not logs.
+- **Clears on page refresh** — you will need to paste it again after reload.
+- Backend redacts keys in error messages.
+
+Until a key is set, Search shows a warning banner and search requests will fail.
+
+---
+
+### Step 5 — Build the embedding index (first time or after fresh volume)
+
+Required for full **hybrid** retrieval (vector + lexical + attributes).
+
+1. **Admin → Config** tab.
+2. Scroll to **Re-index catalog** → click **Re-index catalog**.
+3. A progress modal opens — keep the tab open (~30–90 seconds with default rate limits).
+4. When complete, confirm in **Admin → Catalog** that embedding status shows ready.
+
+Embeddings are cached in the Docker volume `backend-data` and survive container restarts. A **new clone** or **deleted volume** requires reindex again.
+
+---
+
+### Step 6 — Manual test checklist (UI)
+
+Use this to validate end-to-end behavior in ~5 minutes.
+
+#### A. Search flow
+
+1. Go to **Search** (http://localhost:5173/).
+2. **Upload** a clear photo of a single furniture piece (drag-drop or click). Styled room photos work but single-item shots are easier to judge.
+3. Optional **prompt** examples:
+   - `walnut bookshelf under $500`
+   - `yellow accent chair`
+   - `modern coffee table between $300 and $600`
+4. Click **Search**.
+5. While loading, confirm the progress strip shows phases: **VSN** (vision) → **IDX** (retrieval) → **RNK** (rerank, if enabled).
+6. When results appear:
+   - **Reference card** (left): uploaded image + vision fields (type, material, color, style) with confidence where available.
+   - **Results table**: ranked products with hybrid score; click a score for **breakdown** (vector, lexical, category, type, color, …).
+   - **Rerank reason** text when rerank is on.
+7. Click **Relevant** / **Not relevant** on a result — feeds live eval metrics.
+
+#### B. Admin — static quality harness
+
+1. **Admin → Evaluation** tab.
+2. Click **Run static eval** (uses the same API key from Config).
+3. Wait ~30s (6 cases × vision + retrieval each).
+4. Review summary cards:
+   - **Category @ #1** — primary signal (baseline ~83%, 5/6)
+   - **Attribute recall @ #1**, **Type @ #1**, **Color @ #1**
+   - **Full match @ #1** — strict all-fields-on-#1 bar (~1/6)
+   - Per-case table: Pass/Miss, top match vs expected
+
+See [docs/EVAL.md](./docs/EVAL.md) for metric definitions.
+
+#### C. Admin — live session metrics
+
+1. Run a few searches and rate results with thumbs.
+2. **Admin → Live metrics** tab → refresh.
+3. Confirm **Precision@5**, **Precision@10**, **MRR** update from your session.
+
+#### D. Admin — catalog inspection
+
+1. **Admin → Catalog** tab.
+2. Confirm category/type/color/material vocab counts and total products (~2500).
+
+#### E. Optional toggles (Config tab)
+
+| Setting | What to try |
+|---------|-------------|
+| **Enable rerank** | On (default in UI) — better type fit on some cases, ~2× latency |
+| **Retrieval mode** | `hybrid` vs `lexical_only` / `vector_only` to inspect signal contribution |
+| **Ranking weights** | Adjust `w_vec`, `w_lex`, etc., re-run search |
+| **Confidence threshold** | Higher = stricter category/type hard filters |
+
+---
+
+### Step 7 — Automated tests (CLI)
+
+From repo root after `npm install` (installs root Biome linter):
+
+```bash
+npm run lint          # Biome — formatting + lint (137 files)
+npm run typecheck     # tsc backend + frontend
+npm test              # Vitest: backend + frontend unit tests
+npm run check         # lint + typecheck + test (full gate)
+```
+
+Or run suites separately:
+
+```bash
+cd backend && npm install && npm test    # 72 backend unit tests
+cd frontend && npm install && npm test   # 28 frontend unit tests
+```
+
+CI runs the same checks on every PR ([GitHub Actions](https://github.com/Mis4nthr0pic/furniture-vision-search/actions)).
+
+**Static eval via API** (same harness as Admin UI):
+
+```bash
+curl -s -X POST http://localhost:4000/api/eval/run \
+  -H "Content-Type: application/json" \
+  -d '{"llmConfig":{"apiKey":"YOUR_OPENROUTER_KEY","visionModel":"openai/gpt-4o","chatModel":"openai/gpt-4o","embedModel":"openai/text-embedding-3-small"}}' \
+  | jq '.summary'
+```
+
+Requires backend running, valid API key, and `embeddingsReady: true` for meaningful vector scores.
+
+---
+
+### Step 8 — Run without Docker (optional)
+
+Two terminals, repo root `.env` with `MONGODB_URI`:
+
+```bash
+# Terminal 1 — API on :4000
+cd backend && npm install && npm run dev
+
+# Terminal 2 — Vite on :5173, proxies /api → :4000
+cd frontend && npm install && npm run dev
+```
+
+Open http://localhost:5173. Paste OpenRouter key in Admin → Config.
+
+---
+
+### Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---------|--------------|-----|
+| `productCount: 0` or health `ok: false` | Bad `MONGODB_URI` or Atlas IP block | Fix URI; allow your IP (or `0.0.0.0/0` for demo) in Atlas Network Access |
+| Search fails immediately | No API key in Admin | Admin → Config → paste OpenRouter key |
+| Search slow / 401 on LLM | Invalid or expired key | New key at openrouter.ai; refresh page and re-paste |
+| Warning: embeddings not ready | No index built yet | Admin → Config → Re-index catalog |
+| Empty results after filter | Price prompt too strict | Try without price or widen **Price tolerance %** in Config |
+| Re-index fails / rate limit | OpenRouter throttling | Wait; modal shows retry/backoff; reduce concurrency in `.env` if needed |
+| Key gone after refresh | By design (memory-only) | Re-paste in Admin → Config |
+| Port already in use | Old containers running | `docker compose down` then `up --build` |
+| CORS error in browser | Split deploy (frontend and backend on different URLs) | See [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md); demo branch may allow all origins for testing |
+
+---
+
+### Quick reference — URLs and tabs
+
+| URL | Purpose |
+|-----|---------|
+| http://localhost:5173 | Main UI — Search |
+| http://localhost:5173/admin | Admin — Config, Evaluation, Live metrics, Catalog |
+| http://localhost:4000/api/health | Backend health JSON |
+
+| Admin tab | Purpose |
+|-----------|---------|
+| **Config** | API key, models, retrieval weights, rerank, re-index |
+| **Evaluation** | Static eval harness (6 cases) |
+| **Live metrics** | Session thumbs feedback metrics |
+| **Catalog** | Vocab sizes, product count, embedding status |
+
+**Hosted demo:** see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) (Render, Cloudflare Tunnel, or VM).
+
+---
+
+## Engineering judgment
 
 I optimized for **match quality you can inspect**, not a flashy demo UI.
 
@@ -54,61 +326,7 @@ The vision model never returns catalog items directly. It extracts constrained a
 
 ---
 
-## Demo flow (2 minutes)
-
-1. Open **Admin → Config** and paste your [OpenRouter](https://openrouter.ai/keys) API key (memory only).
-2. **Admin → Catalog Meta** — confirm ~2,500 products; check embedding index status.
-3. *(First time)* **Re-index catalog** — builds local embedding cache (~30–90s with default settings).
-4. Go to **Search**, upload a clear furniture photo (single piece works best).
-5. Inspect **Vision analysis** (sidebar): category, type, color, confidence %.
-6. Review **ranked results** — hybrid score, rerank reason, tap score for breakdown.
-7. Optional prompt: `walnut bookshelf under $500` — compare ranking changes.
-8. Rate results with **Relevant / Not relevant**.
-9. **Admin → Live Eval** — refresh metrics from your session.
-
----
-
-## Quick start
-
-### Prerequisites
-
-- Docker Desktop (or Docker Engine + Compose)
-- MongoDB read-only catalog URI (see `.env.example`)
-- OpenRouter API key (pasted in Admin UI at runtime)
-
-### Run
-
-```bash
-git clone https://github.com/Mis4nthr0pic/furniture-vision-search.git
-cd furniture-vision-search
-cp .env.example .env
-# Edit .env — set MONGODB_URI (required). OPENROUTER_API_KEY optional dev fallback only.
-docker compose up --build
-```
-
-| Service  | URL |
-|----------|-----|
-| Frontend | http://localhost:5173 |
-| Backend health | http://localhost:4000/api/health |
-
-### Deploy (demo / public URL)
-
-Hosting needs **backend + frontend only** — reuse your existing MongoDB URI. See **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)** (Cloudflare Tunnel, Render, or VM + Docker Compose).
-
-### API key policy
-
-- Keys are entered at **runtime** in Admin → Config.
-- Stored in **browser memory only** (Zustand) — never `localStorage`, `sessionStorage`, or disk.
-- Cleared on page refresh or server restart.
-- Not logged by the backend (redacted in LLM error messages).
-- Optional `OPENROUTER_API_KEY` in gitignored `.env` is a **local dev convenience** only; evaluators should use the Admin UI.
-
----
-
 ## System overview
-
-This is a full-stack **image-to-product search** pipeline for furniture:
-
 ```
 React UI  →  Express API  →  MongoDB catalog (read-only)
                 ↓
@@ -117,16 +335,19 @@ React UI  →  Express API  →  MongoDB catalog (read-only)
          Local embedding cache + MiniSearch lexical index
 ```
 
+Full-stack **image-to-product search** for furniture:
+
 ## Frontend (inspection UI)
 
-React + Vite + Zustand + Tailwind — **deliberately minimal**. The value is in the pipeline; the UI makes quality inspection easy:
+React + Vite + Zustand + Tailwind — **data-dense instrument UI** for quality inspection:
 
 - Upload + optional prompt (`under $500`, material hints)
-- Vision sidebar with per-field confidence
+- Reference card with vision extraction and per-field confidence
 - Ranked results with hybrid score breakdown, rerank reason, thumbs up/down
-- Admin: config, static eval, live eval, reindex progress
+- Admin: Config, Evaluation, Live metrics, Catalog; reindex progress modal
+- Light/dark theme toggle in header
 
-Salon-themed UI polish is in progress; FDE reviewers should focus on **search relevance and eval numbers**, not dashboard aesthetics.
+Reviewers should focus on **search relevance and eval numbers**; the UI exists to inspect the pipeline.
 
 | Layer | Tech |
 |-------|------|
@@ -227,9 +448,9 @@ Low vision confidence (< 0.7) is common — filters won’t narrow the catalog, 
 
 Other tabs:
 
-- **Static Eval** — runs 6 fixed cases (`POST /api/eval/run`), reports category/type/color accuracy, MRR, latency.
-- **Live Eval** — session metrics and recent search logs from thumbs feedback.
-- **Catalog Meta** — product counts, vocab sizes, embedding index status.
+- **Evaluation** — runs 6 fixed cases (`POST /api/eval/run`), reports category/type/color accuracy, MRR, latency.
+- **Live metrics** — session metrics and recent search logs from thumbs feedback.
+- **Catalog** — product counts, vocab sizes, embedding index status.
 
 ---
 
@@ -250,11 +471,11 @@ Six fixed furniture photos with labeled expectations — re-run after any retrie
 
 \*Rerank replayed via `/api/search`; directional only on n=6.
 
-**How to read this:** Most cases land in the **correct category at rank 1**. The **strict full-match** column requires exact type *and* color on #1 — useful for QA, not the only signal that search is working. For live demos, thumbs feedback (Live Eval) captures perceived relevance.
+**How to read this:** Most cases land in the **correct category at rank 1**. The **strict full-match** column requires exact type *and* color on #1 — useful for QA, not the only signal that search is working. For live demos, thumbs feedback (Live metrics) captures perceived relevance.
 
 **Active improvement area:** type/color precision when the catalog has many similar variants (e.g. Wide vs Tall Bookshelf, Natural vs Gray).
 
-Run via **Admin → Static Eval** or:
+Run via **Admin → Evaluation** or:
 
 ```bash
 curl -X POST http://localhost:4000/api/eval/run \
@@ -359,30 +580,24 @@ fortune/
 
 ### Tests
 
-**94 unit tests** (71 backend + 23 frontend) via Vitest. See [docs/TESTING.md](docs/TESTING.md) for the full file list and edge-case matrix.
+**100 unit tests** (72 backend + 28 frontend) via Vitest. See [docs/TESTING.md](docs/TESTING.md) for the full file list and edge-case matrix.
 
 ```bash
 npm install          # root Biome tooling
-npm test             # run all Vitest suites (71 backend + 23 frontend)
+npm test             # run all Vitest suites
 npm run check        # lint + typecheck + test
 ```
 
 ```bash
-cd backend && npm test    # 71 tests — retrieval, validation, HTTP integration
-cd frontend && npm test   # 23 tests — hooks, components, store
+cd backend && npm test    # 72 tests — retrieval, validation, HTTP integration
+cd frontend && npm test   # 28 tests — hooks, components, store
 ```
 
 CI runs **Backend unit tests (Vitest)**, **Frontend unit tests (Vitest)**, **Lint (Biome)**, **Unit test summary**, and **Root check (lint + typecheck + tests)** jobs on every PR ([Actions](https://github.com/Mis4nthr0pic/furniture-vision-search/actions/workflows/ci.yml)).
 
 ### Local without Docker
 
-```bash
-# Terminal 1 — backend (requires .env with MONGODB_URI)
-cd backend && npm install && npm run dev
-
-# Terminal 2 — frontend (proxies /api to :4000)
-cd frontend && npm install && npm run dev
-```
+See **Step 8** in [For evaluators — run and test](#for-evaluators--run-and-test-start-here) above.
 
 ### Incremental delivery
 
