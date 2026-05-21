@@ -1,9 +1,11 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { config } from "../config.js";
 import { getCatalogProducts } from "../catalog/load.js";
 import { createOpenAICompatibleClient } from "../llm/openai-compatible.js";
 import type { LLMConfig } from "../schemas/llm.js";
+import { chunkArray, mapWithConcurrency } from "../utils/async-pool.js";
 import { computeCatalogHash, embeddingText } from "../utils/catalog-hash.js";
 import { logger } from "../utils/logger.js";
 import { CachedEmbeddingRetriever, type EmbeddingsCacheFile } from "./embedding-retriever.js";
@@ -166,29 +168,45 @@ export const EmbeddingsService = {
     const products = getCatalogProducts();
     const catalogHash = computeCatalogHash(products);
     const client = createOpenAICompatibleClient(llmConfig);
-    const batchSize = 100;
+    const batchSize = config.embeddings.batchSize;
+    const concurrency = config.embeddings.buildConcurrency;
+    const batches = chunkArray(products, batchSize);
     const vectors: Record<string, number[]> = {};
+    let completedProducts = 0;
 
-    emitProgress({ phase: "start", current: 0, total: products.length, message: "Starting embedding build" });
+    emitProgress({
+      phase: "start",
+      current: 0,
+      total: products.length,
+      message: `Starting embedding build (${batches.length} batches, ${concurrency} concurrent)`,
+    });
 
     try {
-      for (let offset = 0; offset < products.length; offset += batchSize) {
-        const batch = products.slice(offset, offset + batchSize);
+      const batchResults = await mapWithConcurrency(batches, concurrency, async (batch, batchIndex) => {
         const texts = batch.map(embeddingText);
         const embeddings = await client.embed({ input: texts });
 
+        const batchVectors: Record<string, number[]> = {};
         batch.forEach((product, index) => {
           const vector = embeddings[index];
           if (vector) {
-            vectors[product._id] = vector;
+            batchVectors[product._id] = vector;
           }
         });
 
+        completedProducts += batch.length;
         emitProgress({
           phase: "embedding",
-          current: Math.min(offset + batch.length, products.length),
+          current: completedProducts,
           total: products.length,
+          message: `Embedded batch ${batchIndex + 1}/${batches.length} (${batch.length} products)`,
         });
+
+        return batchVectors;
+      });
+
+      for (const batchVectors of batchResults) {
+        Object.assign(vectors, batchVectors);
       }
 
       emitProgress({
@@ -217,7 +235,15 @@ export const EmbeddingsService = {
         message: "Embeddings index ready",
       });
 
-      logger.info({ itemCount: Object.keys(vectors).length }, "Embeddings index built");
+      logger.info(
+        {
+          itemCount: Object.keys(vectors).length,
+          batchSize,
+          concurrency,
+          batchCount: batches.length,
+        },
+        "Embeddings index built",
+      );
     } catch (err) {
       emitProgress({
         phase: "error",

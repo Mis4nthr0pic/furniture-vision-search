@@ -10,6 +10,11 @@
 - Live eval: metrics + recent logs from step 9 APIs.
 - Catalog meta: product counts, vocabulary sizes, embedding index status.
 
+**Reindex performance:**
+- Concurrent embedding batches via `EMBED_BUILD_CONCURRENCY` (default 4).
+- Larger batch size via `EMBED_BATCH_SIZE` (default 256, was 100 sequential).
+- Separate `EMBED_REQUEST_TIMEOUT_MS` (default 120s) for large embed payloads.
+
 ## Step 10 — Frontend search page (2026-05-21)
 
 **Decisions:**

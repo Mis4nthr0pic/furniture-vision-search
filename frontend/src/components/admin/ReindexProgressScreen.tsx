@@ -87,7 +87,7 @@ export function ReindexProgressScreen({
             <p className="mt-2 text-sm text-stone-600">
               {isComplete
                 ? "Hybrid search can now use cached embeddings for all catalog products."
-                : "This usually takes 2–3 minutes for ~2,500 products. Keep this tab open."}
+                : "This usually takes about a minute with default settings. Keep this tab open."}
             </p>
           </div>
           {running && (

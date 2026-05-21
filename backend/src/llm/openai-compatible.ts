@@ -46,6 +46,7 @@ async function postJson<T>(
   llmConfig: LLMConfig,
   body: unknown,
   apiKey = llmConfig.apiKey,
+  timeoutMs = config.llm.requestTimeoutMs,
 ): Promise<T> {
   let response: Response;
   try {
@@ -53,7 +54,7 @@ async function postJson<T>(
       method: "POST",
       headers: buildHeaders(llmConfig, apiKey, url),
       body: JSON.stringify(body),
-      signal: AbortSignal.timeout(config.llm.requestTimeoutMs),
+      signal: AbortSignal.timeout(timeoutMs),
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Network request failed";
@@ -133,6 +134,7 @@ export function createOpenAICompatibleClient(llmConfig: LLMConfig): LLMClient {
           input: texts,
         },
         llmConfig.apiKey,
+        config.embeddings.requestTimeoutMs,
       );
 
       const embeddings = response.data?.map((row) => row.embedding) ?? [];

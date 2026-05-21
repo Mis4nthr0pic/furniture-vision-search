@@ -215,7 +215,7 @@ export function ConfigTab() {
       <Card>
         <CardHeader
           title="Embeddings index"
-          description="Rebuild the local embedding cache (~2–3 min for 2,500 products)."
+          description="Rebuild the local embedding cache (~45–90s with defaults for 2,500 products)."
           action={
             <Button variant="secondary" onClick={resetToDefaults}>
               Reset defaults

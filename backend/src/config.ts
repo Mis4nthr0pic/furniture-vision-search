@@ -23,6 +23,10 @@ const envSchema = z.object({
   LLM_CHAT_MODEL: z.string().default("openai/gpt-4o"),
   LLM_REQUEST_TIMEOUT_MS: z.coerce.number().int().positive().default(60_000),
 
+  EMBED_BATCH_SIZE: z.coerce.number().int().positive().max(2048).default(256),
+  EMBED_BUILD_CONCURRENCY: z.coerce.number().int().positive().max(16).default(4),
+  EMBED_REQUEST_TIMEOUT_MS: z.coerce.number().int().positive().default(120_000),
+
   OPENROUTER_REFERER: z.string().default("http://localhost:5173"),
   OPENROUTER_TITLE: z.string().default("Furniture Vision Search"),
   OPENROUTER_HOST: z.string().default("openrouter.ai"),
@@ -78,6 +82,12 @@ function loadConfig() {
       embedModel: env.LLM_EMBED_MODEL,
       chatModel: env.LLM_CHAT_MODEL,
       requestTimeoutMs: env.LLM_REQUEST_TIMEOUT_MS,
+    },
+
+    embeddings: {
+      batchSize: env.EMBED_BATCH_SIZE,
+      buildConcurrency: env.EMBED_BUILD_CONCURRENCY,
+      requestTimeoutMs: env.EMBED_REQUEST_TIMEOUT_MS,
     },
 
     openRouter: {
