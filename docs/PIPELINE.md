@@ -2,6 +2,8 @@
 
 Incremental delivery: one branch and one pull request per step. Each PR is small, reviewable, and maps to a measurable capability.
 
+**User-facing docs:** [README](../README.md) · [Evaluation guide](./EVAL.md) · [Changelog](../CHANGELOG.md)
+
 ## Workflow
 
 ```bash
@@ -31,11 +33,11 @@ Closes #6"
 | 4 | [#5](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/5) ✅ |
 | 5 | [#6](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/6) ✅ |
 | 6 | [#7](https://github.com/Mis4anthr0pic/furniture-vision-search/issues/7) |
-| 7 | [#8](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/8) |
-| 8 | [#9](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/9) |
-| 9 | [#10](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/10) |
-| 10 | [#11](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/11) |
-| 11 | [#12](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/12) |
+| 7 | [#8](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/8) ✅ |
+| 8 | [#9](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/9) ✅ |
+| 9 | [#10](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/10) ✅ |
+| 10 | [#11](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/11) ✅ |
+| 11 | [#12](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/12) ✅ |
 | 12 | [#13](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/13) |
 | 13 | [#14](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/14) |
 | 14 | [#15](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/15) |
@@ -55,11 +57,12 @@ Closes #6"
 | 7 | Embeddings (lazy + cache) | `step/7-embeddings` | ✅ Done | [#24](https://github.com/Mis4anthr0pic/furniture-vision-search/pull/24) |
 | 8 | LLM rerank | `step/8-rerank` | ✅ Done | [#25](https://github.com/Mis4anthr0pic/furniture-vision-search/pull/25) |
 | 9 | Live rating API | `step/9-live-eval` | ✅ Done | [#26](https://github.com/Mis4anthr0pic/furniture-vision-search/pull/26) |
-| 10 | Frontend search page | `step/10-search-ui` | 🔄 In PR | — |
-| 11 | Frontend admin page | `step/11-admin-ui` | 🔲 | — |
+| 10 | Frontend search page | `step/10-search-ui` | ✅ Done | [#27](https://github.com/Mis4nthr0pic/furniture-vision-search/pull/27) |
+| 11 | Frontend admin page | `step/11-admin-ui` | ✅ Done | [#28](https://github.com/Mis4nthr0pic/furniture-vision-search/pull/28) |
+| — | Reindex performance + rate limits | `step/11-reindex-polish` | ✅ Done | (follow-up PR) |
 | 12 | Edge cases | `step/12-edge-cases` | 🔲 | — |
 | 13 | Vitest suite | `step/13-tests` | 🔲 | — |
-| 14 | Docs + polish | `step/14-docs` | 🔲 | — |
+| 14 | Docs + polish | `step/14-docs` | 🔄 In PR | — |
 
 Steps 1–3 landed on `main` before the PR workflow was adopted. All new work uses branches + PRs.
 
