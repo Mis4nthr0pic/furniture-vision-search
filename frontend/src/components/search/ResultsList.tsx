@@ -20,18 +20,23 @@ export const ResultsList = memo(function ResultsList({
   if (ranked.length === 0) return null;
 
   return (
-    <section className="space-y-4">
-      <div className="flex items-end justify-between gap-3">
+    <section className="space-y-6 pt-4">
+      <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="font-display text-2xl font-semibold text-stone-900">Matches</h2>
-          <p className="mt-1 text-sm text-stone-500">
+          <p className="font-mono text-[10px] uppercase tracking-kicker text-terracotta">
+            ✦ No. 03 · Matches
+          </p>
+          <h2 className="mt-1 font-display text-3xl italic tracking-tight text-cream sm:text-4xl">
+            From the catalog
+          </h2>
+          <p className="mt-2 font-serif text-sm italic text-cream/55">
             Ranked by hybrid score with optional rerank reasoning
           </p>
         </div>
-        <span className="text-sm font-medium text-stone-500">{ranked.length} results</span>
+        <span className="font-display text-4xl italic text-terracotta">{ranked.length}</span>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-2">
         {ranked.map((product, index) => (
           <ResultCard
             key={product.id}

@@ -67,32 +67,32 @@ export function ReindexProgressScreen({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/45 p-4 backdrop-blur-sm animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-ink/80 p-4 backdrop-blur-sm animate-fade-in"
       role="dialog"
       aria-modal="true"
       aria-labelledby="reindex-progress-title"
     >
-      <div className="w-full max-w-lg rounded-3xl border border-surface-border bg-white p-6 shadow-lift sm:p-8">
+      <div
+        className="w-full max-w-lg bg-butter p-6 text-ink shadow-polaroid sm:p-8"
+        style={{ transform: "rotate(-0.5deg)" }}
+      >
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-700">
-              Embeddings rebuild
+            <p className="font-mono text-[10px] uppercase tracking-kicker text-terracotta">
+              ✦ No. 04 · The inventory
             </p>
-            <h2
-              id="reindex-progress-title"
-              className="mt-1 font-display text-2xl font-semibold text-stone-900"
-            >
+            <h2 id="reindex-progress-title" className="mt-1 font-display text-2xl italic text-ink">
               {isError ? "Reindex failed" : isComplete ? "Index rebuilt" : "Building vector index"}
             </h2>
-            <p className="mt-2 text-sm text-stone-600">
+            <p className="mt-2 font-serif text-sm italic text-ink/70">
               {isComplete
                 ? "Hybrid search can now use cached embeddings for all catalog products."
                 : "This usually takes about a minute with default settings. Keep this tab open."}
             </p>
           </div>
           {running && (
-            <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-50">
-              <span className="h-5 w-5 animate-spin rounded-full border-2 border-brand-700 border-t-transparent" />
+            <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-terracotta/15">
+              <span className="h-5 w-5 animate-spin rounded-full border-2 border-terracotta border-t-transparent" />
             </span>
           )}
         </div>
@@ -105,19 +105,19 @@ export function ReindexProgressScreen({
               <li key={step.id} className="text-center">
                 <div
                   className={cn(
-                    "mx-auto flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold transition",
-                    done && "bg-emerald-600 text-white",
-                    active && "bg-brand-800 text-white ring-4 ring-brand-100",
-                    !done && !active && "bg-stone-100 text-stone-400",
-                    isError && index === activeStep && "bg-rose-600 text-white",
+                    "mx-auto flex h-8 w-8 items-center justify-center rounded-full font-display text-sm italic transition",
+                    done && "bg-teal text-cream",
+                    active && "bg-terracotta text-cream ring-4 ring-terracotta/20",
+                    !done && !active && "bg-ink/10 text-ink/35",
+                    isError && index === activeStep && "bg-paprika text-cream",
                   )}
                 >
                   {done ? "✓" : index + 1}
                 </div>
                 <p
                   className={cn(
-                    "mt-2 text-[11px] font-medium leading-tight",
-                    active || done ? "text-stone-800" : "text-stone-400",
+                    "mt-2 font-mono text-[10px] uppercase leading-tight tracking-kicker",
+                    active || done ? "text-ink" : "text-ink/35",
                   )}
                 >
                   {step.label}
@@ -129,31 +129,33 @@ export function ReindexProgressScreen({
 
         <div className="mt-6">
           <div className="mb-2 flex items-center justify-between text-sm">
-            <span className="font-medium text-stone-700">
+            <span className="font-mono text-[10px] uppercase tracking-kicker text-ink/70">
               {isError ? "Error" : getReindexPhaseLabel(phase)}
             </span>
-            <span className="tabular-nums text-stone-500">{percent}%</span>
+            <span className="font-display text-lg italic tabular-nums text-terracotta">
+              {percent}%
+            </span>
           </div>
-          <div className="h-3 overflow-hidden rounded-full bg-stone-200">
+          <div className="h-0.5 overflow-hidden bg-terracotta/15">
             <div
               className={cn(
-                "h-full rounded-full transition-all duration-500 ease-out",
-                isError ? "bg-rose-500" : isComplete ? "bg-emerald-600" : "bg-brand-700",
+                "h-full transition-all duration-500 ease-out",
+                isError ? "bg-paprika" : isComplete ? "bg-teal" : "bg-terracotta",
               )}
               style={{ width: `${percent}%` }}
             />
           </div>
-          <p className="mt-3 min-h-[1.25rem] text-sm text-stone-600">{statusLine}</p>
+          <p className="mt-3 min-h-[1.25rem] font-serif text-sm italic text-ink/70">{statusLine}</p>
           {progress && progress.total > 0 && !isError && (
-            <p className="mt-1 text-xs text-stone-400">
+            <p className="mt-1 font-mono text-[10px] uppercase tracking-kicker text-ink/45">
               Batch progress: {progress.current.toLocaleString()} /{" "}
               {progress.total.toLocaleString()} products
             </p>
           )}
         </div>
 
-        <div className="mt-6 flex items-center justify-between gap-3 border-t border-surface-border pt-4">
-          <p className="text-xs text-stone-500">
+        <div className="mt-6 flex items-center justify-between gap-3 border-t border-terracotta/20 pt-4">
+          <p className="font-mono text-[10px] uppercase tracking-kicker text-ink/45">
             {running && startedAt != null
               ? `Elapsed ${formatElapsed(elapsedMs)}`
               : isComplete

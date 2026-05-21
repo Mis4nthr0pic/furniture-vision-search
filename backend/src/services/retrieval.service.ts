@@ -203,6 +203,30 @@ export function filterProductsByPriceIntent(
   });
 }
 
+export function productMatchesPriceIntent(
+  price: number,
+  intent: PriceIntent,
+  tolerancePercent?: number,
+): boolean {
+  const bounds = priceIntentBounds(intent, tolerancePercent);
+  if (bounds.min != null && price < bounds.min) return false;
+  if (bounds.max != null && price > bounds.max) return false;
+  return true;
+}
+
+export function describePriceIntent(intent: PriceIntent, tolerancePercent?: number): string {
+  if (intent.targetPrice != null) {
+    const tolerance = tolerancePercent ?? 20;
+    return `around $${Math.round(intent.targetPrice)} (±${tolerance}%)`;
+  }
+  if (intent.minPrice != null && intent.maxPrice != null) {
+    return `$${Math.round(intent.minPrice)}–$${Math.round(intent.maxPrice)}`;
+  }
+  if (intent.maxPrice != null) return `under $${Math.round(intent.maxPrice)}`;
+  if (intent.minPrice != null) return `over $${Math.round(intent.minPrice)}`;
+  return "price constraint";
+}
+
 export function resolveEffectiveWeights(
   weights: ScoreWeights,
   embeddingsAvailable: boolean,
@@ -355,14 +379,20 @@ export async function retrieveTopK(args: {
   let products = filterProducts(getCatalogProducts(), args.vision, args.config);
   const priceIntent = parsePriceIntent(args.userPrompt);
   if (priceIntent && products.length > 0) {
-    products = filterProductsByPriceIntent(
-      products,
-      priceIntent,
-      args.config.priceTolerancePercent,
-    );
+    const tolerance = args.config.priceTolerancePercent;
+    const beforePriceFilter = products;
+    const priceFiltered = filterProductsByPriceIntent(products, priceIntent, tolerance);
 
-    if (products.length === 0) {
-      warnings.push("prompt price constraint filtered out all candidates");
+    if (priceFiltered.length === 0) {
+      warnings.push(
+        `No catalog items match ${describePriceIntent(priceIntent, tolerance)}; showing unfiltered results`,
+      );
+      products = beforePriceFilter;
+    } else {
+      products = priceFiltered;
+      if (priceFiltered.length < beforePriceFilter.length) {
+        warnings.push(`price filter: ${describePriceIntent(priceIntent, tolerance)}`);
+      }
     }
   }
 

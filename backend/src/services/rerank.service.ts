@@ -4,7 +4,11 @@ import type { LLMConfig, VisionFeatures } from "../schemas/llm.js";
 import { type RerankResponse, parseRerankResponse } from "../schemas/rerank.js";
 import { extractJsonFromText } from "../utils/json-parse.js";
 import { logger } from "../utils/logger.js";
-import type { toRankedResult } from "./retrieval.service.js";
+import {
+  parsePriceIntent,
+  productMatchesPriceIntent,
+  type toRankedResult,
+} from "./retrieval.service.js";
 
 export type RankedSearchResult = ReturnType<typeof toRankedResult> & {
   reason?: string;
@@ -36,7 +40,10 @@ function toRerankCandidate(result: ReturnType<typeof toRankedResult>) {
 export function applyRerankOrder(
   response: RerankResponse,
   candidates: ReturnType<typeof toRankedResult>[],
+  userPrompt?: string,
+  priceTolerancePercent = 10,
 ): { ranked: RankedSearchResult[]; discarded: DiscardedSearchResult[] } {
+  const priceIntent = parsePriceIntent(userPrompt);
   const byId = new Map(candidates.map((candidate) => [candidate.id, candidate]));
   const seen = new Set<string>();
 
@@ -44,6 +51,12 @@ export function applyRerankOrder(
   for (const item of response.ranked) {
     const candidate = byId.get(item.id);
     if (!candidate || seen.has(item.id)) continue;
+    if (
+      priceIntent &&
+      !productMatchesPriceIntent(candidate.price, priceIntent, priceTolerancePercent)
+    ) {
+      continue;
+    }
     seen.add(item.id);
     ranked.push({
       ...candidate,
@@ -68,6 +81,12 @@ export function applyRerankOrder(
 
   for (const candidate of candidates) {
     if (seen.has(candidate.id)) continue;
+    if (
+      priceIntent &&
+      !productMatchesPriceIntent(candidate.price, priceIntent, priceTolerancePercent)
+    ) {
+      continue;
+    }
     ranked.push({ ...candidate });
   }
 
@@ -116,6 +135,7 @@ export const RerankService = {
     llmConfig: LLMConfig;
     systemPrompt?: string;
     useImage: boolean;
+    priceTolerancePercent?: number;
   }): Promise<{ ranked: RankedSearchResult[]; discarded: DiscardedSearchResult[] }> {
     const systemPrompt = args.systemPrompt ?? DEFAULT_RERANK_SYSTEM_PROMPT;
 
@@ -123,7 +143,12 @@ export const RerankService = {
     for (let attempt = 0; attempt < 2; attempt++) {
       try {
         const response = await callRerankModel({ ...args, systemPrompt });
-        return applyRerankOrder(response, args.candidates);
+        return applyRerankOrder(
+          response,
+          args.candidates,
+          args.userPrompt,
+          args.priceTolerancePercent ?? 10,
+        );
       } catch (err) {
         lastError = err;
         logger.warn({ err, attempt: attempt + 1 }, "Rerank parse or validation failed");

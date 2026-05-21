@@ -20,7 +20,7 @@ export function confidenceTone(value: number): "strong" | "medium" | "weak" {
 }
 
 export const confidenceToneClass: Record<ReturnType<typeof confidenceTone>, string> = {
-  strong: "text-emerald-700 bg-emerald-50",
-  medium: "text-amber-800 bg-amber-50",
-  weak: "text-stone-500 bg-stone-100",
+  strong: "border-teal/50 text-teal",
+  medium: "border-ochre/50 text-ochre",
+  weak: "border-cream/20 text-cream/45",
 };

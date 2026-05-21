@@ -5,6 +5,7 @@ interface CardProps {
   children: ReactNode;
   className?: string;
   padding?: "sm" | "md" | "lg";
+  tone?: "dark" | "polaroid";
 }
 
 const paddingMap = {
@@ -13,12 +14,13 @@ const paddingMap = {
   lg: "p-6",
 };
 
-export function Card({ children, className, padding = "md" }: CardProps) {
+export function Card({ children, className, padding = "md", tone = "dark" }: CardProps) {
   return (
     <div
       className={cn(
-        "rounded-2xl border border-surface-border bg-surface shadow-card",
         paddingMap[padding],
+        tone === "dark" && "rounded-lg border border-cream/8 bg-ink-rise/90 backdrop-blur-sm",
+        tone === "polaroid" && "rounded-sm bg-butter text-ink shadow-polaroid",
         className,
       )}
     >
@@ -31,16 +33,25 @@ export function CardHeader({
   title,
   description,
   action,
+  kicker,
 }: {
   title: string;
   description?: string;
   action?: ReactNode;
+  kicker?: string;
 }) {
   return (
     <div className="mb-4 flex items-start justify-between gap-3">
       <div>
-        <h2 className="font-display text-lg font-semibold text-stone-900">{title}</h2>
-        {description && <p className="mt-1 text-sm text-stone-500">{description}</p>}
+        {kicker && (
+          <p className="font-mono text-[10px] uppercase tracking-kicker text-terracotta">
+            {kicker}
+          </p>
+        )}
+        <h2 className="font-display text-2xl italic tracking-tight text-cream">{title}</h2>
+        {description && (
+          <p className="mt-1 font-serif text-sm italic text-cream/60">{description}</p>
+        )}
       </div>
       {action}
     </div>

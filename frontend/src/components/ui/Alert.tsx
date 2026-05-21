@@ -8,16 +8,21 @@ interface AlertProps {
 }
 
 const styles = {
-  error: "border-rose-200 bg-rose-50 text-rose-900",
-  warning: "border-amber-200 bg-amber-50 text-amber-950",
-  info: "border-sky-200 bg-sky-50 text-sky-950",
+  error: "border-plum/60 bg-plum/20 text-cream",
+  warning: "border-ochre/50 bg-ochre/10 text-cream",
+  info: "border-teal/50 bg-teal/15 text-cream",
 };
 
 export function Alert({ tone = "info", title, children }: AlertProps) {
   return (
-    <div className={cn("rounded-xl border px-4 py-3 text-sm", styles[tone])} role="alert">
-      {title && <p className="font-semibold">{title}</p>}
-      <div className={title ? "mt-1" : undefined}>{children}</div>
+    <div
+      className={cn("rounded-lg border px-4 py-3 font-sans text-sm backdrop-blur-sm", styles[tone])}
+      role="alert"
+    >
+      {title && <p className="font-display text-base italic">{title}</p>}
+      <div className={cn(title && "mt-1", "font-serif italic leading-relaxed opacity-90")}>
+        {children}
+      </div>
     </div>
   );
 }

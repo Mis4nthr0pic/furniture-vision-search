@@ -1,5 +1,6 @@
 import { type DragEvent, memo, useState } from "react";
 import { cn } from "../../utils/format";
+import { ArchedFrame } from "../editorial/ArchedFrame";
 
 interface ImageDropzoneProps {
   file: File | null;
@@ -38,18 +39,9 @@ export const ImageDropzone = memo(function ImageDropzone({
       }}
       onDragLeave={() => setDragOver(false)}
       onDrop={onDrop}
-      className={cn(
-        "group relative overflow-hidden rounded-2xl border-2 border-dashed transition",
-        dragOver
-          ? "border-brand-500 bg-brand-50"
-          : "border-surface-border bg-white hover:border-brand-300",
-        disabled && "pointer-events-none opacity-60",
-      )}
+      className={cn("group relative transition", disabled && "pointer-events-none opacity-60")}
     >
-      <label
-        htmlFor={inputId}
-        className="flex min-h-[240px] cursor-pointer flex-col items-center justify-center px-6 py-8 text-center"
-      >
+      <label htmlFor={inputId} className="block cursor-pointer">
         <input
           id={inputId}
           type="file"
@@ -59,41 +51,48 @@ export const ImageDropzone = memo(function ImageDropzone({
           onChange={(event) => handleFiles(event.target.files)}
         />
 
-        {previewUrl ? (
-          <>
-            <img
-              src={previewUrl}
-              alt={file?.name ?? "Upload preview"}
-              className="max-h-52 rounded-xl object-contain shadow-lift"
-              loading="lazy"
-              decoding="async"
-            />
-            {file && (
-              <p className="mt-4 text-xs text-stone-500">
-                {file.name} · {(file.size / 1024).toFixed(0)} KB
+        <ArchedFrame
+          className={cn(
+            "min-h-[260px] transition",
+            dragOver ? "border-terracotta/60 bg-burgundy" : "hover:border-cream/20",
+          )}
+          innerClassName="min-h-[260px] flex-col px-6 py-8 text-center"
+        >
+          {previewUrl ? (
+            <>
+              <img
+                src={previewUrl}
+                alt={file?.name ?? "Upload preview"}
+                className="max-h-48 w-full object-contain"
+                loading="lazy"
+                decoding="async"
+              />
+              {file && (
+                <p className="mt-4 font-mono text-[10px] uppercase tracking-wider text-cream/45">
+                  {file.name} · {(file.size / 1024).toFixed(0)} KB
+                </p>
+              )}
+              <p className="mt-2 font-hand text-lg text-ochre opacity-0 transition group-hover:opacity-100">
+                replace →
               </p>
-            )}
-            <p className="mt-2 text-xs font-medium text-brand-700 opacity-0 transition group-hover:opacity-100">
-              Click or drop to replace
-            </p>
-          </>
-        ) : (
-          <>
-            <span className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-100 text-brand-800">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden>
-                <path
-                  d="M12 16V4m0 0L8 8m4-4 4 4M4 14v4a2 2 0 002 2h12a2 2 0 002-2v-4"
-                  stroke="currentColor"
-                  strokeWidth="1.75"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </span>
-            <p className="font-medium text-stone-800">Drop a furniture photo here</p>
-            <p className="mt-1 text-sm text-stone-500">PNG, JPG, WebP · up to 10MB</p>
-          </>
-        )}
+            </>
+          ) : (
+            <>
+              <span
+                className="font-hand text-2xl text-ochre"
+                style={{ transform: "rotate(-3deg)" }}
+              >
+                drop here
+              </span>
+              <p className="mt-3 font-display text-xl italic text-cream/90">
+                A furniture photograph
+              </p>
+              <p className="mt-2 font-serif text-sm italic text-cream/50">
+                PNG, JPG, WebP · up to 10MB
+              </p>
+            </>
+          )}
+        </ArchedFrame>
       </label>
     </div>
   );

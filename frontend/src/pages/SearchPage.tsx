@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { PainterlyBackdrop } from "../components/editorial/PainterlyBackdrop";
+import { SectionHeader } from "../components/editorial/SectionHeader";
 import { FeaturesPanel } from "../components/search/FeaturesPanel";
 import { ImageDropzone } from "../components/search/ImageDropzone";
 import { ResultsList } from "../components/search/ResultsList";
@@ -29,6 +31,7 @@ export function SearchPage() {
     rerankError,
     timings,
     ratings,
+    retrievalConfig,
   } = useSearchState();
 
   const { runSearch, rateProduct } = useSearchActions();
@@ -41,89 +44,97 @@ export function SearchPage() {
   const showEmptyResults = !searchLoading && lastSearchId && ranked.length === 0;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
-      <section className="mb-8 max-w-3xl animate-fade-in">
-        <p className="text-sm font-semibold uppercase tracking-[0.14em] text-brand-700">
-          Image-based product search
-        </p>
-        <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight text-stone-900 sm:text-5xl">
-          Find furniture that fits your photo
-        </h1>
-        <p className="mt-3 text-balance text-base leading-relaxed text-stone-600 sm:text-lg">
-          Upload a room photo, optionally describe what you want, and explore ranked catalog matches
-          with transparent scoring and rerank reasoning.
-        </p>
-      </section>
+    <PainterlyBackdrop className="min-h-[calc(100vh-4rem)]">
+      <div className="mx-auto max-w-[1200px] px-4 py-10 sm:px-8 sm:py-14">
+        <SectionHeader
+          kickerNum="01"
+          kicker="The recipe"
+          title={
+            <>
+              Find the piece in <span className="text-terracotta not-italic">your photograph</span>
+            </>
+          }
+          subtitle="Upload a room scene, whisper what you want, and browse ranked catalog matches with transparent scoring and rerank reasoning."
+          aside="psst — start here"
+          asideTilt={-6}
+          className="mb-10 animate-fade-in"
+        />
 
-      {!hasApiKey && (
-        <div className="mb-5">
-          <Alert tone="info" title="API key required">
-            Add your OpenRouter key in{" "}
-            <Link to="/admin" className="font-semibold text-brand-800 underline underline-offset-2">
-              Admin → Config
-            </Link>{" "}
-            before searching. Keys are stored in memory only.
-          </Alert>
-        </div>
-      )}
-
-      <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_340px]">
-        <div className="space-y-5">
-          <Card padding="lg" className="space-y-5">
-            <CardHeader
-              title="Upload & search"
-              description="Drag a furniture photo or click to browse."
-            />
-
-            <ImageDropzone
-              file={imageFile}
-              previewUrl={previewUrl}
-              onFileSelect={setImageFile}
-              disabled={searchLoading}
-            />
-
-            <Input
-              label="Optional prompt"
-              value={userPrompt}
-              onChange={(event) => setUserPrompt(event.target.value)}
-              placeholder="e.g. walnut bookshelf with open shelves, under $500"
-              disabled={searchLoading}
-            />
-
-            <Button
-              onClick={handleSearch}
-              disabled={searchLoading || !imageFile || !hasApiKey}
-              loading={searchLoading}
-              className="w-full sm:w-auto"
-            >
-              {searchLoading ? "Searching catalog…" : "Search catalog"}
-            </Button>
-          </Card>
-
-          {searchError && <Alert tone="error">{searchError}</Alert>}
-          {searchLoading && <SearchLoadingPanel />}
-          <WarningsBanner warnings={warnings} rerankError={rerankError} />
-
-          {showEmptyResults && (
-            <Alert tone="info" title="No matches returned">
-              Try a clearer photo, adjust your prompt, or tune retrieval settings in Admin.
+        {!hasApiKey && (
+          <div className="mb-6">
+            <Alert tone="info" title="Key required">
+              Add your OpenRouter key in{" "}
+              <Link to="/admin" className="text-terracotta underline underline-offset-4">
+                back of house → config
+              </Link>
+              . Keys live in memory only.
             </Alert>
-          )}
+          </div>
+        )}
 
-          <ResultsList
-            ranked={ranked}
-            ratings={ratings}
-            lastSearchId={lastSearchId}
-            searchLoading={searchLoading}
-            onRate={(productId, relevant) => {
-              if (!lastSearchId) return;
-              void rateProduct(lastSearchId, productId, relevant);
-            }}
-          />
+        <div className="grid gap-10 lg:grid-cols-[1.15fr_1fr] xl:grid-cols-[1.15fr_0.95fr]">
+          <div className="space-y-6">
+            <Card padding="lg" className="animate-fade-in">
+              <CardHeader
+                kicker="✦ Upload"
+                title="Offer a photograph"
+                description="Drag a furniture photo or click to browse."
+              />
+
+              <ImageDropzone
+                file={imageFile}
+                previewUrl={previewUrl}
+                onFileSelect={setImageFile}
+                disabled={searchLoading}
+              />
+
+              <div className="mt-6">
+                <Input
+                  label="Optional refinement"
+                  value={userPrompt}
+                  onChange={(event) => setUserPrompt(event.target.value)}
+                  placeholder="walnut bookshelf, under $500…"
+                  disabled={searchLoading}
+                />
+              </div>
+
+              <Button
+                onClick={handleSearch}
+                disabled={searchLoading || !imageFile || !hasApiKey}
+                loading={searchLoading}
+                className="mt-8 w-full sm:w-auto"
+              >
+                {searchLoading ? "Consulting the catalog…" : "Search the salon"}
+              </Button>
+            </Card>
+
+            {searchError && <Alert tone="error">{searchError}</Alert>}
+            {searchLoading && (
+              <SearchLoadingPanel enableRerank={retrievalConfig.enableRerank ?? true} />
+            )}
+            <WarningsBanner warnings={warnings} rerankError={rerankError} />
+
+            {showEmptyResults && (
+              <Alert tone="info" title="No matches returned">
+                Try a clearer photo, refine your prompt, or tune retrieval in back of house.
+              </Alert>
+            )}
+
+            <ResultsList
+              ranked={ranked}
+              ratings={ratings}
+              lastSearchId={lastSearchId}
+              searchLoading={searchLoading}
+              onRate={(productId, relevant) => {
+                if (!lastSearchId) return;
+                void rateProduct(lastSearchId, productId, relevant);
+              }}
+            />
+          </div>
+
+          <FeaturesPanel visionFeatures={visionFeatures} timings={timings} />
         </div>
-
-        <FeaturesPanel visionFeatures={visionFeatures} timings={timings} />
       </div>
-    </div>
+    </PainterlyBackdrop>
   );
 }

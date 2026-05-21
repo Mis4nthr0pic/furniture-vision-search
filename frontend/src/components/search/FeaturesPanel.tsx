@@ -1,13 +1,7 @@
 import { memo } from "react";
 import type { SearchTimings, VisionFeatures } from "../../types";
 import { formatMs } from "../../utils/format";
-import {
-  confidenceTone,
-  confidenceToneClass,
-  formatConfidencePercent,
-  isLowVisionConfidence,
-} from "../../utils/vision";
-import { Badge } from "../ui/Badge";
+import { confidenceTone, formatConfidencePercent, isLowVisionConfidence } from "../../utils/vision";
 import { Card, CardHeader } from "../ui/Card";
 
 interface FeaturesPanelProps {
@@ -15,20 +9,30 @@ interface FeaturesPanelProps {
   timings: SearchTimings | null;
 }
 
+const confidenceSalonClass: Record<string, string> = {
+  high: "border-teal/50 text-teal",
+  medium: "border-ochre/50 text-ochre",
+  low: "border-plum/50 text-plum",
+};
+
 export const FeaturesPanel = memo(function FeaturesPanel({
   visionFeatures,
   timings,
 }: FeaturesPanelProps) {
   if (!visionFeatures) {
     return (
-      <Card className="sticky top-24 animate-fade-in">
+      <Card className="lg:sticky lg:top-24 animate-fade-in">
         <CardHeader
-          title="Vision analysis"
-          description="Extracted attributes appear here after a search."
+          kicker="✦ No. 02"
+          title="Tasting notes"
+          description="Vision extraction appears here after a search."
         />
-        <div className="rounded-xl border border-dashed border-surface-border bg-brand-50/50 px-4 py-8 text-center text-sm text-stone-500">
-          Upload an image and run search to inspect category, style, color, and more.
+        <div className="rounded-lg border border-dashed border-cream/15 px-4 py-10 text-center font-serif text-sm italic text-cream/45">
+          Upload an image and search to inspect category, style, color, and more.
         </div>
+        <p className="mt-4 font-hand text-lg text-ochre" style={{ transform: "rotate(3deg)" }}>
+          waiting…
+        </p>
       </Card>
     );
   }
@@ -44,31 +48,36 @@ export const FeaturesPanel = memo(function FeaturesPanel({
   const lowConfidence = isLowVisionConfidence(visionFeatures);
 
   return (
-    <Card className="sticky top-24 animate-fade-in">
-      <CardHeader title="Vision analysis" description="Catalog-aware extraction" />
+    <Card className="lg:sticky lg:top-24 animate-fade-in">
+      <CardHeader
+        kicker="✦ No. 02"
+        title="Tasting notes"
+        description="Catalog-aware vision extraction"
+      />
 
       {lowConfidence && (
-        <p className="mb-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-relaxed text-amber-950">
-          Extraction confidence is low — category/type filters won&apos;t narrow the catalog.
-          Ranking still uses description, keywords, vectors, and rerank. Try a clearer photo or
-          lower <strong>Confidence threshold</strong> in Admin.
+        <p className="mb-4 rounded-lg border border-ochre/40 bg-ochre/10 px-3 py-2 font-serif text-xs italic leading-relaxed text-cream/90">
+          Confidence is low — filters won&apos;t narrow the catalog. Ranking still uses vectors,
+          lexical, and rerank.
         </p>
       )}
 
-      <p className="rounded-xl bg-brand-50 px-3 py-2.5 text-sm leading-relaxed text-stone-700">
+      <p className="rounded-lg border border-cream/10 bg-burgundy/50 px-3 py-3 font-serif text-sm italic leading-relaxed text-cream/85">
         {visionFeatures.description}
       </p>
 
-      <dl className="mt-4 space-y-2">
+      <dl className="mt-5 space-y-3">
         {attributes.map(([label, value, confidence]) => (
           <div key={label} className="flex items-center justify-between gap-3 text-sm">
-            <dt className="text-stone-500">{label}</dt>
-            <dd className="flex items-center gap-2 font-medium text-stone-900">
+            <dt className="font-mono text-[10px] uppercase tracking-wider text-cream/45">
+              {label}
+            </dt>
+            <dd className="flex items-center gap-2 font-serif italic text-cream">
               <span>{value ?? "—"}</span>
               {confidence != null && (
                 <span
-                  className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${confidenceToneClass[confidenceTone(confidence)]}`}
-                  title="Model confidence for this field (not match quality)"
+                  className={`rounded-pill border px-2 py-0.5 font-mono text-[10px] not-italic ${confidenceSalonClass[confidenceTone(confidence)]}`}
+                  title="Model confidence (not match quality)"
                 >
                   {formatConfidencePercent(confidence)}
                 </span>
@@ -79,24 +88,26 @@ export const FeaturesPanel = memo(function FeaturesPanel({
       </dl>
 
       {visionFeatures.keywords.length > 0 && (
-        <div className="mt-5">
-          <p className="text-xs font-semibold uppercase tracking-wide text-stone-400">Keywords</p>
-          <div className="mt-2 flex flex-wrap gap-1.5">
+        <div className="mt-6">
+          <p className="font-mono text-[10px] uppercase tracking-kicker text-terracotta">
+            Keywords
+          </p>
+          <div className="mt-2 flex flex-wrap gap-2">
             {visionFeatures.keywords.map((keyword) => (
-              <Badge key={keyword} tone="brand">
+              <span key={keyword} className="salon-chip">
                 {keyword}
-              </Badge>
+              </span>
             ))}
           </div>
         </div>
       )}
 
       {timings && (
-        <div className="mt-5 grid grid-cols-2 gap-2 border-t border-surface-border pt-4 text-xs text-stone-500">
+        <div className="mt-6 grid grid-cols-2 gap-2 border-t border-cream/10 pt-4 font-mono text-[10px] uppercase tracking-wider text-cream/45">
           <span>Vision {formatMs(timings.visionMs)}</span>
           <span>Retrieval {formatMs(timings.retrievalMs)}</span>
           <span>Rerank {formatMs(timings.rerankMs)}</span>
-          <span className="font-medium text-stone-700">Total {formatMs(timings.totalMs)}</span>
+          <span className="text-terracotta">Total {formatMs(timings.totalMs)}</span>
         </div>
       )}
     </Card>

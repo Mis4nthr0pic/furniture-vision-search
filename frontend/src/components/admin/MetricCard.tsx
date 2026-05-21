@@ -13,16 +13,16 @@ export function MetricCard({
 }) {
   const toneClass =
     tone === "success"
-      ? "border-emerald-200 bg-emerald-50/60"
+      ? "border-teal/40 bg-teal/10"
       : tone === "warning"
-        ? "border-amber-200 bg-amber-50/60"
-        : "border-surface-border bg-white";
+        ? "border-ochre/40 bg-ochre/10"
+        : "border-cream/10 bg-ink-rise/80";
 
   return (
-    <div className={cn("rounded-2xl border p-4 shadow-sm", toneClass)}>
-      <p className="text-xs font-semibold uppercase tracking-wide text-stone-500">{label}</p>
-      <p className="mt-1 font-display text-2xl font-semibold text-stone-900">{value}</p>
-      {hint && <p className="mt-1 text-xs text-stone-500">{hint}</p>}
+    <div className={cn("rounded-lg border p-4 backdrop-blur-sm", toneClass)}>
+      <p className="font-mono text-[10px] uppercase tracking-kicker text-cream/45">{label}</p>
+      <p className="mt-1 font-display text-3xl italic tracking-tight text-terracotta">{value}</p>
+      {hint && <p className="mt-1 font-serif text-xs italic text-cream/50">{hint}</p>}
     </div>
   );
 }

@@ -52,7 +52,7 @@ export function CatalogMetaTab() {
 
       {loading && !meta ? (
         <Card>
-          <p className="px-6 py-8 text-center text-sm text-stone-500" role="status">
+          <p className="px-6 py-8 text-center text-sm text-cream/45" role="status">
             Loading catalog metadata…
           </p>
         </Card>
@@ -78,20 +78,20 @@ export function CatalogMetaTab() {
               <CardHeader title="Vocabulary" description="Distinct attribute values in catalog." />
               <dl className="grid grid-cols-2 gap-3 text-sm">
                 <div>
-                  <dt className="text-stone-500">Categories</dt>
-                  <dd className="font-semibold text-stone-900">{meta.categories.length}</dd>
+                  <dt className="text-cream/45">Categories</dt>
+                  <dd className="font-semibold text-cream">{meta.categories.length}</dd>
                 </div>
                 <div>
-                  <dt className="text-stone-500">Types</dt>
-                  <dd className="font-semibold text-stone-900">{meta.types.length}</dd>
+                  <dt className="text-cream/45">Types</dt>
+                  <dd className="font-semibold text-cream">{meta.types.length}</dd>
                 </div>
                 <div>
-                  <dt className="text-stone-500">Colors</dt>
-                  <dd className="font-semibold text-stone-900">{meta.colors.length}</dd>
+                  <dt className="text-cream/45">Colors</dt>
+                  <dd className="font-semibold text-cream">{meta.colors.length}</dd>
                 </div>
                 <div>
-                  <dt className="text-stone-500">Materials</dt>
-                  <dd className="font-semibold text-stone-900">{meta.materials.length}</dd>
+                  <dt className="text-cream/45">Materials</dt>
+                  <dd className="font-semibold text-cream">{meta.materials.length}</dd>
                 </div>
               </dl>
             </Card>
@@ -101,7 +101,7 @@ export function CatalogMetaTab() {
               <ul className="space-y-2">
                 {topCategories.map(([category, count]) => (
                   <li key={category} className="flex items-center justify-between text-sm">
-                    <span className="text-stone-700">{category}</span>
+                    <span className="text-cream/75">{category}</span>
                     <Badge>{count.toLocaleString()}</Badge>
                   </li>
                 ))}
