@@ -1,0 +1,171 @@
+import { config } from "../config.js";
+import type { LLMConfig } from "../schemas/llm.js";
+import type { ChatMessage, ImageInput, LLMClient } from "./client.js";
+import { AppError } from "../utils/errors.js";
+
+interface OpenAIChatResponse {
+  choices?: Array<{ message?: { content?: string | null } }>;
+  error?: { message?: string };
+}
+
+interface OpenAIEmbedResponse {
+  data?: Array<{ embedding: number[] }>;
+  error?: { message?: string };
+}
+
+function normalizeBaseUrl(baseUrl: string): string {
+  return baseUrl.replace(/\/+$/, "");
+}
+
+function sanitizeMessage(message: string, apiKey: string): string {
+  if (!apiKey) return message;
+  return message.split(apiKey).join("[REDACTED]");
+}
+
+function buildHeaders(llmConfig: LLMConfig): Record<string, string> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${llmConfig.apiKey}`,
+  };
+
+  if (llmConfig.baseUrl.includes("openrouter.ai")) {
+    headers["HTTP-Referer"] = config.openRouterReferer;
+    headers["X-Title"] = config.openRouterTitle;
+  }
+
+  return headers;
+}
+
+async function postJson<T>(
+  url: string,
+  llmConfig: LLMConfig,
+  body: unknown,
+): Promise<T> {
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      method: "POST",
+      headers: buildHeaders(llmConfig),
+      body: JSON.stringify(body),
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Network request failed";
+    throw new AppError("LLM_NETWORK_ERROR", sanitizeMessage(message, llmConfig.apiKey), 502);
+  }
+
+  const raw = await response.text();
+  let parsed: T;
+  try {
+    parsed = JSON.parse(raw) as T;
+  } catch {
+    throw new AppError(
+      "LLM_PARSE_ERROR",
+      sanitizeMessage(`Invalid JSON from LLM provider (${response.status})`, llmConfig.apiKey),
+      502,
+    );
+  }
+
+  const errorBody = parsed as OpenAIChatResponse;
+  if (!response.ok) {
+    const providerMessage =
+      errorBody.error?.message ?? `LLM request failed with status ${response.status}`;
+    throw new AppError(
+      "LLM_PROVIDER_ERROR",
+      sanitizeMessage(providerMessage, llmConfig.apiKey),
+      response.status >= 500 ? 502 : 400,
+    );
+  }
+
+  return parsed;
+}
+
+function extractChatContent(response: OpenAIChatResponse): string {
+  const content = response.choices?.[0]?.message?.content;
+  if (!content) {
+    throw new AppError("LLM_EMPTY_RESPONSE", "LLM returned an empty response", 502);
+  }
+  return content;
+}
+
+export function createOpenAICompatibleClient(llmConfig: LLMConfig): LLMClient {
+  const baseUrl = normalizeBaseUrl(llmConfig.baseUrl);
+  const embedBaseUrl = normalizeBaseUrl(llmConfig.embedBaseUrl ?? llmConfig.baseUrl);
+
+  return {
+    async vision({ imageBase64, mimeType, systemPrompt, userPrompt }) {
+      const content: Array<{ type: string; text?: string; image_url?: { url: string } }> = [
+        { type: "text", text: userPrompt ?? "Analyze this furniture image." },
+        {
+          type: "image_url",
+          image_url: { url: `data:${mimeType};base64,${imageBase64}` },
+        },
+      ];
+
+      const response = await postJson<OpenAIChatResponse>(`${baseUrl}/chat/completions`, llmConfig, {
+        model: llmConfig.visionModel,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content },
+        ],
+        response_format: { type: "json_object" },
+      });
+
+      const text = extractChatContent(response);
+      return JSON.parse(text) as unknown;
+    },
+
+    async embed({ input }) {
+      const texts = Array.isArray(input) ? input : [input];
+      const response = await postJson<OpenAIEmbedResponse>(
+        `${embedBaseUrl}/embeddings`,
+        llmConfig,
+        {
+          model: llmConfig.embedModel,
+          input: texts,
+        },
+      );
+
+      const embeddings = response.data?.map((row) => row.embedding) ?? [];
+      if (embeddings.length !== texts.length) {
+        throw new AppError("LLM_EMBED_ERROR", "Embedding response size mismatch", 502);
+      }
+      return embeddings;
+    },
+
+    async chat({ messages, images, jsonMode }) {
+      const apiMessages: Array<{
+        role: string;
+        content: string | Array<{ type: string; text?: string; image_url?: { url: string } }>;
+      }> = messages.map((message: ChatMessage) => ({ role: message.role, content: message.content }));
+
+      if (images && images.length > 0) {
+        const lastUserIndex = [...apiMessages].reverse().findIndex((m) => m.role === "user");
+        if (lastUserIndex !== -1) {
+          const index = apiMessages.length - 1 - lastUserIndex;
+          const original = apiMessages[index];
+          const parts: Array<{ type: string; text?: string; image_url?: { url: string } }> = [
+            { type: "text", text: typeof original.content === "string" ? original.content : "" },
+          ];
+          for (const image of images) {
+            parts.push({
+              type: "image_url",
+              image_url: { url: `data:${image.mimeType};base64,${image.base64}` },
+            });
+          }
+          apiMessages[index] = { role: "user", content: parts };
+        }
+      }
+
+      const body: Record<string, unknown> = {
+        model: llmConfig.chatModel,
+        messages: apiMessages,
+      };
+      if (jsonMode) {
+        body.response_format = { type: "json_object" };
+      }
+
+      const response = await postJson<OpenAIChatResponse>(`${baseUrl}/chat/completions`, llmConfig, body);
+      return extractChatContent(response);
+    },
+  };
+}

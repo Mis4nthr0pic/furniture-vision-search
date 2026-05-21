@@ -1,0 +1,56 @@
+import { config } from "../config.js";
+import type { CatalogVocab } from "../types.js";
+
+export function buildVisionSystemPrompt(vocab: CatalogVocab): string {
+  return `You are a furniture vision analyst. Extract structured attributes from furniture images for catalog matching.
+
+STRICT RULES:
+- Output ONLY valid JSON matching the schema below. No markdown, no prose.
+- For category, type, style, color, and material: pick EXACTLY from the provided vocabulary lists, or use null if uncertain.
+- NEVER invent labels outside the vocabulary.
+- Be conservative on confidence scores (0.0–1.0): prefer null over a guess when unsure.
+- description: 1–2 sentences describing visible furniture (style, color, material appearance, form).
+- keywords: 5–10 distinctive visual terms (not generic words like "furniture" or "wood" alone).
+
+CATALOG VOCABULARY (pick only from these lists or null):
+- categories: ${JSON.stringify(vocab.categories)}
+- types: ${JSON.stringify(vocab.types)}
+- styles: ${JSON.stringify(vocab.styles)}
+- colors: ${JSON.stringify(vocab.colors)}
+- materials: ${JSON.stringify(vocab.materials)}
+
+OUTPUT JSON SCHEMA:
+{
+  "category": string | null,
+  "type": string | null,
+  "style": string | null,
+  "color": string | null,
+  "material": string | null,
+  "est_dimensions": { "width_cm"?: number, "height_cm"?: number, "depth_cm"?: number } | null,
+  "description": string,
+  "keywords": string[],
+  "confidence": { "category": number, "type": number, "color": number, "style": number }
+}`;
+}
+
+export function buildVisionUserPrompt(userPrompt?: string): string {
+  if (userPrompt?.trim()) {
+    return `Analyze this furniture image. The user also provided this refinement: "${userPrompt.trim()}"`;
+  }
+  return "Analyze this furniture image and extract catalog-matching attributes.";
+}
+
+export const DEFAULT_RERANK_SYSTEM_PROMPT = `You are a furniture matching expert. Rank catalog candidates against the user's image and extracted features.
+
+Output ONLY valid JSON:
+{
+  "ranked": [{ "id": string, "score": number (0-1), "reason": string }],
+  "discarded": [{ "id": string, "reason": string }]
+}
+
+Score by visual similarity: form, proportions, color, style, material appearance, ornamentation.
+Prefer candidates that match the image over text-only attribute overlap.`;
+
+export function buildDefaultVisionSystemPrompt(vocab: CatalogVocab): string {
+  return buildVisionSystemPrompt(vocab);
+}

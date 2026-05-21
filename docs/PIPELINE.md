@@ -28,7 +28,7 @@ gh pr create --base main --title "Step N: ..." --body-file .github/pull_request_
 | 2 | Mongo + enrichment + vocab | — | ✅ Done (pre-PR) | [`c5b8507`](https://github.com/Mis4nthr0pic/furniture-vision-search/commit/c5b8507) |
 | 3 | Lexical index (MiniSearch) | — | ✅ Done (pre-PR) | [`5a67d19`](https://github.com/Mis4nthr0pic/furniture-vision-search/commit/5a67d19) |
 | — | Env var hygiene for MongoDB URI | — | ✅ Done (pre-PR) | [`00331c4`](https://github.com/Mis4nthr0pic/furniture-vision-search/commit/00331c4) |
-| 4 | LLM client + vision debug | `step/4-llm-client` | 🔲 Next | — |
+| 4 | LLM client + vision debug | `step/4-llm-client` | 🔄 In PR | — |
 | 5 | Search pipeline (no embed/rerank) | `step/5-hybrid-search` | 🔲 | — |
 | 6 | Static eval harness | `step/6-static-eval` | 🔲 | — |
 | 7 | Embeddings (lazy + cache) | `step/7-embeddings` | 🔲 | — |
