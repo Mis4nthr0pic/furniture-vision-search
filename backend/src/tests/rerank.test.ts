@@ -134,4 +134,20 @@ describe("applyRerankOrder", () => {
 
     expect(result.ranked.map((item) => item.id)).toEqual(["b", "a"]);
   });
+
+  it("drops over-budget candidates when user prompt sets a max price", () => {
+    const result = applyRerankOrder(
+      {
+        ranked: [
+          { id: "b", score: 0.9, reason: "Looks great but expensive" },
+          { id: "a", score: 0.7, reason: "In budget" },
+        ],
+        discarded: [],
+      },
+      candidates,
+      "under $500",
+    );
+
+    expect(result.ranked.map((item) => item.id)).toEqual(["a"]);
+  });
 });

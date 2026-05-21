@@ -11,16 +11,18 @@ export function TextArea({ label, hint, className, id, ...props }: TextAreaProps
 
   return (
     <label htmlFor={areaId} className="block">
-      <span className="text-sm font-medium text-stone-700">{label}</span>
+      <span className="font-mono text-[10px] uppercase tracking-kicker text-terracotta/90">
+        {label}
+      </span>
       <textarea
         id={areaId}
         className={cn(
-          "mt-1.5 w-full rounded-xl border border-surface-border bg-white px-3.5 py-2.5 text-sm text-stone-900 shadow-sm transition placeholder:text-stone-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20",
+          "mt-2 w-full resize-y border-0 border-b border-terracotta/30 bg-transparent py-2 font-serif text-base italic text-cream placeholder:text-cream/35 focus:border-terracotta focus:outline-none focus:ring-0",
           className,
         )}
         {...props}
       />
-      {hint && <span className="mt-1.5 block text-xs text-stone-500">{hint}</span>}
+      {hint && <span className="mt-2 block font-serif text-sm italic text-cream/50">{hint}</span>}
     </label>
   );
 }

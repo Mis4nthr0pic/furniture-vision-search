@@ -4,6 +4,12 @@ import type { VisionFeatures } from "../schemas/llm.js";
 import type { RetrievalConfig, ScoreWeights } from "../schemas/retrieval.js";
 import type { EnrichedProduct } from "../types.js";
 import { cosineSimilarity } from "../utils/cosine.js";
+import {
+  describePriceIntent,
+  parsePriceIntent,
+  productMatchesPriceIntent,
+  type PriceIntent,
+} from "../utils/price-intent.js";
 
 export interface ScoreBreakdown {
   vec: number;
@@ -146,6 +152,36 @@ export function filterProducts(
   return filtered;
 }
 
+export function filterByPriceIntent(
+  products: EnrichedProduct[],
+  userPrompt: string | undefined,
+  tolerancePercent?: number,
+): { products: EnrichedProduct[]; priceIntent: PriceIntent | null; warning?: string } {
+  const priceIntent = parsePriceIntent(userPrompt);
+  if (!priceIntent) {
+    return { products, priceIntent: null };
+  }
+
+  const tolerance = tolerancePercent ?? 10;
+  const filtered = products.filter((product) =>
+    productMatchesPriceIntent(product.price, priceIntent, tolerance),
+  );
+
+  if (filtered.length === 0) {
+    return {
+      products,
+      priceIntent,
+      warning: `No catalog items match ${describePriceIntent(priceIntent, tolerance)}; showing unfiltered results`,
+    };
+  }
+
+  if (filtered.length < products.length) {
+    return { products: filtered, priceIntent };
+  }
+
+  return { products: filtered, priceIntent };
+}
+
 function modeWeights(mode: RetrievalConfig["mode"], weights: ScoreWeights): ScoreWeights {
   switch (mode) {
     case "vector_only":
@@ -245,6 +281,16 @@ export async function retrieveTopK(args: {
   weights = modeWeights(args.config.mode, weights);
 
   const products = filterProducts(getCatalogProducts(), args.vision, args.config);
+  const {
+    products: priceFiltered,
+    priceIntent,
+    warning: priceWarning,
+  } = filterByPriceIntent(products, args.userPrompt, args.config.priceTolerancePercent);
+  if (priceWarning) warnings.push(priceWarning);
+  else if (priceIntent) {
+    warnings.push(`price filter: ${describePriceIntent(priceIntent, args.config.priceTolerancePercent ?? 10)}`);
+  }
+
   const queryText = buildLexicalQueryText(args.vision, args.userPrompt);
   const lexicalScores = getLexicalScoresForQuery(queryText);
   const { vocab } = getCatalogVocab();
@@ -257,7 +303,7 @@ export async function retrieveTopK(args: {
     }
   }
 
-  const scored = products.map((product) => {
+  const scored = priceFiltered.map((product) => {
     const vectorScore =
       queryVector && weights.w_vec > 0
         ? cosineSimilarity(queryVector, retriever.getProductVector(product._id) ?? [])

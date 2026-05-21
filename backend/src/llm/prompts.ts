@@ -50,6 +50,7 @@ Output ONLY valid JSON:
 
 Score by visual similarity: form, proportions, color, style, material appearance, ornamentation.
 Prefer candidates that match the image over text-only attribute overlap.
+If the user prompt specifies a budget (e.g. "under $500"), discard candidates that violate it.
 Include every candidate id exactly once — either in "ranked" (best matches first) or "discarded".`;
 
 export function buildRerankUserPrompt(args: {

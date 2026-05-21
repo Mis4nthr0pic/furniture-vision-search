@@ -6,17 +6,17 @@ interface BadgeProps {
 }
 
 const tones = {
-  neutral: "bg-stone-100 text-stone-700",
-  brand: "bg-brand-100 text-brand-800",
-  success: "bg-emerald-50 text-emerald-800",
-  warning: "bg-amber-50 text-amber-900",
+  neutral: "border-cream/20 text-cream/80",
+  brand: "border-terracotta/50 text-terracotta",
+  success: "border-teal/50 text-teal",
+  warning: "border-ochre/50 text-ochre",
 };
 
 export function Badge({ children, tone = "neutral" }: BadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
+        "inline-flex items-center rounded-pill border px-2.5 py-0.5 font-serif text-xs italic",
         tones[tone],
       )}
     >

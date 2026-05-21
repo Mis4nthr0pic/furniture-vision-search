@@ -17,22 +17,24 @@ export function Select({ label, hint, options, className, id, ...props }: Select
 
   return (
     <label htmlFor={selectId} className="block">
-      <span className="text-sm font-medium text-stone-700">{label}</span>
+      <span className="font-mono text-[10px] uppercase tracking-kicker text-terracotta/90">
+        {label}
+      </span>
       <select
         id={selectId}
         className={cn(
-          "mt-1.5 w-full rounded-xl border border-surface-border bg-white px-3.5 py-2.5 text-sm text-stone-900 shadow-sm transition focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20",
+          "mt-2 w-full border-0 border-b border-terracotta/30 bg-transparent py-2 font-sans text-sm text-cream focus:border-terracotta focus:outline-none focus:ring-0",
           className,
         )}
         {...props}
       >
         {options.map((option) => (
-          <option key={option.value} value={option.value}>
+          <option key={option.value} value={option.value} className="bg-ink text-cream">
             {option.label}
           </option>
         ))}
       </select>
-      {hint && <span className="mt-1.5 block text-xs text-stone-500">{hint}</span>}
+      {hint && <span className="mt-2 block font-serif text-sm italic text-cream/50">{hint}</span>}
     </label>
   );
 }

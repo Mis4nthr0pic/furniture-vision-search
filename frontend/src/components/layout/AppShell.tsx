@@ -1,31 +1,32 @@
 import { Link, useLocation } from "react-router-dom";
+import { WavyUnderline } from "../editorial/WavyUnderline";
 import { cn } from "../../utils/format";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const location = useLocation();
 
   const links = [
-    { to: "/", label: "Search" },
-    { to: "/admin", label: "Admin" },
+    { to: "/", label: "The salon", editorial: "search" },
+    { to: "/admin", label: "Back of house", editorial: "admin" },
   ];
 
   return (
-    <div className="min-h-screen">
-      <header className="sticky top-0 z-40 border-b border-surface-border/80 bg-brand-50/85 backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
+    <div className="min-h-screen bg-ink">
+      <header className="sticky top-0 z-40 border-b border-cream/8 bg-ink/90 backdrop-blur-md">
+        <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-8">
           <Link to="/" className="group flex items-center gap-3">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-800 font-display text-sm font-bold text-white shadow-sm">
-              FV
+            <span className="flex h-11 w-11 items-center justify-center rounded-full border border-terracotta/40 bg-burgundy font-display text-lg italic text-terracotta">
+              Sd
             </span>
             <div>
-              <p className="font-display text-base font-semibold leading-tight text-stone-900">
-                Furniture Vision
+              <p className="font-display text-lg italic tracking-tight text-cream">Salon de l&apos;objet</p>
+              <p className="font-mono text-[9px] uppercase tracking-kicker text-cream/45">
+                catalog vision search
               </p>
-              <p className="text-xs text-stone-500">Catalog-aware image search</p>
             </div>
           </Link>
 
-          <nav className="flex items-center gap-1 rounded-xl bg-white/70 p-1 ring-1 ring-surface-border">
+          <nav className="flex items-center gap-6">
             {links.map((link) => {
               const active = location.pathname === link.to;
               return (
@@ -33,13 +34,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   key={link.to}
                   to={link.to}
                   className={cn(
-                    "rounded-lg px-3.5 py-1.5 text-sm font-medium transition",
-                    active
-                      ? "bg-brand-800 text-white shadow-sm"
-                      : "text-stone-600 hover:bg-brand-50 hover:text-stone-900",
+                    "relative flex flex-col items-center gap-1 font-serif text-sm italic transition",
+                    active ? "text-terracotta" : "text-cream/65 hover:text-cream",
                   )}
                 >
                   {link.label}
+                  {active && <WavyUnderline />}
                 </Link>
               );
             })}
@@ -48,6 +48,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </header>
 
       <main>{children}</main>
+
+      <footer className="border-t border-cream/8 px-4 py-8 sm:px-8">
+        <p className="mx-auto max-w-[1200px] font-mono text-[10px] uppercase tracking-kicker text-cream/35">
+          ✦ Furniture vision · ~2,500 pieces · hybrid retrieval
+        </p>
+      </footer>
     </div>
   );
 }

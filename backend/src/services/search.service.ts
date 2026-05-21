@@ -78,6 +78,7 @@ export const SearchService = {
           llmConfig: args.llmConfig,
           systemPrompt: args.retrievalConfig.rerankSystemPrompt,
           useImage: args.retrievalConfig.useImageInRerank,
+          priceTolerancePercent: args.retrievalConfig.priceTolerancePercent,
         });
         ranked = rerankResult.ranked.slice(0, args.retrievalConfig.n);
         discarded = rerankResult.discarded;

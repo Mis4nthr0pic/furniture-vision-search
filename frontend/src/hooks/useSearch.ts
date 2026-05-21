@@ -88,6 +88,7 @@ export function useSearchState() {
       rerankError: state.rerankError,
       timings: state.timings,
       ratings: state.ratings,
+      retrievalConfig: state.retrievalConfig,
     })),
   );
 }
