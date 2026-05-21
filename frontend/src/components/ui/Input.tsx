@@ -14,11 +14,7 @@ export function Input({ label, hint, className, id, ...props }: InputProps) {
       <span className="font-mono text-[10px] uppercase tracking-kicker text-terracotta/90">
         {label}
       </span>
-      <input
-        id={inputId}
-        className={cn("salon-underline-input mt-2", className)}
-        {...props}
-      />
+      <input id={inputId} className={cn("salon-underline-input mt-2", className)} {...props} />
       {hint && <span className="mt-2 block font-serif text-sm italic text-cream/50">{hint}</span>}
     </label>
   );

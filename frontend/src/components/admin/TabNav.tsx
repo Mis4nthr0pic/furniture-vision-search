@@ -1,5 +1,5 @@
-import { WavyUnderline } from "../editorial/WavyUnderline";
 import { cn } from "../../utils/format";
+import { WavyUnderline } from "../editorial/WavyUnderline";
 
 export type AdminTab = "config" | "static-eval" | "live-eval" | "catalog";
 

@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import {
+  type SearchProgressStep,
   computeSearchProgress,
   getSearchProgressSteps,
-  type SearchProgressStep,
 } from "../utils/search-progress";
 
 export function useSearchProgress(active: boolean, enableRerank: boolean) {

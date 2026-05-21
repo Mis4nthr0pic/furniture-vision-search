@@ -20,26 +20,37 @@ export function FurnitureSilhouette({
     ),
     Chairs: (
       <>
-        <path d="M72 40 C72 28 128 28 128 40 V72 H72 Z" stroke={stroke} strokeWidth="2.5" fill="none" />
+        <path
+          d="M72 40 C72 28 128 28 128 40 V72 H72 Z"
+          stroke={stroke}
+          strokeWidth="2.5"
+          fill="none"
+        />
         <path d="M68 72 H132 V92 H68 Z" stroke={stroke} strokeWidth="2" fill="none" />
-        <path d="M76 92 V108 M124 92 V108" stroke={stroke} strokeWidth="2.5" strokeLinecap="round" />
+        <path
+          d="M76 92 V108 M124 92 V108"
+          stroke={stroke}
+          strokeWidth="2.5"
+          strokeLinecap="round"
+        />
       </>
     ),
     Sofas: (
       <>
         <path d="M32 64 H168 V92 H32 Z" stroke={stroke} strokeWidth="2.5" fill="none" />
         <path d="M40 64 V48 H160 V64" stroke={stroke} strokeWidth="2" fill="none" />
-        <path d="M48 92 V108 M152 92 V108" stroke={stroke} strokeWidth="2.5" strokeLinecap="round" />
+        <path
+          d="M48 92 V108 M152 92 V108"
+          stroke={stroke}
+          strokeWidth="2.5"
+          strokeLinecap="round"
+        />
       </>
     ),
   };
 
   return (
-    <svg
-      viewBox="0 0 200 120"
-      className={cn("h-full w-full text-cream/25", className)}
-      aria-hidden
-    >
+    <svg viewBox="0 0 200 120" className={cn("h-full w-full text-cream/25", className)} aria-hidden>
       {paths[category] ?? paths.default}
     </svg>
   );

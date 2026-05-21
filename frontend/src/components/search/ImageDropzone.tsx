@@ -1,6 +1,6 @@
 import { type DragEvent, memo, useState } from "react";
-import { ArchedFrame } from "../editorial/ArchedFrame";
 import { cn } from "../../utils/format";
+import { ArchedFrame } from "../editorial/ArchedFrame";
 
 interface ImageDropzoneProps {
   file: File | null;
@@ -39,10 +39,7 @@ export const ImageDropzone = memo(function ImageDropzone({
       }}
       onDragLeave={() => setDragOver(false)}
       onDrop={onDrop}
-      className={cn(
-        "group relative transition",
-        disabled && "pointer-events-none opacity-60",
-      )}
+      className={cn("group relative transition", disabled && "pointer-events-none opacity-60")}
     >
       <label htmlFor={inputId} className="block cursor-pointer">
         <input
@@ -81,10 +78,15 @@ export const ImageDropzone = memo(function ImageDropzone({
             </>
           ) : (
             <>
-              <span className="font-hand text-2xl text-ochre" style={{ transform: "rotate(-3deg)" }}>
+              <span
+                className="font-hand text-2xl text-ochre"
+                style={{ transform: "rotate(-3deg)" }}
+              >
                 drop here
               </span>
-              <p className="mt-3 font-display text-xl italic text-cream/90">A furniture photograph</p>
+              <p className="mt-3 font-display text-xl italic text-cream/90">
+                A furniture photograph
+              </p>
               <p className="mt-2 font-serif text-sm italic text-cream/50">
                 PNG, JPG, WebP · up to 10MB
               </p>

@@ -72,16 +72,16 @@ export function ReindexProgressScreen({
       aria-modal="true"
       aria-labelledby="reindex-progress-title"
     >
-      <div className="w-full max-w-lg bg-butter p-6 text-ink shadow-polaroid sm:p-8" style={{ transform: "rotate(-0.5deg)" }}>
+      <div
+        className="w-full max-w-lg bg-butter p-6 text-ink shadow-polaroid sm:p-8"
+        style={{ transform: "rotate(-0.5deg)" }}
+      >
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="font-mono text-[10px] uppercase tracking-kicker text-terracotta">
               ✦ No. 04 · The inventory
             </p>
-            <h2
-              id="reindex-progress-title"
-              className="mt-1 font-display text-2xl italic text-ink"
-            >
+            <h2 id="reindex-progress-title" className="mt-1 font-display text-2xl italic text-ink">
               {isError ? "Reindex failed" : isComplete ? "Index rebuilt" : "Building vector index"}
             </h2>
             <p className="mt-2 font-serif text-sm italic text-ink/70">
@@ -132,7 +132,9 @@ export function ReindexProgressScreen({
             <span className="font-mono text-[10px] uppercase tracking-kicker text-ink/70">
               {isError ? "Error" : getReindexPhaseLabel(phase)}
             </span>
-            <span className="font-display text-lg italic tabular-nums text-terracotta">{percent}%</span>
+            <span className="font-display text-lg italic tabular-nums text-terracotta">
+              {percent}%
+            </span>
           </div>
           <div className="h-0.5 overflow-hidden bg-terracotta/15">
             <div

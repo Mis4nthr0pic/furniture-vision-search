@@ -51,8 +51,7 @@ export function SearchPage() {
           kicker="The recipe"
           title={
             <>
-              Find the piece in{" "}
-              <span className="text-terracotta not-italic">your photograph</span>
+              Find the piece in <span className="text-terracotta not-italic">your photograph</span>
             </>
           }
           subtitle="Upload a room scene, whisper what you want, and browse ranked catalog matches with transparent scoring and rerank reasoning."

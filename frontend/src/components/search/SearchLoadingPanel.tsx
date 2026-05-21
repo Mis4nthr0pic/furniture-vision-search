@@ -39,14 +39,10 @@ export const SearchLoadingPanel = memo(function SearchLoadingPanel({
                 {Math.round(percent)}%
               </span>
             </div>
-            <div
-              className="h-0.5 overflow-hidden bg-terracotta/15"
-              role="progressbar"
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-valuenow={Math.round(percent)}
-              aria-label={`Search progress: ${step.label}`}
-            >
+            <p className="sr-only" aria-live="polite">
+              Search progress: {step.label}, {Math.round(percent)} percent
+            </p>
+            <div className="h-0.5 overflow-hidden bg-terracotta/15" aria-hidden="true">
               <div
                 className="h-full bg-terracotta transition-all duration-300 ease-out"
                 style={{ width: `${percent}%` }}

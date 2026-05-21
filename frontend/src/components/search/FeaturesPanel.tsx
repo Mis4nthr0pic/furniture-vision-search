@@ -1,11 +1,7 @@
 import { memo } from "react";
 import type { SearchTimings, VisionFeatures } from "../../types";
 import { formatMs } from "../../utils/format";
-import {
-  confidenceTone,
-  formatConfidencePercent,
-  isLowVisionConfidence,
-} from "../../utils/vision";
+import { confidenceTone, formatConfidencePercent, isLowVisionConfidence } from "../../utils/vision";
 import { Card, CardHeader } from "../ui/Card";
 
 interface FeaturesPanelProps {
@@ -34,10 +30,7 @@ export const FeaturesPanel = memo(function FeaturesPanel({
         <div className="rounded-lg border border-dashed border-cream/15 px-4 py-10 text-center font-serif text-sm italic text-cream/45">
           Upload an image and search to inspect category, style, color, and more.
         </div>
-        <p
-          className="mt-4 font-hand text-lg text-ochre"
-          style={{ transform: "rotate(3deg)" }}
-        >
+        <p className="mt-4 font-hand text-lg text-ochre" style={{ transform: "rotate(3deg)" }}>
           waiting…
         </p>
       </Card>
@@ -76,7 +69,9 @@ export const FeaturesPanel = memo(function FeaturesPanel({
       <dl className="mt-5 space-y-3">
         {attributes.map(([label, value, confidence]) => (
           <div key={label} className="flex items-center justify-between gap-3 text-sm">
-            <dt className="font-mono text-[10px] uppercase tracking-wider text-cream/45">{label}</dt>
+            <dt className="font-mono text-[10px] uppercase tracking-wider text-cream/45">
+              {label}
+            </dt>
             <dd className="flex items-center gap-2 font-serif italic text-cream">
               <span>{value ?? "—"}</span>
               {confidence != null && (
@@ -94,7 +89,9 @@ export const FeaturesPanel = memo(function FeaturesPanel({
 
       {visionFeatures.keywords.length > 0 && (
         <div className="mt-6">
-          <p className="font-mono text-[10px] uppercase tracking-kicker text-terracotta">Keywords</p>
+          <p className="font-mono text-[10px] uppercase tracking-kicker text-terracotta">
+            Keywords
+          </p>
           <div className="mt-2 flex flex-wrap gap-2">
             {visionFeatures.keywords.map((keyword) => (
               <span key={keyword} className="salon-chip">

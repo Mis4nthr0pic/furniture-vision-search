@@ -1,9 +1,9 @@
 import { memo, useState } from "react";
-import type { RankedProduct } from "../../types";
 import { polaroidRotation } from "../../design/salon";
+import type { RankedProduct } from "../../types";
+import { cn, formatPrice, formatScoreBreakdown } from "../../utils/format";
 import { FurnitureSilhouette } from "../editorial/FurnitureSilhouette";
 import { ScoreGauge } from "../editorial/ScoreGauge";
-import { cn, formatPrice, formatScoreBreakdown } from "../../utils/format";
 import { Badge } from "../ui/Badge";
 import { Button } from "../ui/Button";
 
@@ -77,7 +77,9 @@ export const ResultCard = memo(function ResultCard({
                 </p>
               )}
             </button>
-            <p className="font-display text-lg italic text-terracotta">{formatPrice(product.price)}</p>
+            <p className="font-display text-lg italic text-terracotta">
+              {formatPrice(product.price)}
+            </p>
           </div>
         </div>
 

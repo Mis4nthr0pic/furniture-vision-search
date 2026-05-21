@@ -18,8 +18,7 @@ export function AdminPage() {
           kicker="Back of house"
           title={
             <>
-              Configure the{" "}
-              <span className="text-terracotta not-italic">pipeline</span>
+              Configure the <span className="text-terracotta not-italic">pipeline</span>
             </>
           }
           subtitle="API keys and retrieval settings apply to the salon immediately. Keys stay in memory only and clear on refresh."

@@ -16,10 +16,7 @@ const styles = {
 export function Alert({ tone = "info", title, children }: AlertProps) {
   return (
     <div
-      className={cn(
-        "rounded-lg border px-4 py-3 font-sans text-sm backdrop-blur-sm",
-        styles[tone],
-      )}
+      className={cn("rounded-lg border px-4 py-3 font-sans text-sm backdrop-blur-sm", styles[tone])}
       role="alert"
     >
       {title && <p className="font-display text-base italic">{title}</p>}

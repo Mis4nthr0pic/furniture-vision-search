@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
-import { WavyUnderline } from "../editorial/WavyUnderline";
 import { cn } from "../../utils/format";
+import { WavyUnderline } from "../editorial/WavyUnderline";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const location = useLocation();
@@ -19,7 +19,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               Sd
             </span>
             <div>
-              <p className="font-display text-lg italic tracking-tight text-cream">Salon de l&apos;objet</p>
+              <p className="font-display text-lg italic tracking-tight text-cream">
+                Salon de l&apos;objet
+              </p>
               <p className="font-mono text-[9px] uppercase tracking-kicker text-cream/45">
                 catalog vision search
               </p>

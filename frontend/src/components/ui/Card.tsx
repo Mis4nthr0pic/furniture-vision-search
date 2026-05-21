@@ -44,7 +44,9 @@ export function CardHeader({
     <div className="mb-4 flex items-start justify-between gap-3">
       <div>
         {kicker && (
-          <p className="font-mono text-[10px] uppercase tracking-kicker text-terracotta">{kicker}</p>
+          <p className="font-mono text-[10px] uppercase tracking-kicker text-terracotta">
+            {kicker}
+          </p>
         )}
         <h2 className="font-display text-2xl italic tracking-tight text-cream">{title}</h2>
         {description && (
