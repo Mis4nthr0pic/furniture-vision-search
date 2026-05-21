@@ -14,7 +14,9 @@ All backend tunables (MongoDB, upload limits, LLM defaults, CORS) live in `.env`
 - Frontend: http://localhost:5173
 - Backend health: http://localhost:4000/api/health
 
-Paste your **OpenRouter** API key on the search page (memory only) to enable vision search ([openrouter.ai/keys](https://openrouter.ai/keys)).
+Paste your **OpenRouter** API key in **Admin → Config** (memory only) to enable vision search ([openrouter.ai/keys](https://openrouter.ai/keys)).
+
+API keys are stored only in memory and cleared on refresh/server restart.
 
 ### LLM providers
 

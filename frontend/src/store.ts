@@ -1,7 +1,24 @@
 import { create } from "zustand";
-import type { RankedProduct, RetrievalConfig, SearchResponse, VisionFeatures } from "./types";
+import type {
+  RankedProduct,
+  RetrievalConfig,
+  ScoreWeights,
+  SearchResponse,
+  VisionFeatures,
+} from "./types";
 
-const defaultRetrievalConfig: RetrievalConfig = {
+export const defaultScoreWeights: ScoreWeights = {
+  w_vec: 0.25,
+  w_lex: 0.2,
+  w_cat: 0.15,
+  w_type: 0.15,
+  w_color: 0.15,
+  w_style: 0.05,
+  w_mat: 0,
+  w_dim: 0.05,
+};
+
+export const defaultRetrievalConfig: RetrievalConfig = {
   mode: "hybrid",
   k: 30,
   n: 10,
@@ -9,9 +26,10 @@ const defaultRetrievalConfig: RetrievalConfig = {
   useImageInRerank: true,
   filterMode: "auto",
   confidenceThreshold: 0.7,
+  weights: defaultScoreWeights,
 };
 
-const defaultLlmConfig = {
+export const defaultLlmConfig = {
   baseUrl: "https://openrouter.ai/api/v1",
   visionModel: "openai/gpt-4o",
   chatModel: "openai/gpt-4o",
@@ -33,7 +51,10 @@ interface AppState {
   ratings: Record<string, boolean>;
 
   setApiKey: (key: string) => void;
+  setLlmConfig: (partial: Partial<typeof defaultLlmConfig>) => void;
   setRetrievalConfig: (partial: Partial<RetrievalConfig>) => void;
+  setScoreWeights: (partial: Partial<ScoreWeights>) => void;
+  resetToDefaults: () => void;
   setSearchLoading: (loading: boolean) => void;
   setSearchError: (error: string | null) => void;
   applySearchResult: (result: SearchResponse) => void;
@@ -56,10 +77,26 @@ export const useStore = create<AppState>((set) => ({
   ratings: {},
 
   setApiKey: (apiKey) => set({ apiKey }),
+  setLlmConfig: (partial) =>
+    set((state) => ({
+      llmConfig: { ...state.llmConfig, ...partial },
+    })),
   setRetrievalConfig: (partial) =>
     set((state) => ({
       retrievalConfig: { ...state.retrievalConfig, ...partial },
     })),
+  setScoreWeights: (partial) =>
+    set((state) => ({
+      retrievalConfig: {
+        ...state.retrievalConfig,
+        weights: { ...defaultScoreWeights, ...state.retrievalConfig.weights, ...partial },
+      },
+    })),
+  resetToDefaults: () =>
+    set({
+      llmConfig: defaultLlmConfig,
+      retrievalConfig: defaultRetrievalConfig,
+    }),
   setSearchLoading: (searchLoading) => set({ searchLoading }),
   setSearchError: (searchError) => set({ searchError }),
   applySearchResult: (result) =>
@@ -95,5 +132,12 @@ export function getLlmConfigForRequest(state: Pick<AppState, "apiKey" | "llmConf
   return {
     apiKey: state.apiKey,
     ...state.llmConfig,
+  };
+}
+
+export function getRetrievalConfigForRequest(state: Pick<AppState, "retrievalConfig">) {
+  return {
+    ...state.retrievalConfig,
+    weights: { ...defaultScoreWeights, ...state.retrievalConfig.weights },
   };
 }
