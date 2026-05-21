@@ -48,4 +48,32 @@ Output ONLY valid JSON:
 }
 
 Score by visual similarity: form, proportions, color, style, material appearance, ornamentation.
-Prefer candidates that match the image over text-only attribute overlap.`;
+Prefer candidates that match the image over text-only attribute overlap.
+Include every candidate id exactly once — either in "ranked" (best matches first) or "discarded".`;
+
+export function buildRerankUserPrompt(args: {
+  visionFeatures: unknown;
+  userPrompt?: string;
+  candidates: Array<{
+    id: string;
+    title: string;
+    description: string;
+    category: string;
+    type: string;
+    price: number;
+    width: number;
+    height: number;
+    depth: number;
+  }>;
+}): string {
+  return `Rank these catalog candidates against the furniture in the image.
+
+Extracted features:
+${JSON.stringify(args.visionFeatures, null, 2)}
+
+User prompt: ${args.userPrompt?.trim() ? JSON.stringify(args.userPrompt.trim()) : "none"}
+
+Candidates:
+${JSON.stringify(args.candidates, null, 2)}`;
+}
+

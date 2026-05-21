@@ -52,8 +52,8 @@ Closes #6"
 | — | OpenRouter defaults | `chore/openrouter-defaults` | ✅ Done | [#17](https://github.com/Mis4nthr0pic/furniture-vision-search/pull/17) |
 | 5 | Search pipeline (no embed/rerank) | `step/5-hybrid-search` | ✅ Done | [#22](https://github.com/Mis4nthr0pic/furniture-vision-search/pull/22) |
 | 6 | Static eval harness | `step/6-static-eval` | ✅ Done | [#23](https://github.com/Mis4nthr0pic/furniture-vision-search/pull/23) |
-| 7 | Embeddings (lazy + cache) | `step/7-embeddings` | 🔄 In PR | — |
-| 8 | LLM rerank | `step/8-rerank` | 🔲 | — |
+| 7 | Embeddings (lazy + cache) | `step/7-embeddings` | ✅ Done | [#24](https://github.com/Mis4anthr0pic/furniture-vision-search/pull/24) |
+| 8 | LLM rerank | `step/8-rerank` | 🔄 In PR | — |
 | 9 | Live rating API | `step/9-live-eval` | 🔲 | — |
 | 10 | Frontend search page | `step/10-search-ui` | 🔲 | — |
 | 11 | Frontend admin page | `step/11-admin-ui` | 🔲 | — |

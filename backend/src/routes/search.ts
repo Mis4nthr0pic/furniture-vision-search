@@ -43,10 +43,6 @@ searchRouter.post("/", (req, res, next) => {
     const llmConfig = parseLLMConfig(payload.llmConfig);
     const retrievalConfig = parseRetrievalConfig(payload.retrievalConfig ?? {});
 
-    if (retrievalConfig.enableRerank) {
-      // Rerank wired in step 8 — ignore for now without error
-    }
-
     const mimeType = req.file.mimetype || "image/jpeg";
     const result = await SearchService.search({
       imageBuffer: req.file.buffer,
