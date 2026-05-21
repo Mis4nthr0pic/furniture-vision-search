@@ -1,5 +1,40 @@
 # Changelog
 
+Project decision log for [Furniture Vision Search](README.md). Each step maps to a focused PR; see [docs/PIPELINE.md](docs/PIPELINE.md) for the full roadmap.
+
+## Project narrative
+
+**Problem:** Find catalog furniture items that visually match a user’s photo, with explainable ranking and eval tooling.
+
+**Pipeline evolution:**
+1. **Vision extraction** — constrain the LLM to catalog vocabulary so labels are matchable and filterable.
+2. **Hybrid retrieval** — combine embeddings (semantic), lexical search (text), and attribute weights (structured catalog fields); no single signal is sufficient alone.
+3. **Cached embeddings** — embed 2,500 products once, store locally; avoid per-search cost and latency.
+4. **LLM rerank** — image-aware reordering of top-K candidates with natural-language reasons for demo/debug.
+5. **Admin + eval** — runtime config, reindex with progress, static harness (6 cases), live metrics from human ratings.
+
+**Agent / build process:** Implemented incrementally via Cursor agent (GPT/Codex) using step branches, `CHANGELOG.md` updates, Docker live testing, and PRs per pipeline step. Prompts followed the kickoff brief: OpenRouter-only LLM, memory-only API keys, service-layer backend, Zustand frontend, explicit `Retriever` seam for future vector DB.
+
+### Eval baselines
+
+Record local static eval runs here after `Admin → Static Eval`:
+
+| Date | Model | Top-1 cat | Top-1 type | MRR | Avg latency |
+|------|-------|-----------|------------|-----|-------------|
+| *pending* | openai/gpt-4o | — | — | — | — |
+
+See [docs/EVAL.md](docs/EVAL.md) for how to run and interpret metrics.
+
+---
+
+## Step 14 — Documentation (2026-05-21)
+
+**Changes:**
+- Evaluator-facing README: system overview, pipeline, admin, eval, tradeoffs, scaling, demo flow, API summary.
+- `docs/EVAL.md` evaluation guide; `docs/screenshots/` capture checklist.
+- Vision confidence display in search sidebar; calibrated vision prompt guidance.
+- Updated pipeline progress tracker.
+
 ## Step 11 — Admin UI (2026-05-21)
 
 **Decisions:**
