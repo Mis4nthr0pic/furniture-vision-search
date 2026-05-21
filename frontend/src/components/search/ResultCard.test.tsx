@@ -29,6 +29,9 @@ describe("ResultCard", () => {
     expect(screen.getByText(/Minimalist Walnut Wide Bookshelf/i)).toBeInTheDocument();
     expect(screen.getByText(/Strong visual match/i)).toBeInTheDocument();
     expect(screen.getByText("$899")).toBeInTheDocument();
+    expect(screen.getByText("0.93")).toBeInTheDocument();
+    expect(screen.getByText("rerank")).toBeInTheDocument();
+    expect(screen.getByText(/hybrid 0\.84/)).toBeInTheDocument();
   });
 
   it("calls onRate when relevance buttons are clicked", async () => {

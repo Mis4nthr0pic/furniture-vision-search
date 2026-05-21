@@ -29,6 +29,9 @@ export const ResultCard = memo(function ResultCard({
   const selected = rating === true;
   const dismissed = rating === false;
 
+  const displayScore = product.rerankScore ?? product.score;
+  const scoreLabel = product.rerankScore != null ? "rerank" : "hybrid";
+
   const rows: ScoreRow[] = [
     { label: "vector", value: product.contributions.vec },
     { label: "lexical", value: product.contributions.lex },
@@ -56,11 +59,11 @@ export const ResultCard = memo(function ResultCard({
           <FurnitureSilhouette category={product.category} className="text-accent/80" />
         </div>
 
-        <span className="absolute left-0 top-0 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-bg/80 mix-blend-difference">
+        <span className="absolute left-0 top-0 border-b border-r border-hair bg-bg/90 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-ink-muted">
           № {String(rank).padStart(2, "0")} / {product.id.slice(-4)}
         </span>
 
-        <span className="absolute right-0 top-0 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-bg/80 mix-blend-difference">
+        <span className="absolute right-0 top-0 border-b border-l border-hair bg-bg/90 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-ink-muted">
           {product.category} · {product.type}
         </span>
 
@@ -97,8 +100,13 @@ export const ResultCard = memo(function ResultCard({
           className="flex items-center gap-2.5 border border-hair bg-bg px-2 py-1.5 text-left transition hover:border-hairStrong"
           style={{ borderRadius: 4 }}
         >
-          <ScoreGauge score={product.score} label="hybrid" size={40} />
+          <ScoreGauge score={displayScore} label={scoreLabel} size={40} />
           <div className="min-w-0 flex-1 space-y-0.5">
+            {product.rerankScore != null && (
+              <p className="font-mono text-[9px] tabular-nums text-ink-muted">
+                hybrid {product.score.toFixed(2)}
+              </p>
+            )}
             {rows.slice(0, 4).map((row) => (
               <div key={row.label} className="flex items-center gap-1.5">
                 <span className="w-12 font-mono text-[9px] uppercase tracking-wider text-ink-muted">
@@ -106,7 +114,7 @@ export const ResultCard = memo(function ResultCard({
                 </span>
                 <div className="h-1 flex-1 overflow-hidden bg-panelDeep">
                   <div
-                    className="h-full bg-ink/70"
+                    className="h-full bg-accent/70"
                     style={{ width: `${Math.min(100, (row.value / maxRow) * 100)}%` }}
                   />
                 </div>
@@ -125,7 +133,7 @@ export const ResultCard = memo(function ResultCard({
                 <span className="w-14 uppercase tracking-wider">{row.label}</span>
                 <div className="h-1 flex-1 overflow-hidden bg-panelDeep">
                   <div
-                    className="h-full bg-ink/60"
+                    className="h-full bg-accent/60"
                     style={{ width: `${Math.min(100, (row.value / maxRow) * 100)}%` }}
                   />
                 </div>

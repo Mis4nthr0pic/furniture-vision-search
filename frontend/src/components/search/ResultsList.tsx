@@ -19,13 +19,17 @@ export const ResultsList = memo(function ResultsList({
 }: ResultsListProps) {
   if (ranked.length === 0) return null;
 
+  const rankedByRerank = ranked.some((product) => product.rerankScore != null);
+
   return (
     <section>
       <header className="mb-4 flex items-end justify-between gap-4 border-b border-hair pb-2.5">
         <h2 className="text-[20px] font-semibold leading-tight tracking-[-0.02em] text-ink">
           {ranked.length} matches
         </h2>
-        <p className="font-mono text-[11px] text-ink-muted">hybrid · rerank</p>
+        <p className="font-mono text-[11px] text-ink-muted">
+          ordered by {rankedByRerank ? "rerank" : "hybrid"}
+        </p>
       </header>
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
