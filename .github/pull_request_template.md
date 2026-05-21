@@ -18,9 +18,9 @@ Closes #
 - [ ] Docker build succeeds
 - [ ] Manual verification (describe what you checked)
 
-## Changelog
+## Decision log
 
-<!-- Updated in CHANGELOG.md -->
+<!-- Add docs/changelog/your-entry.md (new file only) -->
 
 ## Issue ↔ step map
 

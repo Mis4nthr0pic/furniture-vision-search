@@ -189,7 +189,7 @@ curl -X POST http://localhost:4000/api/eval/run \
 
 Full guide: [docs/EVAL.md](./docs/EVAL.md)
 
-> **Baseline numbers:** run locally with your OpenRouter key and record results in [CHANGELOG.md](./CHANGELOG.md). Metrics vary by model and embedding cache state.
+> **Baseline numbers:** run locally with your OpenRouter key and record results in [CHANGELOG.md](./CHANGELOG.md) (eval baselines table). Metrics vary by model and embedding cache state.
 
 ### Live eval (human feedback)
 
@@ -257,7 +257,8 @@ fortune/
 ├── backend/                 # Express API — see backend/README.md
 ├── frontend/                # React SPA — see frontend/README.md
 ├── docs/PIPELINE.md         # Incremental build roadmap
-├── CHANGELOG.md             # Step-by-step decisions and narrative
+├── CHANGELOG.md             # Narrative + eval baselines
+├── docs/changelog/          # Per-PR decision log (one file per merge)
 └── docker-compose.yml
 ```
 
@@ -352,4 +353,4 @@ Add captures to `docs/screenshots/` for README embedding:
 
 ## License & catalog
 
-MongoDB catalog is read-only. Eval images are from Unsplash (see `backend/eval/`). Built as an incremental pipeline project — full decision log in [CHANGELOG.md](./CHANGELOG.md).
+MongoDB catalog is read-only. Eval images are from Unsplash (see `backend/eval/`). Built as an incremental pipeline project — full decision log in [docs/changelog/README.md](./docs/changelog/README.md).

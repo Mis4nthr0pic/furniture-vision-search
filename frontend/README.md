@@ -169,4 +169,4 @@ Setup: `src/test/setup.ts` (jest-dom + RTL cleanup).
 
 - [Demo flow](../README.md#demo-flow-2-minutes) — end-to-end evaluator walkthrough
 - [Understanding scores](../README.md#understanding-scores) — vision confidence vs hybrid vs rerank
-- [CHANGELOG](../CHANGELOG.md) — step-by-step frontend decisions
+- [Decision log](../docs/changelog/README.md) — per-PR frontend decisions
