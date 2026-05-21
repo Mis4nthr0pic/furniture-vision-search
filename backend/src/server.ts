@@ -1,7 +1,32 @@
 import cors from "cors";
 import express, { type NextFunction, type Request, type Response } from "express";
+import { loadCatalog } from "./catalog/load.js";
+import { connectMongo } from "./db/mongo.js";
+import { adminRouter } from "./routes/admin.js";
 import { AppError } from "./utils/errors.js";
 import { logger } from "./utils/logger.js";
+
+export interface AppState {
+  productCount: number;
+  lexicalReady: boolean;
+  embeddingsReady: boolean;
+  mongoOk: boolean;
+}
+
+let appState: AppState = {
+  productCount: 0,
+  lexicalReady: false,
+  embeddingsReady: false,
+  mongoOk: false,
+};
+
+export function getAppState(): AppState {
+  return appState;
+}
+
+export function setAppState(partial: Partial<AppState>): void {
+  appState = { ...appState, ...partial };
+}
 
 export function createServer(): express.Application {
   const app = express();
@@ -10,8 +35,15 @@ export function createServer(): express.Application {
   app.use(express.json({ limit: "1mb" }));
 
   app.get("/api/health", (_req, res) => {
-    res.json({ ok: true });
+    res.json({
+      ok: appState.mongoOk,
+      productCount: appState.productCount,
+      lexicalReady: appState.lexicalReady,
+      embeddingsReady: appState.embeddingsReady,
+    });
   });
+
+  app.use("/api/admin", adminRouter);
 
   app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
     if (err instanceof AppError) {
@@ -26,4 +58,18 @@ export function createServer(): express.Application {
   });
 
   return app;
+}
+
+export async function bootstrap(): Promise<void> {
+  try {
+    const db = await connectMongo();
+    const products = await loadCatalog(db);
+    setAppState({
+      mongoOk: true,
+      productCount: products.length,
+    });
+  } catch (err) {
+    logger.error({ err }, "Failed to bootstrap catalog — health will report ok=false");
+    setAppState({ mongoOk: false, productCount: 0 });
+  }
 }
