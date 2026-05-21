@@ -1,5 +1,20 @@
 # Changelog
 
+## Step 9 — Live rating API (2026-05-21)
+
+**Decisions:**
+- In-memory `SearchLog` store (LRU 200) — every `/api/search` returns `searchId`.
+- `POST /api/eval/rate` — `{ searchId, productId, relevant }` records thumbs up/down.
+- `GET /api/eval/metrics` — rolling `totalSearches`, `totalRatings`, `avgPrecisionAt5`, `avgPrecisionAt10`, `avgMRR`.
+- `GET /api/eval/logs?limit=50` — recent logs with ratings for admin UI (step 11).
+
+## Hygiene — OpenRouter-only + dev key + vision tolerance (2026-05-21)
+
+**Changes:**
+- Embeddings default to OpenRouter (`openai/text-embedding-3-small`) — no separate OpenAI account required.
+- Dev-only `OPENROUTER_API_KEY` in gitignored `.env` when client omits `apiKey`; `NODE_ENV=development` in docker-compose.
+- Vision schema accepts null confidence fields from the model (normalized to 0).
+
 ## Step 8 — LLM rerank (2026-05-21)
 
 **Decisions:**

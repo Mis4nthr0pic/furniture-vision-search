@@ -28,7 +28,7 @@ OUTPUT JSON SCHEMA:
   "est_dimensions": { "width_cm"?: number, "height_cm"?: number, "depth_cm"?: number } | null,
   "description": string,
   "keywords": string[],
-  "confidence": { "category": number, "type": number, "color": number, "style": number }
+  "confidence": { "category": number | null, "type": number | null, "color": number | null, "style": number | null }
 }`;
 }
 
