@@ -1,5 +1,7 @@
 import { Router } from "express";
 import { z } from "zod";
+import { createRateLimiter } from "../middleware/rate-limit.js";
+import { config } from "../config.js";
 import { parseLLMConfig } from "../schemas/llm.js";
 import { parseRetrievalConfig } from "../schemas/retrieval.js";
 import { LiveEvalService } from "../services/eval-live.service.js";
@@ -19,7 +21,12 @@ const rateBodySchema = z.object({
 
 export const evalRouter = Router();
 
-evalRouter.post("/run", async (req, res, next) => {
+const evalRunRateLimit = createRateLimiter({
+  name: "eval-run",
+  ...config.rateLimit.evalRun,
+});
+
+evalRouter.post("/run", evalRunRateLimit, async (req, res, next) => {
   try {
     const body = parseBody(runBodySchema, req.body);
     const llmConfig = parseLLMConfig(body.llmConfig);

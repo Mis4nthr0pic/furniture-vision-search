@@ -1,10 +1,13 @@
 import { Router } from "express";
 import { z } from "zod";
+import { createRateLimiter } from "../middleware/rate-limit.js";
 import { multerErrorHandler, upload } from "../middleware/upload.js";
+import { config } from "../config.js";
 import { parseLLMConfig } from "../schemas/llm.js";
 import { parseRetrievalConfig } from "../schemas/retrieval.js";
 import { SearchService } from "../services/search.service.js";
 import { AppError } from "../utils/errors.js";
+import { assertAllowedImageMime } from "../utils/upload-mime.js";
 import { parseBody, parseJsonField } from "../utils/validation.js";
 
 const searchPayloadSchema = z.object({
@@ -15,7 +18,12 @@ const searchPayloadSchema = z.object({
 
 export const searchRouter = Router();
 
-searchRouter.post("/", (req, res, next) => {
+const searchRateLimit = createRateLimiter({
+  name: "search",
+  ...config.rateLimit.search,
+});
+
+searchRouter.post("/", searchRateLimit, (req, res, next) => {
   upload.single("image")(req, res, (err) => {
     if (err) {
       next(multerErrorHandler(err));
@@ -43,7 +51,7 @@ searchRouter.post("/", (req, res, next) => {
     const llmConfig = parseLLMConfig(payload.llmConfig);
     const retrievalConfig = parseRetrievalConfig(payload.retrievalConfig ?? {});
 
-    const mimeType = req.file.mimetype || "image/jpeg";
+    const mimeType = assertAllowedImageMime(req.file.mimetype);
     const result = await SearchService.search({
       imageBuffer: req.file.buffer,
       mimeType,

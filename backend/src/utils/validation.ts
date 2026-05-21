@@ -14,8 +14,13 @@ export function parseBody<T extends z.ZodTypeAny>(schema: T, body: unknown): z.i
 }
 
 export function parseJsonField(value: unknown): unknown {
-  if (typeof value === "string") {
-    return JSON.parse(value);
+  if (typeof value !== "string") {
+    return value;
   }
-  return value;
+
+  try {
+    return JSON.parse(value);
+  } catch {
+    throw new AppError("INVALID_JSON", "Request payload must be valid JSON", 400);
+  }
 }

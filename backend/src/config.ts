@@ -37,6 +37,17 @@ const envSchema = z.object({
 
   /** Local dev only — gitignored via .env, never required in production. */
   OPENROUTER_API_KEY: z.string().optional(),
+
+  DISABLE_DEBUG_ROUTES: z
+    .enum(["true", "false"])
+    .optional(),
+
+  RATE_LIMIT_SEARCH_MAX: z.coerce.number().int().positive().default(30),
+  RATE_LIMIT_SEARCH_WINDOW_MS: z.coerce.number().int().positive().default(60_000),
+  RATE_LIMIT_REINDEX_MAX: z.coerce.number().int().positive().default(3),
+  RATE_LIMIT_REINDEX_WINDOW_MS: z.coerce.number().int().positive().default(3_600_000),
+  RATE_LIMIT_EVAL_MAX: z.coerce.number().int().positive().default(5),
+  RATE_LIMIT_EVAL_WINDOW_MS: z.coerce.number().int().positive().default(3_600_000),
 });
 
 function loadConfig() {
@@ -106,6 +117,17 @@ function loadConfig() {
 
     devApiKeys: {
       openRouter: env.OPENROUTER_API_KEY,
+    },
+
+    security: {
+      disableDebugRoutes:
+        env.NODE_ENV === "production" || env.DISABLE_DEBUG_ROUTES === "true",
+    },
+
+    rateLimit: {
+      search: { max: env.RATE_LIMIT_SEARCH_MAX, windowMs: env.RATE_LIMIT_SEARCH_WINDOW_MS },
+      reindex: { max: env.RATE_LIMIT_REINDEX_MAX, windowMs: env.RATE_LIMIT_REINDEX_WINDOW_MS },
+      evalRun: { max: env.RATE_LIMIT_EVAL_MAX, windowMs: env.RATE_LIMIT_EVAL_WINDOW_MS },
     },
   } as const;
 }

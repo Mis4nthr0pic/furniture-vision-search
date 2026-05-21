@@ -4,6 +4,7 @@ import { multerErrorHandler, upload } from "../middleware/upload.js";
 import { parseLLMConfig } from "../schemas/llm.js";
 import { VisionService } from "../services/vision.service.js";
 import { AppError } from "../utils/errors.js";
+import { assertAllowedImageMime } from "../utils/upload-mime.js";
 import { parseBody, parseJsonField } from "../utils/validation.js";
 
 const debugBodySchema = z.object({
@@ -38,7 +39,7 @@ visionRouter.post("/debug", (req, res, next) => {
 
     const payload = parseBody(debugBodySchema, rawPayload);
     const llmConfig = parseLLMConfig(payload.llmConfig);
-    const mimeType = req.file.mimetype || "image/jpeg";
+    const mimeType = assertAllowedImageMime(req.file.mimetype);
 
     const features = await VisionService.extractFeatures({
       imageBuffer: req.file.buffer,
