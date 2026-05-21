@@ -5,6 +5,7 @@ import { getAppState } from "./app/state.js";
 import { config } from "./config.js";
 import { adminRouter } from "./routes/admin.js";
 import { lexicalRouter } from "./routes/lexical.js";
+import { searchRouter } from "./routes/search.js";
 import { visionRouter } from "./routes/vision.js";
 import { AppError } from "./utils/errors.js";
 import { logger } from "./utils/logger.js";
@@ -32,6 +33,7 @@ export function createServer(): express.Application {
   app.use("/api/admin", adminRouter);
   app.use("/api/lexical", lexicalRouter);
   app.use("/api/vision", visionRouter);
+  app.use("/api/search", searchRouter);
 
   app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
     if (err instanceof AppError) {

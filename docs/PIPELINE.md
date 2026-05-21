@@ -50,7 +50,7 @@ Closes #6"
 | — | Env var hygiene for MongoDB URI | — | ✅ Done (pre-PR) | [`00331c4`](https://github.com/Mis4nthr0pic/furniture-vision-search/commit/00331c4) |
 | 4 | LLM client + vision debug | `step/4-llm-client` | ✅ Done | [#16](https://github.com/Mis4nthr0pic/furniture-vision-search/pull/16) |
 | — | OpenRouter defaults | `chore/openrouter-defaults` | ✅ Done | [#17](https://github.com/Mis4nthr0pic/furniture-vision-search/pull/17) |
-| 5 | Search pipeline (no embed/rerank) | `step/5-hybrid-search` | 🔲 | [#6](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/6) |
+| 5 | Search pipeline (no embed/rerank) | `step/5-hybrid-search` | 🔄 In PR | — |
 | 6 | Static eval harness | `step/6-static-eval` | 🔲 | — |
 | 7 | Embeddings (lazy + cache) | `step/7-embeddings` | 🔲 | — |
 | 8 | LLM rerank | `step/8-rerank` | 🔲 | — |
