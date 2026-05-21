@@ -31,6 +31,11 @@ The client speaks the OpenAI-compatible HTTP API — OpenRouter implements `/cha
 We ship incrementally: **one branch + one PR per build step**. See [docs/PIPELINE.md](docs/PIPELINE.md) for the full roadmap, branch naming, and progress tracker.
 
 ```bash
+npm install          # root Biome tooling
+npm run check        # lint + typecheck + tests (backend + frontend)
+```
+
+```bash
 git checkout main && git pull
 git checkout -b step/4-llm-client   # example
 # ... implement, test, update CHANGELOG.md ...

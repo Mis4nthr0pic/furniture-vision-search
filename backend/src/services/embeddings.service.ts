@@ -1,6 +1,7 @@
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { setAppState } from "../app/state.js";
 import { getCatalogProducts } from "../catalog/load.js";
 import { createOpenAICompatibleClient } from "../llm/openai-compatible.js";
 import type { LLMConfig } from "../schemas/llm.js";
@@ -9,7 +10,6 @@ import { logger } from "../utils/logger.js";
 import { CachedEmbeddingRetriever, type EmbeddingsCacheFile } from "./embedding-retriever.js";
 import type { Retriever } from "./retrieval.service.js";
 import { NullRetriever } from "./retrieval.service.js";
-import { setAppState } from "../app/state.js";
 
 const dataDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../data");
 const cachePath = path.join(dataDir, "embeddings.json");
@@ -169,7 +169,12 @@ export const EmbeddingsService = {
     const batchSize = 100;
     const vectors: Record<string, number[]> = {};
 
-    emitProgress({ phase: "start", current: 0, total: products.length, message: "Starting embedding build" });
+    emitProgress({
+      phase: "start",
+      current: 0,
+      total: products.length,
+      message: "Starting embedding build",
+    });
 
     try {
       for (let offset = 0; offset < products.length; offset += batchSize) {

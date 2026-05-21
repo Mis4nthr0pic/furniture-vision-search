@@ -1,10 +1,10 @@
 import { Router } from "express";
 import { z } from "zod";
-import { createRateLimiter } from "../middleware/rate-limit.js";
 import { config } from "../config.js";
+import { createRateLimiter } from "../middleware/rate-limit.js";
+import { parseLLMConfig } from "../schemas/llm.js";
 import { CatalogService } from "../services/catalog.service.js";
 import { EmbeddingsService } from "../services/embeddings.service.js";
-import { parseLLMConfig } from "../schemas/llm.js";
 import { AppError } from "../utils/errors.js";
 import { parseBody } from "../utils/validation.js";
 

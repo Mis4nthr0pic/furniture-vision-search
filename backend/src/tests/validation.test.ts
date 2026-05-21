@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { AppError } from "../utils/errors.js";
-import { ALLOWED_IMAGE_MIMES, assertAllowedImageMime } from "../utils/upload-mime.js";
+import {
+  ALLOWED_IMAGE_MIMES,
+  assertAllowedImageMime,
+  detectImageMime,
+  validateImageUpload,
+} from "../utils/upload-mime.js";
 import { parseJsonField } from "../utils/validation.js";
 
 describe("parseJsonField", () => {
@@ -41,5 +46,27 @@ describe("assertAllowedImageMime", () => {
 
   it("defaults missing MIME to jpeg then validates", () => {
     expect(assertAllowedImageMime(undefined)).toBe("image/jpeg");
+  });
+});
+
+describe("validateImageUpload", () => {
+  const pngHeader = Buffer.from([
+    0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d,
+  ]);
+
+  it("detects PNG magic bytes", () => {
+    expect(detectImageMime(pngHeader)).toBe("image/png");
+  });
+
+  it("accepts matching PNG upload", () => {
+    expect(validateImageUpload(pngHeader, "image/png")).toBe("image/png");
+  });
+
+  it("rejects spoofed content type", () => {
+    expect(() => validateImageUpload(pngHeader, "image/jpeg")).toThrow(AppError);
+  });
+
+  it("rejects non-image bytes", () => {
+    expect(() => validateImageUpload(Buffer.from("hello"), "image/png")).toThrow(AppError);
   });
 });

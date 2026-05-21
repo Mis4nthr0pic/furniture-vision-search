@@ -2,10 +2,10 @@ import { useCallback, useEffect, useState } from "react";
 import { fetchLiveLogs, fetchLiveMetrics } from "../../api/client";
 import type { LiveEvalMetrics, SearchLogEntry } from "../../types";
 import { formatDateTime } from "../../utils/format";
-import { MetricCard } from "./MetricCard";
 import { Alert } from "../ui/Alert";
 import { Button } from "../ui/Button";
 import { Card, CardHeader } from "../ui/Card";
+import { MetricCard } from "./MetricCard";
 
 export function LiveEvalTab() {
   const [metrics, setMetrics] = useState<LiveEvalMetrics | null>(null);
@@ -69,7 +69,13 @@ export function LiveEvalTab() {
             </tr>
           </thead>
           <tbody>
-            {logs.length === 0 ? (
+            {loading && logs.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="px-4 py-6 text-center text-stone-500" role="status">
+                  Loading live eval data…
+                </td>
+              </tr>
+            ) : logs.length === 0 ? (
               <tr>
                 <td colSpan={5} className="px-4 py-6 text-center text-stone-500">
                   No searches logged yet. Run a search and rate results.
@@ -78,7 +84,9 @@ export function LiveEvalTab() {
             ) : (
               logs.map((log) => (
                 <tr key={log.id} className="border-b border-surface-border/70">
-                  <td className="px-4 py-3 text-xs text-stone-500">{formatDateTime(log.timestamp)}</td>
+                  <td className="px-4 py-3 text-xs text-stone-500">
+                    {formatDateTime(log.timestamp)}
+                  </td>
                   <td className="px-4 py-3 text-stone-700">
                     {log.visionFeatures.category ?? "—"} · {log.visionFeatures.type ?? "—"}
                   </td>

@@ -4,9 +4,9 @@
  */
 import { config } from "../config.js";
 import type { LLMConfig } from "../schemas/llm.js";
-import type { ChatMessage, ImageInput, LLMClient } from "./client.js";
 import { AppError } from "../utils/errors.js";
 import { extractJsonFromText } from "../utils/json-parse.js";
+import type { ChatMessage, ImageInput, LLMClient } from "./client.js";
 
 interface OpenAIChatResponse {
   choices?: Array<{ message?: { content?: string | null } }>;
@@ -27,7 +27,11 @@ function sanitizeMessage(message: string, apiKey: string): string {
   return message.split(apiKey).join("[REDACTED]");
 }
 
-function buildHeaders(llmConfig: LLMConfig, apiKey: string, requestUrl: string): Record<string, string> {
+function buildHeaders(
+  llmConfig: LLMConfig,
+  apiKey: string,
+  requestUrl: string,
+): Record<string, string> {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     Authorization: `Bearer ${apiKey}`,
@@ -110,14 +114,18 @@ export function createOpenAICompatibleClient(llmConfig: LLMConfig): LLMClient {
         },
       ];
 
-      const response = await postJson<OpenAIChatResponse>(`${baseUrl}/chat/completions`, llmConfig, {
-        model: llmConfig.visionModel,
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content },
-        ],
-        response_format: { type: "json_object" },
-      });
+      const response = await postJson<OpenAIChatResponse>(
+        `${baseUrl}/chat/completions`,
+        llmConfig,
+        {
+          model: llmConfig.visionModel,
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content },
+          ],
+          response_format: { type: "json_object" },
+        },
+      );
 
       const text = extractChatContent(response);
       return extractJsonFromText(text);
@@ -146,7 +154,10 @@ export function createOpenAICompatibleClient(llmConfig: LLMConfig): LLMClient {
       const apiMessages: Array<{
         role: string;
         content: string | Array<{ type: string; text?: string; image_url?: { url: string } }>;
-      }> = messages.map((message: ChatMessage) => ({ role: message.role, content: message.content }));
+      }> = messages.map((message: ChatMessage) => ({
+        role: message.role,
+        content: message.content,
+      }));
 
       if (images && images.length > 0) {
         const lastUserIndex = [...apiMessages].reverse().findIndex((m) => m.role === "user");
@@ -174,7 +185,11 @@ export function createOpenAICompatibleClient(llmConfig: LLMConfig): LLMClient {
         body.response_format = { type: "json_object" };
       }
 
-      const response = await postJson<OpenAIChatResponse>(`${baseUrl}/chat/completions`, llmConfig, body);
+      const response = await postJson<OpenAIChatResponse>(
+        `${baseUrl}/chat/completions`,
+        llmConfig,
+        body,
+      );
       return extractChatContent(response);
     },
   };

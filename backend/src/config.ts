@@ -11,7 +11,11 @@ const envSchema = z.object({
 
   CORS_ORIGIN: z.string().default("*"),
   JSON_BODY_LIMIT: z.string().default("1mb"),
-  MAX_UPLOAD_BYTES: z.coerce.number().int().positive().default(10 * 1024 * 1024),
+  MAX_UPLOAD_BYTES: z.coerce
+    .number()
+    .int()
+    .positive()
+    .default(10 * 1024 * 1024),
 
   LEXICAL_DEFAULT_LIMIT: z.coerce.number().int().positive().default(20),
   LEXICAL_MAX_LIMIT: z.coerce.number().int().positive().default(100),
@@ -30,9 +34,7 @@ const envSchema = z.object({
   /** Local dev only — gitignored via .env, never required in production. */
   OPENROUTER_API_KEY: z.string().optional(),
 
-  DISABLE_DEBUG_ROUTES: z
-    .enum(["true", "false"])
-    .optional(),
+  DISABLE_DEBUG_ROUTES: z.enum(["true", "false"]).optional(),
 
   RATE_LIMIT_SEARCH_MAX: z.coerce.number().int().positive().default(30),
   RATE_LIMIT_SEARCH_WINDOW_MS: z.coerce.number().int().positive().default(60_000),
@@ -102,8 +104,7 @@ function loadConfig() {
     },
 
     security: {
-      disableDebugRoutes:
-        env.NODE_ENV === "production" || env.DISABLE_DEBUG_ROUTES === "true",
+      disableDebugRoutes: env.NODE_ENV === "production" || env.DISABLE_DEBUG_ROUTES === "true",
     },
 
     rateLimit: {

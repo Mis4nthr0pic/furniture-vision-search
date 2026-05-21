@@ -2,11 +2,11 @@ import { useCallback, useEffect, useState } from "react";
 import { fetchCatalogMeta } from "../../api/client";
 import type { CatalogMeta } from "../../types";
 import { formatDateTime, formatPrice } from "../../utils/format";
-import { MetricCard } from "./MetricCard";
 import { Alert } from "../ui/Alert";
 import { Badge } from "../ui/Badge";
 import { Button } from "../ui/Button";
 import { Card, CardHeader } from "../ui/Card";
+import { MetricCard } from "./MetricCard";
 
 export function CatalogMetaTab() {
   const [meta, setMeta] = useState<CatalogMeta | null>(null);
@@ -50,7 +50,13 @@ export function CatalogMetaTab() {
         {error && <Alert tone="error">{error}</Alert>}
       </Card>
 
-      {meta && (
+      {loading && !meta ? (
+        <Card>
+          <p className="px-6 py-8 text-center text-sm text-stone-500" role="status">
+            Loading catalog metadata…
+          </p>
+        </Card>
+      ) : meta ? (
         <>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <MetricCard label="Products" value={meta.productCount.toLocaleString()} />
@@ -60,10 +66,7 @@ export function CatalogMetaTab() {
               tone={meta.embeddingsReady ? "success" : "warning"}
               hint={`${meta.embeddingsItemCount.toLocaleString()} vectors indexed`}
             />
-            <MetricCard
-              label="Last indexed"
-              value={formatDateTime(meta.embeddingsLastIndexed)}
-            />
+            <MetricCard label="Last indexed" value={formatDateTime(meta.embeddingsLastIndexed)} />
             <MetricCard
               label="Price range"
               value={`${formatPrice(meta.priceRange.min)} – ${formatPrice(meta.priceRange.max)}`}
@@ -106,7 +109,7 @@ export function CatalogMetaTab() {
             </Card>
           </div>
         </>
-      )}
+      ) : null}
     </div>
   );
 }

@@ -1,0 +1,14 @@
+{
+  "name": "furniture-vision-search",
+  "private": true,
+  "scripts": {
+    "test": "npm test --prefix backend && npm test --prefix frontend",
+    "typecheck": "npm run typecheck --prefix backend && npm run typecheck --prefix frontend",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "check": "npm run lint && npm run typecheck && npm run test"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4"
+  }
+}

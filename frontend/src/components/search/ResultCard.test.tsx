@@ -1,8 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
-import { ResultCard } from "./ResultCard";
 import type { RankedProduct } from "../../types";
+import { ResultCard } from "./ResultCard";
 
 const product: RankedProduct = {
   id: "p1",

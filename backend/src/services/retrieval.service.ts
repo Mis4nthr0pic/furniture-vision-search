@@ -1,5 +1,5 @@
-import { getCatalogProducts, getCatalogVocab } from "../catalog/load.js";
 import { getLexicalScoresForQuery } from "../catalog/lexical.js";
+import { getCatalogProducts, getCatalogVocab } from "../catalog/load.js";
 import type { VisionFeatures } from "../schemas/llm.js";
 import type { RetrievalConfig, ScoreWeights } from "../schemas/retrieval.js";
 import type { EnrichedProduct } from "../types.js";
@@ -126,8 +126,8 @@ export function filterProducts(
   const shouldFilterCategory =
     config.filterMode === "strict"
       ? vocabHasValue(vocab.categories, vision.category)
-      : (vision.confidence.category >= config.confidenceThreshold &&
-          vocabHasValue(vocab.categories, vision.category));
+      : vision.confidence.category >= config.confidenceThreshold &&
+        vocabHasValue(vocab.categories, vision.category);
 
   if (shouldFilterCategory && vision.category) {
     filtered = filtered.filter((product) => equalsIgnoreCase(product.category, vision.category));
@@ -136,8 +136,8 @@ export function filterProducts(
   const shouldFilterType =
     config.filterMode === "strict"
       ? vocabHasValue(vocab.types, vision.type)
-      : (vision.confidence.type >= config.confidenceThreshold &&
-          vocabHasValue(vocab.types, vision.type));
+      : vision.confidence.type >= config.confidenceThreshold &&
+        vocabHasValue(vocab.types, vision.type);
 
   if (shouldFilterType && vision.type) {
     filtered = filtered.filter((product) => equalsIgnoreCase(product.type, vision.type));
@@ -149,9 +149,27 @@ export function filterProducts(
 function modeWeights(mode: RetrievalConfig["mode"], weights: ScoreWeights): ScoreWeights {
   switch (mode) {
     case "vector_only":
-      return { ...weights, w_lex: 0, w_cat: 0, w_type: 0, w_color: 0, w_style: 0, w_mat: 0, w_dim: 0 };
+      return {
+        ...weights,
+        w_lex: 0,
+        w_cat: 0,
+        w_type: 0,
+        w_color: 0,
+        w_style: 0,
+        w_mat: 0,
+        w_dim: 0,
+      };
     case "lexical_only":
-      return { ...weights, w_vec: 0, w_cat: 0, w_type: 0, w_color: 0, w_style: 0, w_mat: 0, w_dim: 0 };
+      return {
+        ...weights,
+        w_vec: 0,
+        w_cat: 0,
+        w_type: 0,
+        w_color: 0,
+        w_style: 0,
+        w_mat: 0,
+        w_dim: 0,
+      };
     case "filter_only":
       return { ...weights, w_vec: 0, w_lex: 0 };
     default:
@@ -242,10 +260,7 @@ export async function retrieveTopK(args: {
   const scored = products.map((product) => {
     const vectorScore =
       queryVector && weights.w_vec > 0
-        ? cosineSimilarity(
-            queryVector,
-            retriever.getProductVector(product._id) ?? [],
-          )
+        ? cosineSimilarity(queryVector, retriever.getProductVector(product._id) ?? [])
         : 0;
 
     return scoreProduct({

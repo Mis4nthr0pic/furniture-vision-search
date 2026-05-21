@@ -4,8 +4,8 @@ import { fileURLToPath } from "node:url";
 import { z } from "zod";
 import type { LLMConfig } from "../schemas/llm.js";
 import type { RetrievalConfig } from "../schemas/retrieval.js";
-import { SearchService } from "./search.service.js";
 import { equalsIgnoreCase } from "./retrieval.service.js";
+import { SearchService } from "./search.service.js";
 
 const evalDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../eval");
 
@@ -36,7 +36,11 @@ export function resolveEvalImagePath(imagePath: string): string {
 }
 
 function countExpectedMatches(
-  result: { category: string; type: string; attrs: { color: string; style: string; material: string } },
+  result: {
+    category: string;
+    type: string;
+    attrs: { color: string; style: string; material: string };
+  },
   expected: EvalCase["expected"],
 ): { matched: number; total: number } {
   const keys = Object.entries(expected).filter(([, value]) => value != null);
@@ -54,7 +58,11 @@ function countExpectedMatches(
 }
 
 function reciprocalRank(
-  ranked: Array<{ category: string; type: string; attrs: { color: string; style: string; material: string } }>,
+  ranked: Array<{
+    category: string;
+    type: string;
+    attrs: { color: string; style: string; material: string };
+  }>,
   expected: EvalCase["expected"],
 ): number {
   for (let i = 0; i < ranked.length; i++) {
@@ -122,7 +130,8 @@ export const StaticEvalService = {
 
     const summary = {
       top1_category_match:
-        top1.filter((r, i) => equalsIgnoreCase(r!.category, cases[i]!.expected.category)).length / n,
+        top1.filter((r, i) => equalsIgnoreCase(r!.category, cases[i]!.expected.category)).length /
+        n,
       top1_type_match:
         top1.filter((r, i) => equalsIgnoreCase(r!.type, cases[i]!.expected.type)).length / n,
       top1_color_match:

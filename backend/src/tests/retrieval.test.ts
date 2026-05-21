@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import type { VisionFeatures } from "../schemas/llm.js";
+import { DEFAULT_SCORE_WEIGHTS } from "../schemas/retrieval.js";
 import {
   dimProximity,
   equalsIgnoreCase,
@@ -6,8 +8,6 @@ import {
   scoreProduct,
 } from "../services/retrieval.service.js";
 import type { EnrichedProduct } from "../types.js";
-import type { VisionFeatures } from "../schemas/llm.js";
-import { DEFAULT_SCORE_WEIGHTS } from "../schemas/retrieval.js";
 
 const product: EnrichedProduct = {
   _id: "1",

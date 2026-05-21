@@ -76,4 +76,3 @@ User prompt: ${args.userPrompt?.trim() ? JSON.stringify(args.userPrompt.trim()) 
 Candidates:
 ${JSON.stringify(args.candidates, null, 2)}`;
 }
-

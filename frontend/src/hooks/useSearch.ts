@@ -12,6 +12,7 @@ export function useSearchActions() {
     setSearchError,
     applySearchResult,
     setRating,
+    clearRating,
   } = useStore(
     useShallow((state) => ({
       apiKey: state.apiKey,
@@ -21,6 +22,7 @@ export function useSearchActions() {
       setSearchError: state.setSearchError,
       applySearchResult: state.applySearchResult,
       setRating: state.setRating,
+      clearRating: state.clearRating,
     })),
   );
 
@@ -49,26 +51,25 @@ export function useSearchActions() {
         setSearchLoading(false);
       }
     },
-    [
-      apiKey,
-      llmConfig,
-      retrievalConfig,
-      setSearchLoading,
-      setSearchError,
-      applySearchResult,
-    ],
+    [apiKey, llmConfig, retrievalConfig, setSearchLoading, setSearchError, applySearchResult],
   );
 
   const rateProduct = useCallback(
     async (searchId: string, productId: string, relevant: boolean) => {
+      const previous = useStore.getState().ratings[productId];
       setRating(productId, relevant);
       try {
         await rateResult({ searchId, productId, relevant });
       } catch (err) {
+        if (previous === undefined) {
+          clearRating(productId);
+        } else {
+          setRating(productId, previous);
+        }
         setSearchError(err instanceof Error ? err.message : "Failed to save rating");
       }
     },
-    [setRating, setSearchError],
+    [setRating, clearRating, setSearchError],
   );
 
   return { runSearch, rateProduct };

@@ -3,7 +3,7 @@ import { CatalogMetaTab } from "../components/admin/CatalogMetaTab";
 import { ConfigTab } from "../components/admin/ConfigTab";
 import { LiveEvalTab } from "../components/admin/LiveEvalTab";
 import { StaticEvalTab } from "../components/admin/StaticEvalTab";
-import { TabNav, type AdminTab } from "../components/admin/TabNav";
+import { type AdminTab, TabNav, tabPanelId } from "../components/admin/TabNav";
 
 export function AdminPage() {
   const [tab, setTab] = useState<AdminTab>("config");
@@ -27,10 +27,12 @@ export function AdminPage() {
         <TabNav active={tab} onChange={setTab} />
       </div>
 
-      {tab === "config" && <ConfigTab />}
-      {tab === "static-eval" && <StaticEvalTab />}
-      {tab === "live-eval" && <LiveEvalTab />}
-      {tab === "catalog" && <CatalogMetaTab />}
+      <div role="tabpanel" id={tabPanelId(tab)} aria-labelledby={`admin-tab-${tab}`}>
+        {tab === "config" && <ConfigTab />}
+        {tab === "static-eval" && <StaticEvalTab />}
+        {tab === "live-eval" && <LiveEvalTab />}
+        {tab === "catalog" && <CatalogMetaTab />}
+      </div>
     </div>
   );
 }

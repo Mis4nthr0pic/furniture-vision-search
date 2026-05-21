@@ -1,14 +1,14 @@
-import { defaultScoreWeights } from "../../store";
 import { useAdminConfig } from "../../hooks/useAdminConfig";
 import { useReindex } from "../../hooks/useReindex";
+import { defaultScoreWeights } from "../../store";
+import type { ScoreWeights } from "../../types";
+import { cn } from "../../utils/format";
 import { Alert } from "../ui/Alert";
 import { Button } from "../ui/Button";
 import { Card, CardHeader } from "../ui/Card";
 import { Input } from "../ui/Input";
 import { Select } from "../ui/Select";
 import { TextArea } from "../ui/TextArea";
-import { cn } from "../../utils/format";
-import type { ScoreWeights } from "../../types";
 
 const modelOptions = [
   { value: "openai/gpt-4o", label: "openai/gpt-4o" },
@@ -69,7 +69,10 @@ export function ConfigTab() {
       </Card>
 
       <Card>
-        <CardHeader title="Models" description="Vision, chat/rerank, and embedding models via OpenRouter." />
+        <CardHeader
+          title="Models"
+          description="Vision, chat/rerank, and embedding models via OpenRouter."
+        />
         <div className="grid gap-4 sm:grid-cols-2">
           <Select
             label="Vision model"
@@ -235,9 +238,7 @@ export function ConfigTab() {
           {progress && (
             <span className="text-sm text-stone-600">
               {progress.message ??
-                (progress.total > 0
-                  ? `${progress.current} / ${progress.total}`
-                  : progress.phase)}
+                (progress.total > 0 ? `${progress.current} / ${progress.total}` : progress.phase)}
             </span>
           )}
         </div>

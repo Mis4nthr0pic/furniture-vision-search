@@ -8,12 +8,18 @@ function normalizeToken(value: string): string {
  * Title template: `{Style} {Material} {Type}`
  * Type may be multi-word (e.g. "Entryway Bench", "Wide Bookshelf").
  */
-export function parseTitleAttrs(title: string, knownType: string): { style: string; material: string } {
+export function parseTitleAttrs(
+  title: string,
+  knownType: string,
+): { style: string; material: string } {
   const typeTokens = knownType.split(/\s+/).filter(Boolean);
   const titleTokens = title.split(/\s+/).filter(Boolean);
 
   if (titleTokens.length < typeTokens.length + 2) {
-    return { style: titleTokens[0] ?? "", material: titleTokens.slice(1, -typeTokens.length).join(" ") };
+    return {
+      style: titleTokens[0] ?? "",
+      material: titleTokens.slice(1, -typeTokens.length).join(" "),
+    };
   }
 
   const style = normalizeToken(titleTokens[0] ?? "");

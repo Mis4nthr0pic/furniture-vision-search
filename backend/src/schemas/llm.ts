@@ -1,5 +1,7 @@
 import { z } from "zod";
 import { getDevLLMApiKey, getLLMDefaults } from "../config.js";
+import { AppError } from "../utils/errors.js";
+import { assertAllowedLlmConfigUrls } from "../utils/llm-url.js";
 
 const llmDefaults = getLLMDefaults();
 
@@ -89,7 +91,18 @@ export function resolveLLMApiKey(partial: { apiKey?: string }): string | undefin
 export function parseLLMConfig(input: unknown): LLMConfig {
   const partial = typeof input === "object" && input !== null ? input : {};
   const apiKey = resolveLLMApiKey(partial as { apiKey?: string });
-  return llmConfigSchema.parse({ ...llmDefaults, ...partial, apiKey });
+  const parsed = llmConfigSchema.safeParse({ ...llmDefaults, ...partial, apiKey });
+
+  if (!parsed.success) {
+    throw new AppError(
+      "VALIDATION_ERROR",
+      parsed.error.errors[0]?.message ?? "Invalid LLM config",
+      400,
+    );
+  }
+
+  assertAllowedLlmConfigUrls(parsed.data);
+  return parsed.data;
 }
 
 export function parseVisionFeatures(input: unknown): VisionFeatures {

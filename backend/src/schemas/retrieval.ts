@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { AppError } from "../utils/errors.js";
 
 export const scoreWeightsSchema = z.object({
   w_vec: z.number().min(0).max(1).default(0.25),
@@ -30,7 +31,17 @@ export type RetrievalConfig = z.infer<typeof retrievalConfigSchema>;
 
 export function parseRetrievalConfig(input: unknown): RetrievalConfig {
   const partial = typeof input === "object" && input !== null ? input : {};
-  return retrievalConfigSchema.parse(partial);
+  const parsed = retrievalConfigSchema.safeParse(partial);
+
+  if (!parsed.success) {
+    throw new AppError(
+      "VALIDATION_ERROR",
+      parsed.error.errors[0]?.message ?? "Invalid retrieval config",
+      400,
+    );
+  }
+
+  return parsed.data;
 }
 
 export const DEFAULT_SCORE_WEIGHTS: ScoreWeights = {
