@@ -5,9 +5,9 @@ export interface SearchProgressStep {
 }
 
 export const SEARCH_PROGRESS_STEPS: SearchProgressStep[] = [
-  { id: "vision", kicker: "No. 01", label: "Reading the photograph" },
-  { id: "retrieval", kicker: "No. 02", label: "Searching the catalog" },
-  { id: "rerank", kicker: "No. 03", label: "Ranking with visual judgment" },
+  { id: "vision", kicker: "VSN", label: "Vision extract" },
+  { id: "retrieval", kicker: "IDX", label: "Hybrid retrieve" },
+  { id: "rerank", kicker: "RNK", label: "LLM rerank" },
 ];
 
 export function getSearchProgressSteps(enableRerank: boolean): SearchProgressStep[] {

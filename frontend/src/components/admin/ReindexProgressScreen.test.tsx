@@ -29,7 +29,7 @@ describe("ReindexProgressScreen", () => {
 
     expect(screen.getByRole("dialog")).toBeInTheDocument();
     expect(screen.getByText(/Building vector index/i)).toBeInTheDocument();
-    expect(screen.getByText(/500 \/ 2,500 products/i)).toBeInTheDocument();
+    expect(screen.getByText(/batch 500 \/ 2,500/i)).toBeInTheDocument();
     expect(screen.getByText("20%")).toBeInTheDocument();
   });
 

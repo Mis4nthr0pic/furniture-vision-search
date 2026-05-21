@@ -67,106 +67,94 @@ export function ReindexProgressScreen({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-ink/80 p-4 backdrop-blur-sm animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4 animate-fade-in"
       role="dialog"
       aria-modal="true"
       aria-labelledby="reindex-progress-title"
     >
-      <div
-        className="w-full max-w-lg bg-butter p-6 text-ink shadow-polaroid sm:p-8"
-        style={{ transform: "rotate(-0.5deg)" }}
-      >
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="font-mono text-[10px] uppercase tracking-kicker text-terracotta">
-              ✦ No. 04 · The inventory
-            </p>
-            <h2 id="reindex-progress-title" className="mt-1 font-display text-2xl italic text-ink">
-              {isError ? "Reindex failed" : isComplete ? "Index rebuilt" : "Building vector index"}
-            </h2>
-            <p className="mt-2 font-serif text-sm italic text-ink/70">
-              {isComplete
-                ? "Hybrid search can now use cached embeddings for all catalog products."
-                : "This usually takes about a minute with default settings. Keep this tab open."}
-            </p>
-          </div>
-          {running && (
-            <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-terracotta/15">
-              <span className="h-5 w-5 animate-spin rounded-full border-2 border-terracotta border-t-transparent" />
-            </span>
-          )}
+      <div className="w-full max-w-lg border border-hair bg-bg">
+        <div className="border-b border-hair px-4 py-3">
+          <p className="instrument-kicker">§ 4.5 · EMBED_INDEX</p>
+          <h2 id="reindex-progress-title" className="text-[15px] font-medium text-ink">
+            {isError ? "Reindex failed" : isComplete ? "Index rebuilt" : "Building vector index"}
+          </h2>
         </div>
 
-        <ol className="mt-6 grid grid-cols-4 gap-2">
-          {reindexSteps.map((step, index) => {
-            const done = !isError && activeStep > index;
-            const active = !isError && activeStep === index && (running || isComplete);
-            return (
-              <li key={step.id} className="text-center">
-                <div
-                  className={cn(
-                    "mx-auto flex h-8 w-8 items-center justify-center rounded-full font-display text-sm italic transition",
-                    done && "bg-teal text-cream",
-                    active && "bg-terracotta text-cream ring-4 ring-terracotta/20",
-                    !done && !active && "bg-ink/10 text-ink/35",
-                    isError && index === activeStep && "bg-paprika text-cream",
-                  )}
-                >
-                  {done ? "✓" : index + 1}
-                </div>
-                <p
-                  className={cn(
-                    "mt-2 font-mono text-[10px] uppercase leading-tight tracking-kicker",
-                    active || done ? "text-ink" : "text-ink/35",
-                  )}
-                >
-                  {step.label}
-                </p>
-              </li>
-            );
-          })}
-        </ol>
-
-        <div className="mt-6">
-          <div className="mb-2 flex items-center justify-between text-sm">
-            <span className="font-mono text-[10px] uppercase tracking-kicker text-ink/70">
-              {isError ? "Error" : getReindexPhaseLabel(phase)}
-            </span>
-            <span className="font-display text-lg italic tabular-nums text-terracotta">
-              {percent}%
-            </span>
-          </div>
-          <div className="h-0.5 overflow-hidden bg-terracotta/15">
-            <div
-              className={cn(
-                "h-full transition-all duration-500 ease-out",
-                isError ? "bg-paprika" : isComplete ? "bg-teal" : "bg-terracotta",
-              )}
-              style={{ width: `${percent}%` }}
-            />
-          </div>
-          <p className="mt-3 min-h-[1.25rem] font-serif text-sm italic text-ink/70">{statusLine}</p>
-          {progress && progress.total > 0 && !isError && (
-            <p className="mt-1 font-mono text-[10px] uppercase tracking-kicker text-ink/45">
-              Batch progress: {progress.current.toLocaleString()} /{" "}
-              {progress.total.toLocaleString()} products
-            </p>
-          )}
-        </div>
-
-        <div className="mt-6 flex items-center justify-between gap-3 border-t border-terracotta/20 pt-4">
-          <p className="font-mono text-[10px] uppercase tracking-kicker text-ink/45">
-            {running && startedAt != null
-              ? `Elapsed ${formatElapsed(elapsedMs)}`
-              : isComplete
-                ? "You can run searches immediately"
-                : "Do not refresh while embedding"}
+        <div className="p-4">
+          <p className="font-mono text-[11px] text-ink-soft">
+            {isComplete
+              ? "Embeddings cached · hybrid search ready"
+              : "Keep tab open · ~30–90s default batch"}
           </p>
-          {!running && (
-            <Button variant={isError ? "secondary" : "primary"} onClick={onDismiss}>
-              {isComplete ? "Done" : "Close"}
-            </Button>
-          )}
+
+          <ol className="mt-4 grid grid-cols-4 divide-x divide-hair border border-hair">
+            {reindexSteps.map((step, index) => {
+              const done = !isError && activeStep > index;
+              const active = !isError && activeStep === index && (running || isComplete);
+              return (
+                <li key={step.id} className="px-1 py-2 text-center">
+                  <div
+                    className={cn(
+                      "mx-auto flex h-7 w-7 items-center justify-center font-mono text-[11px] transition",
+                      done && "bg-signal/10 text-signal",
+                      active && "bg-accent/10 text-accent",
+                      !done && !active && "text-ink-muted",
+                      isError && index === activeStep && "bg-danger/10 text-danger",
+                    )}
+                  >
+                    {done ? "✓" : index + 1}
+                  </div>
+                  <p
+                    className={cn(
+                      "mt-1 font-mono text-[9px] uppercase leading-tight",
+                      active || done ? "text-ink" : "text-ink-muted",
+                    )}
+                  >
+                    {step.label}
+                  </p>
+                </li>
+              );
+            })}
+          </ol>
+
+          <div className="mt-4 border-t border-hair pt-4">
+            <div className="mb-2 flex items-center justify-between">
+              <span className="instrument-kicker">
+                {isError ? "error" : getReindexPhaseLabel(phase)}
+              </span>
+              <span className="font-mono text-[13px] tabular-nums text-ink">{percent}%</span>
+            </div>
+            <div className="h-1 bg-hair">
+              <div
+                className={cn(
+                  "h-full transition-all duration-500",
+                  isError ? "bg-danger" : isComplete ? "bg-signal" : "bg-accent",
+                )}
+                style={{ width: `${percent}%` }}
+              />
+            </div>
+            <p className="mt-2 min-h-[1.25rem] font-mono text-[11px] text-ink-soft">{statusLine}</p>
+            {progress && progress.total > 0 && !isError && (
+              <p className="mt-1 font-mono text-[10px] text-ink-muted">
+                batch {progress.current.toLocaleString()} / {progress.total.toLocaleString()}
+              </p>
+            )}
+          </div>
+
+          <div className="mt-4 flex items-center justify-between gap-3 border-t border-hair pt-4">
+            <p className="font-mono text-[10px] uppercase text-ink-muted">
+              {running && startedAt != null
+                ? `elapsed ${formatElapsed(elapsedMs)}`
+                : isComplete
+                  ? "ready"
+                  : "do not refresh"}
+            </p>
+            {!running && (
+              <Button variant={isError ? "secondary" : "primary"} onClick={onDismiss}>
+                {isComplete ? "Done" : "Close"}
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </div>

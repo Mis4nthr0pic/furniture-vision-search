@@ -60,7 +60,7 @@ export function LiveEvalTab() {
         <CardHeader title="Recent search logs" description="Last 50 searches with ratings." />
         <table className="min-w-full text-left text-sm">
           <thead>
-            <tr className="border-b border-cream/10 text-xs uppercase tracking-wide text-cream/45">
+            <tr className="border-b border-hair bg-panelDeep text-[10px] font-mono uppercase tracking-wide text-ink-muted">
               <th className="px-4 py-3">Time</th>
               <th className="px-4 py-3">Vision</th>
               <th className="px-4 py-3">Prompt</th>
@@ -71,30 +71,30 @@ export function LiveEvalTab() {
           <tbody>
             {loading && logs.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-cream/45" role="status">
+                <td colSpan={5} className="px-4 py-6 text-center text-ink-muted" role="status">
                   Loading live eval data…
                 </td>
               </tr>
             ) : logs.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-cream/45">
+                <td colSpan={5} className="px-4 py-6 text-center text-ink-muted">
                   No searches logged yet. Run a search and rate results.
                 </td>
               </tr>
             ) : (
               logs.map((log) => (
-                <tr key={log.id} className="border-b border-cream/10/70">
-                  <td className="px-4 py-3 text-xs text-cream/45">
+                <tr key={log.id} className="border-b border-hair/70">
+                  <td className="px-4 py-3 text-xs text-ink-muted">
                     {formatDateTime(log.timestamp)}
                   </td>
-                  <td className="px-4 py-3 text-cream">
+                  <td className="px-4 py-3 text-ink">
                     {log.visionFeatures.category ?? "—"} · {log.visionFeatures.type ?? "—"}
                   </td>
-                  <td className="max-w-[200px] truncate px-4 py-3 text-cream/75">
+                  <td className="max-w-[200px] truncate px-4 py-3 text-ink-soft">
                     {log.userPrompt || "—"}
                   </td>
-                  <td className="px-4 py-3 text-cream/75">{log.resultIds.length}</td>
-                  <td className="px-4 py-3 text-cream/75">{Object.keys(log.ratings).length}</td>
+                  <td className="px-4 py-3 text-ink-soft">{log.resultIds.length}</td>
+                  <td className="px-4 py-3 text-ink-soft">{Object.keys(log.ratings).length}</td>
                 </tr>
               ))
             )}

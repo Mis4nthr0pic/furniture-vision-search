@@ -8,19 +8,16 @@ interface AlertProps {
 }
 
 const styles = {
-  error: "border-plum/60 bg-plum/20 text-cream",
-  warning: "border-ochre/50 bg-ochre/10 text-cream",
-  info: "border-teal/50 bg-teal/15 text-cream",
+  error: "border-danger/40 bg-danger/5 text-ink",
+  warning: "border-warn/40 bg-warn/5 text-ink",
+  info: "border-hair bg-panel text-ink-soft",
 };
 
 export function Alert({ tone = "info", title, children }: AlertProps) {
   return (
-    <div
-      className={cn("rounded-lg border px-4 py-3 font-sans text-sm backdrop-blur-sm", styles[tone])}
-      role="alert"
-    >
-      {title && <p className="font-display text-base italic">{title}</p>}
-      <div className={cn(title && "mt-1", "font-serif italic leading-relaxed opacity-90")}>
+    <div className={cn("border px-3 py-2.5 text-ui", styles[tone])} role="alert">
+      {title && <p className="font-medium text-ink">{title}</p>}
+      <div className={cn(title && "mt-1", "font-mono text-[12px] leading-relaxed text-ink-soft")}>
         {children}
       </div>
     </div>

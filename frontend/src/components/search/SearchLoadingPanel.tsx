@@ -1,7 +1,7 @@
 import { memo } from "react";
 import { useSearchProgress } from "../../hooks/useSearchProgress";
 import { cn } from "../../utils/format";
-import { Card } from "../ui/Card";
+import { Card, CardHeader } from "../ui/Card";
 
 interface SearchLoadingPanelProps {
   enableRerank?: boolean;
@@ -13,63 +13,50 @@ export const SearchLoadingPanel = memo(function SearchLoadingPanel({
   const { stepIndex, percent, steps, step } = useSearchProgress(true, enableRerank);
 
   return (
-    <Card className="animate-fade-in border-terracotta/30">
-      <div className="flex items-start gap-4">
-        <span
-          className="mt-1 h-5 w-5 shrink-0 animate-spin-slow rounded-full border-2 border-terracotta border-t-transparent"
-          aria-hidden
-        />
-        <div className="min-w-0 flex-1">
-          <p className="font-mono text-[10px] uppercase tracking-kicker text-terracotta">
-            ✦ {step.kicker} · {step.label}
-          </p>
-          <p className="mt-1 font-display text-lg italic text-cream">Consulting the catalog…</p>
-          <p className="mt-2 font-serif text-sm italic leading-relaxed text-cream/60">
-            {enableRerank
-              ? "Vision extraction, hybrid retrieval, and rerank typically take 8–12 seconds."
-              : "Vision extraction and hybrid retrieval typically take 4–6 seconds."}
-          </p>
-
-          <div className="mt-5">
-            <div className="mb-2 flex items-center justify-between gap-3">
-              <span className="font-mono text-[10px] uppercase tracking-kicker text-cream/50">
-                Progress
-              </span>
-              <span className="font-display text-sm italic tabular-nums text-terracotta">
-                {Math.round(percent)}%
-              </span>
-            </div>
-            <p className="sr-only" aria-live="polite">
-              Search progress: {step.label}, {Math.round(percent)} percent
-            </p>
-            <div className="h-0.5 overflow-hidden bg-terracotta/15" aria-hidden="true">
-              <div
-                className="h-full bg-terracotta transition-all duration-300 ease-out"
-                style={{ width: `${percent}%` }}
-              />
-            </div>
-          </div>
-
-          <ol className="mt-5 flex flex-wrap gap-2">
-            {steps.map((item, index) => {
-              const done = index < stepIndex;
-              const active = index === stepIndex;
-              return (
-                <li
-                  key={item.id}
-                  className={cn(
-                    "rounded-pill px-3 py-1 font-mono text-[10px] uppercase tracking-kicker transition",
-                    done && "bg-teal/20 text-cream",
-                    active && "bg-terracotta/20 text-terracotta",
-                    !done && !active && "bg-ink/40 text-cream/35",
-                  )}
-                >
-                  {item.kicker}
-                </li>
-              );
-            })}
-          </ol>
+    <Card padding="none" className="overflow-hidden">
+      <div className="relative border-b border-hair">
+        <CardHeader sectionId="[live]" title="Pipeline" description={step.label} />
+        <div className="absolute inset-x-0 bottom-0 h-0.5 overflow-hidden bg-hair">
+          <div
+            className="h-full w-1/3 animate-shimmer bg-accent"
+            style={{ width: `${Math.max(8, percent)}%` }}
+          />
         </div>
+      </div>
+
+      <div className="p-4">
+        <p className="sr-only" aria-live="polite">
+          Search progress: {step.label}, {Math.round(percent)} percent
+        </p>
+        <div className="flex items-center justify-between font-mono text-[10px] uppercase text-ink-muted">
+          <span>{step.kicker}</span>
+          <span className="tabular-nums text-ink">{Math.round(percent)}%</span>
+        </div>
+        <p className="mt-2 font-mono text-[11px] text-ink-soft">
+          {enableRerank
+            ? "vision → embed → hybrid k=30 → rerank n=10 · est 8–12s"
+            : "vision → embed → hybrid k=30 · est 4–6s"}
+        </p>
+
+        <ol className="mt-4 flex divide-x divide-hair border border-hair">
+          {steps.map((item, index) => {
+            const done = index < stepIndex;
+            const active = index === stepIndex;
+            return (
+              <li
+                key={item.id}
+                className={cn(
+                  "flex-1 px-2 py-1.5 text-center font-mono text-[9px] uppercase tracking-wide",
+                  done && "bg-signal/10 text-signal",
+                  active && "bg-accent/10 text-accent",
+                  !done && !active && "text-ink-muted",
+                )}
+              >
+                {item.kicker}
+              </li>
+            );
+          })}
+        </ol>
       </div>
     </Card>
   );

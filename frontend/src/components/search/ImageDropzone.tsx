@@ -1,6 +1,5 @@
 import { type DragEvent, memo, useState } from "react";
 import { cn } from "../../utils/format";
-import { ArchedFrame } from "../editorial/ArchedFrame";
 
 interface ImageDropzoneProps {
   file: File | null;
@@ -39,7 +38,7 @@ export const ImageDropzone = memo(function ImageDropzone({
       }}
       onDragLeave={() => setDragOver(false)}
       onDrop={onDrop}
-      className={cn("group relative transition", disabled && "pointer-events-none opacity-60")}
+      className={cn("relative", disabled && "pointer-events-none opacity-60")}
     >
       <label htmlFor={inputId} className="block cursor-pointer">
         <input
@@ -51,48 +50,35 @@ export const ImageDropzone = memo(function ImageDropzone({
           onChange={(event) => handleFiles(event.target.files)}
         />
 
-        <ArchedFrame
+        <div
           className={cn(
-            "min-h-[260px] transition",
-            dragOver ? "border-terracotta/60 bg-burgundy" : "hover:border-cream/20",
+            "flex min-h-[220px] flex-col items-center justify-center border border-dashed border-hair bg-bg px-4 py-6 text-center transition",
+            dragOver && "border-accent bg-panel",
           )}
-          innerClassName="min-h-[260px] flex-col px-6 py-8 text-center"
         >
           {previewUrl ? (
             <>
               <img
                 src={previewUrl}
                 alt={file?.name ?? "Upload preview"}
-                className="max-h-48 w-full object-contain"
+                className="max-h-44 w-full object-contain"
                 loading="lazy"
                 decoding="async"
               />
               {file && (
-                <p className="mt-4 font-mono text-[10px] uppercase tracking-wider text-cream/45">
+                <p className="mt-3 font-mono text-[10px] uppercase text-ink-muted">
                   {file.name} · {(file.size / 1024).toFixed(0)} KB
                 </p>
               )}
-              <p className="mt-2 font-hand text-lg text-ochre opacity-0 transition group-hover:opacity-100">
-                replace →
-              </p>
+              <p className="mt-1 font-mono text-[10px] text-accent">↻ replace</p>
             </>
           ) : (
             <>
-              <span
-                className="font-hand text-2xl text-ochre"
-                style={{ transform: "rotate(-3deg)" }}
-              >
-                drop here
-              </span>
-              <p className="mt-3 font-display text-xl italic text-cream/90">
-                A furniture photograph
-              </p>
-              <p className="mt-2 font-serif text-sm italic text-cream/50">
-                PNG, JPG, WebP · up to 10MB
-              </p>
+              <p className="font-mono text-[11px] uppercase text-ink-muted">Drop image · browse</p>
+              <p className="mt-2 text-[13px] text-ink-soft">image/jpeg · png · webp · max 10MB</p>
             </>
           )}
-        </ArchedFrame>
+        </div>
       </label>
     </div>
   );

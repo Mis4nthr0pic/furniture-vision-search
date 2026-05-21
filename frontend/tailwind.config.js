@@ -4,59 +4,49 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        display: ['"DM Serif Display"', "Georgia", "serif"],
-        serif: ['"EB Garamond"', "Georgia", "serif"],
         sans: ['"Geist Sans"', "system-ui", "sans-serif"],
         mono: ['"JetBrains Mono"', "ui-monospace", "monospace"],
-        hand: ["Caveat", "cursive"],
+        emphasis: ['"Newsreader"', "Georgia", "serif"],
       },
       colors: {
+        bg: "#FAFAF7",
+        panel: "#F2F1EC",
+        panelDeep: "#E8E6DD",
         ink: {
-          DEFAULT: "#1B1012",
-          rise: "#241619",
+          DEFAULT: "#101113",
+          soft: "#3A3D42",
+          muted: "#7A7D82",
         },
-        burgundy: "#2E1A1D",
-        terracotta: {
-          DEFAULT: "#C46A4A",
-          hover: "#9E3E2B",
+        accent: {
+          DEFAULT: "#FF5B22",
+          deep: "#C9421A",
         },
-        ochre: "#D89B3D",
-        sand: "#C9A57A",
-        teal: "#5A7B7A",
-        plum: "#7A3A48",
-        cream: {
-          DEFAULT: "#F0E4D0",
-          muted: "rgba(240, 228, 208, 0.72)",
-        },
-        butter: "#E8D5A8",
-        paprika: "#9E3E2B",
+        signal: "#1F8A5B",
+        warn: "#C7A030",
+        danger: "#B83A2E",
+        hair: "#D4D2C8",
+        hairStrong: "#A8A69A",
       },
-      boxShadow: {
-        polaroid: "8px 10px 0 0 rgba(0,0,0,0.3)",
-        cta: "5px 6px 0 0 #D89B3D",
-        lift: "6px 6px 0 0 #C46A4A",
+      fontSize: {
+        ui: ["13px", { lineHeight: "1.45" }],
+        kicker: ["10px", { lineHeight: "1.4", letterSpacing: "0.22em" }],
       },
       borderRadius: {
-        arch: "140px 140px 4px 4px",
-        pill: "999px",
+        instrument: "4px",
       },
       animation: {
-        "fade-in": "fadeIn 0.45s ease-out",
-        "pulse-soft": "pulseSoft 2.4s ease-in-out infinite",
-        "spin-slow": "spin 1.2s linear infinite",
+        "fade-in": "fadeIn 0.25s ease-out",
+        shimmer: "shimmer 1.4s ease-in-out infinite",
       },
       keyframes: {
         fadeIn: {
-          "0%": { opacity: "0", transform: "translateY(10px)" },
-          "100%": { opacity: "1", transform: "translateY(0)" },
+          "0%": { opacity: "0" },
+          "100%": { opacity: "1" },
         },
-        pulseSoft: {
-          "0%, 100%": { opacity: "0.35" },
-          "50%": { opacity: "0.85" },
+        shimmer: {
+          "0%": { transform: "translateX(-100%)" },
+          "100%": { transform: "translateX(100%)" },
         },
-      },
-      letterSpacing: {
-        kicker: "0.22em",
       },
     },
   },
