@@ -1,0 +1,62 @@
+[
+  {
+    "id": "case_01",
+    "image_path": "images/storage_ottoman.jpg",
+    "user_prompt": "",
+    "expected": {
+      "category": "Ottomans",
+      "type": "Storage Ottoman",
+      "color": "Black"
+    }
+  },
+  {
+    "id": "case_02",
+    "image_path": "images/wide_bookshelf.jpg",
+    "user_prompt": "walnut bookshelf",
+    "expected": {
+      "category": "Bookshelves",
+      "type": "Wide Bookshelf",
+      "color": "Espresso"
+    }
+  },
+  {
+    "id": "case_03",
+    "image_path": "images/entryway_bench.jpg",
+    "user_prompt": "",
+    "expected": {
+      "category": "Benches",
+      "type": "Entryway Bench",
+      "color": "Charcoal"
+    }
+  },
+  {
+    "id": "case_04",
+    "image_path": "images/accent_chair.jpg",
+    "user_prompt": "",
+    "expected": {
+      "category": "Chairs",
+      "type": "Accent Chair",
+      "color": "Cream"
+    }
+  },
+  {
+    "id": "case_05",
+    "image_path": "images/lift_top_coffee_table.jpg",
+    "user_prompt": "",
+    "expected": {
+      "category": "Coffee Tables",
+      "type": "Lift-Top Coffee Table",
+      "color": "Cream"
+    }
+  },
+  {
+    "id": "case_06",
+    "image_path": "images/sectional_sofa.jpg",
+    "user_prompt": "",
+    "expected": {
+      "category": "Sofas",
+      "type": "Sectional Sofa",
+      "color": "Forest"
+    }
+  }
+]

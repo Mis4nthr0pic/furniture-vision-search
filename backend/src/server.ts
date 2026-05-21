@@ -4,6 +4,7 @@ import { bootstrapApplication } from "./app/bootstrap.js";
 import { getAppState } from "./app/state.js";
 import { config } from "./config.js";
 import { adminRouter } from "./routes/admin.js";
+import { evalRouter } from "./routes/eval.js";
 import { lexicalRouter } from "./routes/lexical.js";
 import { searchRouter } from "./routes/search.js";
 import { visionRouter } from "./routes/vision.js";
@@ -34,6 +35,7 @@ export function createServer(): express.Application {
   app.use("/api/lexical", lexicalRouter);
   app.use("/api/vision", visionRouter);
   app.use("/api/search", searchRouter);
+  app.use("/api/eval", evalRouter);
 
   app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
     if (err instanceof AppError) {
