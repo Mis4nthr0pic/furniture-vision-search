@@ -11,8 +11,8 @@ export function BackendStatusBanner() {
     <div className="border-b border-warn/30 bg-warn/5 px-4 py-3 sm:px-6">
       <div className="mx-auto flex max-w-[1280px] flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <Alert tone="warning" title="Backend API may be offline">
-          On Render free tier the API sleeps after ~15 minutes of inactivity. The first request
-          can take 30–60 seconds. Open{" "}
+          On Render free tier the API sleeps after ~15 minutes of inactivity. The first request can
+          take 30–60 seconds. Open{" "}
           <a
             href="/api/health"
             target="_blank"

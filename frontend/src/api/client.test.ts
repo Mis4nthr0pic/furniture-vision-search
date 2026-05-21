@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { fetchHealth, searchProducts, triggerReindex } from "./client";
 import { BACKEND_OFFLINE_MESSAGE } from "../utils/api-errors";
+import { fetchHealth, searchProducts, triggerReindex } from "./client";
 
 describe("searchProducts", () => {
   afterEach(() => {
