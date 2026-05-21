@@ -65,7 +65,7 @@ Single Zustand store shared by Search and Admin:
 |-------|---------|
 | `apiKey` | OpenRouter key — **memory only**, never localStorage |
 | `llmConfig` | Model IDs, base URL |
-| `retrievalConfig` | Mode, K/N, weights, rerank toggles, thresholds |
+| `retrievalConfig` | Mode, K/N, weights, rerank toggles, thresholds, price tolerance |
 | Search session | `ranked`, `visionFeatures`, `warnings`, `ratings`, `timings` |
 
 Selectors use `useShallow` in hooks to limit re-renders.
@@ -113,7 +113,7 @@ src/
 
 ### Admin UX highlights
 
-- **ConfigTab** — API key, models, retrieval weights, rerank toggles, reindex button
+- **ConfigTab** — API key, models, retrieval weights, prompt price tolerance, rerank toggles, reindex button
 - **ReindexProgressScreen** — full-screen modal with phase steps, batch progress, rate-limit retry messages
 - **StaticEvalTab** — run harness, summary metric cards, per-case table
 - **LiveEvalTab** — precision@5/10, MRR, recent logs

@@ -23,6 +23,12 @@ export interface ScoredProduct {
   contributions: ScoreBreakdown;
 }
 
+export interface PriceIntent {
+  minPrice?: number;
+  maxPrice?: number;
+  targetPrice?: number;
+}
+
 /** Seam for swapping in-memory cosine → Atlas Vector Search / pgvector. */
 export interface Retriever {
   isAvailable(): boolean;
@@ -66,9 +72,16 @@ export function userPromptMentionsMaterial(
   userPrompt: string | undefined,
   materials: string[],
 ): boolean {
-  if (!userPrompt?.trim()) return false;
+  return getMentionedMaterials(userPrompt, materials).length > 0;
+}
+
+export function getMentionedMaterials(
+  userPrompt: string | undefined,
+  materials: string[],
+): string[] {
+  if (!userPrompt?.trim()) return [];
   const lower = userPrompt.toLowerCase();
-  return materials.some((material) => lower.includes(material.toLowerCase()));
+  return materials.filter((material) => lower.includes(material.toLowerCase()));
 }
 
 export function dimProximity(
@@ -94,6 +107,100 @@ export function dimProximity(
   }
 
   return count === 0 ? 0 : total / count;
+}
+
+const MONEY_PATTERN = String.raw`\$?\s*([0-9][0-9,]*(?:\.\d{1,2})?)\s*(?:dollars?|usd)?`;
+
+function parseMoney(value: string | undefined): number | undefined {
+  if (!value) return undefined;
+  const parsed = Number(value.replace(/,/g, ""));
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : undefined;
+}
+
+function priceFromMatch(match: RegExpMatchArray | null): number | undefined {
+  return parseMoney(match?.[1]);
+}
+
+export function parsePriceIntent(userPrompt: string | undefined): PriceIntent | null {
+  if (!userPrompt?.trim()) return null;
+  const prompt = userPrompt.toLowerCase();
+
+  const rangePatterns = [
+    new RegExp(`between\\s+${MONEY_PATTERN}\\s+(?:and|to|-)\\s+${MONEY_PATTERN}`, "i"),
+    new RegExp(`${MONEY_PATTERN}\\s*(?:-|to)\\s*${MONEY_PATTERN}`, "i"),
+  ];
+  for (const pattern of rangePatterns) {
+    const match = prompt.match(pattern);
+    const first = parseMoney(match?.[1]);
+    const second = parseMoney(match?.[2]);
+    if (first != null && second != null) {
+      return { minPrice: Math.min(first, second), maxPrice: Math.max(first, second) };
+    }
+  }
+
+  const maxPatterns = [
+    new RegExp(
+      `(?:under|below|less\\s+than|up\\s+to|no\\s+more\\s+than|budget(?:\\s+of|\\s+is)?|max(?:imum)?|<=)\\s+${MONEY_PATTERN}`,
+      "i",
+    ),
+    new RegExp(`${MONEY_PATTERN}\\s*(?:or\\s+less|and\\s+under)`, "i"),
+  ];
+  for (const pattern of maxPatterns) {
+    const maxPrice = priceFromMatch(prompt.match(pattern));
+    if (maxPrice != null) return { maxPrice };
+  }
+
+  const minPatterns = [
+    new RegExp(`(?:over|above|more\\s+than|at\\s+least|min(?:imum)?|>=)\\s+${MONEY_PATTERN}`, "i"),
+    new RegExp(`${MONEY_PATTERN}\\s*(?:or\\s+more|and\\s+up)`, "i"),
+  ];
+  for (const pattern of minPatterns) {
+    const minPrice = priceFromMatch(prompt.match(pattern));
+    if (minPrice != null) return { minPrice };
+  }
+
+  const targetPatterns = [
+    new RegExp(`(?:around|about|near|approximately|approx\\.?|~)\\s+${MONEY_PATTERN}`, "i"),
+  ];
+  for (const pattern of targetPatterns) {
+    const targetPrice = priceFromMatch(prompt.match(pattern));
+    if (targetPrice != null) return { targetPrice };
+  }
+
+  return null;
+}
+
+export function priceIntentBounds(
+  intent: PriceIntent,
+  tolerancePercent: number | undefined,
+): { min?: number; max?: number } {
+  const defaultTolerance = intent.targetPrice != null && !tolerancePercent ? 20 : 0;
+  const tolerance = Math.min(Math.max(tolerancePercent || defaultTolerance, 0), 100) / 100;
+
+  if (intent.targetPrice != null) {
+    return {
+      min: intent.targetPrice * (1 - tolerance),
+      max: intent.targetPrice * (1 + tolerance),
+    };
+  }
+
+  return {
+    min: intent.minPrice != null ? intent.minPrice * (1 - tolerance) : undefined,
+    max: intent.maxPrice != null ? intent.maxPrice * (1 + tolerance) : undefined,
+  };
+}
+
+export function filterProductsByPriceIntent(
+  products: EnrichedProduct[],
+  intent: PriceIntent,
+  tolerancePercent: number | undefined,
+): EnrichedProduct[] {
+  const bounds = priceIntentBounds(intent, tolerancePercent);
+  return products.filter((product) => {
+    if (bounds.min != null && product.price < bounds.min) return false;
+    if (bounds.max != null && product.price > bounds.max) return false;
+    return true;
+  });
 }
 
 export function resolveEffectiveWeights(
@@ -187,6 +294,11 @@ export function scoreProduct(args: {
   materials: string[];
 }): ScoredProduct {
   const { product, vision, userPrompt, weights, lexicalScore, vectorScore, materials } = args;
+  const mentionedMaterials = getMentionedMaterials(userPrompt, materials);
+  const materialMatches =
+    mentionedMaterials.length > 0
+      ? mentionedMaterials.some((material) => equalsIgnoreCase(material, product._attrs.material))
+      : equalsIgnoreCase(vision.material, product._attrs.material);
 
   const breakdown: ScoreBreakdown = {
     vec: vectorScore,
@@ -195,11 +307,7 @@ export function scoreProduct(args: {
     type: equalsIgnoreCase(vision.type, product.type) ? 1 : 0,
     color: equalsIgnoreCase(vision.color, product._attrs.color) ? 1 : 0,
     style: equalsIgnoreCase(vision.style, product._attrs.style) ? 1 : 0,
-    mat:
-      userPromptMentionsMaterial(userPrompt, materials) &&
-      equalsIgnoreCase(vision.material, product._attrs.material)
-        ? 1
-        : 0,
+    mat: materialMatches ? 1 : 0,
     dim: dimProximity(vision.est_dimensions, product),
   };
 
@@ -244,7 +352,20 @@ export async function retrieveTopK(args: {
   let weights = resolveEffectiveWeights(args.config.weights, embeddingsAvailable);
   weights = modeWeights(args.config.mode, weights);
 
-  const products = filterProducts(getCatalogProducts(), args.vision, args.config);
+  let products = filterProducts(getCatalogProducts(), args.vision, args.config);
+  const priceIntent = parsePriceIntent(args.userPrompt);
+  if (priceIntent && products.length > 0) {
+    products = filterProductsByPriceIntent(
+      products,
+      priceIntent,
+      args.config.priceTolerancePercent,
+    );
+
+    if (products.length === 0) {
+      warnings.push("prompt price constraint filtered out all candidates");
+    }
+  }
+
   const queryText = buildLexicalQueryText(args.vision, args.userPrompt);
   const lexicalScores = getLexicalScoresForQuery(queryText);
   const { vocab } = getCatalogVocab();
