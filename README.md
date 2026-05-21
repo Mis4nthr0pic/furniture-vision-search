@@ -23,6 +23,27 @@ This section is the full path from clone to verified search and automated qualit
 
 Optional for local dev without Docker: Node.js **22+** and npm.
 
+### Hosted demo (Render free tier)
+
+If you are testing the **live deployment** instead of Docker locally:
+
+| | URL |
+|---|-----|
+| **App (use this in the browser)** | https://furniture-vision-search-1.onrender.com |
+| **Health check (wake the API)** | https://furniture-vision-search-1.onrender.com/api/health |
+
+The demo runs as **two Render web services** (frontend + backend). The frontend nginx proxies `/api/*` to the backend — always use the **frontend URL** above, not the backend hostname directly.
+
+**Cold start (important):** on Render’s free tier, both services **sleep after ~15 minutes** of inactivity. The first request after sleep can take **30–60 seconds**. Until the backend is awake you may see:
+
+- A **yellow banner** at the top of the app (“Backend API may be offline”)
+- Re-index or search errors mentioning a **gateway** or **502**
+- JSON parse errors if a proxy returns HTML instead of JSON
+
+**What to do:** open the [health check link](https://furniture-vision-search-1.onrender.com/api/health) in a **new tab**, wait until the response shows `"ok": true`, then return to the app and retry (re-index, search, etc.). Keep the health tab open while the first re-index runs if the backend was cold.
+
+After a **redeploy**, run **Re-index catalog** again — the free tier has no persistent disk, so embeddings are not kept across deploys.
+
 ---
 
 ### Step 1 — Clone and configure environment
@@ -273,6 +294,7 @@ Open http://localhost:5173. Paste OpenRouter key in Admin → Config.
 | Warning: embeddings not ready | No index built yet | Admin → Config → Re-index catalog |
 | Empty results after filter | Price prompt too strict | Try without price or widen **Price tolerance %** in Config |
 | Re-index fails / rate limit | OpenRouter throttling | Wait; modal shows retry/backoff; reduce concurrency in `.env` if needed |
+| `502 Bad Gateway`, HTML/JSON parse error, or “Backend unavailable” | Render backend still waking up or offline | Open `/api/health` in a new tab; wait for `"ok": true`; use the app banner **Check again** if shown |
 | Key gone after refresh | By design (memory-only) | Re-paste in Admin → Config |
 | Port already in use | Old containers running | `docker compose down` then `up --build` |
 | CORS error in browser | Split deploy (frontend and backend on different URLs) | See [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md); demo branch may allow all origins for testing |

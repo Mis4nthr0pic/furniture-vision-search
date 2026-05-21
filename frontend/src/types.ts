@@ -108,6 +108,13 @@ export interface ApiError {
   };
 }
 
+export interface HealthResponse {
+  ok: boolean;
+  productCount: number;
+  lexicalReady: boolean;
+  embeddingsReady: boolean;
+}
+
 export interface CatalogMeta {
   categories: string[];
   types: string[];
