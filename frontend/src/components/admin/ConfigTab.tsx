@@ -236,7 +236,7 @@ export function ConfigTab() {
       <Card>
         <CardHeader
           title="Embeddings index"
-          description="Rebuild the local embedding cache (~45–90s with defaults for 2,500 products)."
+          description="Rebuild the local embedding cache (~45–90s). On Render free tier, wake the API via /api/health first if re-index fails with a gateway error."
           action={
             <Button variant="secondary" onClick={resetToDefaults}>
               Reset defaults

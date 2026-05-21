@@ -2,6 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { APP_NAME, APP_VERSION, INDEX_LABEL } from "../../design/instrument";
 import { useTheme } from "../../hooks/useTheme";
 import { cn } from "../../utils/format";
+import { BackendStatusBanner } from "./BackendStatusBanner";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const location = useLocation();
@@ -60,6 +61,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </header>
+
+      <BackendStatusBanner />
 
       <main>{children}</main>
 

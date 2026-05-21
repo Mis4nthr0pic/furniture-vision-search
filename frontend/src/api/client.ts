@@ -1,12 +1,14 @@
 import type {
   CatalogMeta,
   EmbeddingsProgress,
+  HealthResponse,
   LLMConfig,
   LiveEvalMetrics,
   RetrievalConfig,
   SearchLogEntry,
   StaticEvalResponse,
 } from "../types";
+import { BACKEND_OFFLINE_MESSAGE, isGatewayHtml } from "../utils/api-errors";
 
 function serializeLlmConfig(llmConfig: LLMConfig) {
   return {
@@ -19,12 +21,30 @@ function serializeLlmConfig(llmConfig: LLMConfig) {
 }
 
 async function parseJson<T>(response: Response): Promise<T> {
-  const data = (await response.json()) as T | { error?: { message?: string } };
+  const raw = await response.text();
+  let data: T | { error?: { message?: string } };
+
+  try {
+    data = JSON.parse(raw) as T | { error?: { message?: string } };
+  } catch {
+    if (isGatewayHtml(raw)) {
+      throw new Error(BACKEND_OFFLINE_MESSAGE);
+    }
+    throw new Error(`Request failed (${response.status})`);
+  }
+
   if (!response.ok) {
     const err = data as { error?: { message?: string } };
     throw new Error(err.error?.message ?? `Request failed (${response.status})`);
   }
   return data as T;
+}
+
+export async function fetchHealth(): Promise<HealthResponse> {
+  const response = await fetch("/api/health", {
+    signal: AbortSignal.timeout(90_000),
+  });
+  return parseJson<HealthResponse>(response);
 }
 
 export async function searchProducts(args: {
