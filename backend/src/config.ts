@@ -16,11 +16,11 @@ const envSchema = z.object({
   LEXICAL_DEFAULT_LIMIT: z.coerce.number().int().positive().default(20),
   LEXICAL_MAX_LIMIT: z.coerce.number().int().positive().default(100),
 
-  LLM_BASE_URL: z.string().url().default("https://api.openai.com/v1"),
-  LLM_EMBED_BASE_URL: z.string().url().optional(),
-  LLM_VISION_MODEL: z.string().default("gpt-4o"),
+  LLM_BASE_URL: z.string().url().default("https://openrouter.ai/api/v1"),
+  LLM_EMBED_BASE_URL: z.string().url().default("https://api.openai.com/v1"),
+  LLM_VISION_MODEL: z.string().default("openai/gpt-4o"),
   LLM_EMBED_MODEL: z.string().default("text-embedding-3-small"),
-  LLM_CHAT_MODEL: z.string().default("gpt-4o"),
+  LLM_CHAT_MODEL: z.string().default("openai/gpt-4o"),
   LLM_REQUEST_TIMEOUT_MS: z.coerce.number().int().positive().default(60_000),
 
   OPENROUTER_REFERER: z.string().default("http://localhost:5173"),
