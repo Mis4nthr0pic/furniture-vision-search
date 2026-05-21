@@ -51,7 +51,15 @@ OPENROUTER_TITLE=Furniture Search
 | **Local `npm run dev` in `backend/`** | `backend/.env` if present, else `../.env` (repo root) |
 | **Hosted (Render, etc.)** | Platform environment variables on the **backend service only** — no `.env` file in the image |
 
-The **frontend container does not use `.env`**. In Docker, nginx proxies `/api` to the backend on the same stack (no CORS setup needed locally).
+The **frontend container does not use a `.env` file**. It needs one env var at runtime:
+
+| Variable | Local Docker | Render (frontend service) |
+|----------|--------------|---------------------------|
+| `BACKEND_URL` | Set automatically to `http://backend:4000` | **Required** — e.g. `https://your-api.onrender.com` |
+
+nginx proxies browser requests from `/api/*` on the frontend URL to `BACKEND_URL`. The React app always uses relative `/api` paths — no build-time config.
+
+Optional **local dev only** (`npm run dev`): `VITE_API_URL=http://localhost:4000` in `frontend/.env` for the Vite proxy.
 
 Optional: `OPENROUTER_API_KEY=sk-or-v1-…` in `.env` is a **local dev fallback** only (`NODE_ENV=development`). Evaluators should use **Admin → Config** instead so keys are never written to disk.
 

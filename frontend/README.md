@@ -152,7 +152,7 @@ Setup: `src/test/setup.ts` (jest-dom + RTL cleanup).
 
 - **Vite 6** + `@vitejs/plugin-react`
 - **Dev proxy:** `/api` → `http://localhost:4000` (`vite.config.ts`)
-- **Production:** `frontend/Dockerfile` builds static assets served by nginx; `nginx.conf` proxies `/api` to backend service
+- **Production:** `frontend/Dockerfile` serves static assets via nginx; set `BACKEND_URL` so nginx proxies `/api` to the backend (Compose: `http://backend:4000`; Render: your public backend URL)
 
 ---
 

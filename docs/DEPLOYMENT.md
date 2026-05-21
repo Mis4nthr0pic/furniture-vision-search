@@ -96,20 +96,17 @@ Browser → frontend.onrender.com (/api proxied) → backend.onrender.com → Mo
 
 Verify: `https://<backend-url>/api/health`
 
-### 2. Point the frontend nginx at the backend
+### 2. Configure the frontend backend URL
 
-The default [`frontend/nginx.conf`](../frontend/nginx.conf) uses `proxy_pass http://backend:4000`, which only works inside Docker Compose.
+The frontend proxies `/api` to the backend via nginx. Set this **environment variable on the frontend Render service** (not in the React app):
 
-**Before deploying the frontend**, change the API upstream to your Render backend URL:
+| Variable | Example | Required on Render |
+|----------|---------|-------------------|
+| `BACKEND_URL` | `https://furniture-search-api.onrender.com` | **Yes** |
 
-```nginx
-location /api/ {
-    proxy_pass https://furniture-search-api.onrender.com;
-    # ... keep existing proxy headers and timeouts ...
-}
-```
+No trailing slash. The browser still calls `/api/...` on the frontend URL; nginx forwards to your backend.
 
-Commit that change (or use a branch/env-specific config for deploy).
+Local Docker Compose sets `BACKEND_URL=http://backend:4000` automatically in `docker-compose.yml`.
 
 ### 3. Deploy the frontend
 
@@ -117,9 +114,11 @@ Commit that change (or use a branch/env-specific config for deploy).
 2. Same repo, **Root directory:** `frontend`
 3. **Runtime:** Docker
 4. **Instance type:** Free
-5. Deploy
+5. **Environment variables:**
+   - `BACKEND_URL` = `https://<your-backend-service>.onrender.com` (from step 1)
+6. Deploy
 
-Open the frontend URL, go to **Admin → Config**, paste an OpenRouter key, then **Admin → Catalog Meta → Re-index** if embeddings are missing.
+Open the frontend URL, go to **Admin → Config**, paste an OpenRouter key, then **Admin → Catalog → Re-index** if embeddings are missing.
 
 ### 4. Post-deploy checklist
 
@@ -175,7 +174,7 @@ A Salon editorial UI pass is in progress (see `docs/changelog/ui-salon-revamp.md
 | Search 401 / LLM errors | No OpenRouter key in Admin → Config |
 | Empty catalog | Wrong `MONGODB_URI` or network block from host to Atlas (allow Render/VM IPs in Atlas) |
 | Slow first search | Cold start + missing embeddings; run Re-index |
-| `/api` 502 from frontend | nginx `proxy_pass` still points at `backend:4000` instead of public backend URL |
+| `/api` 502 from frontend | `BACKEND_URL` missing or wrong on frontend Render service |
 
 ---
 
