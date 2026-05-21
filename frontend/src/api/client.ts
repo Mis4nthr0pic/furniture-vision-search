@@ -8,7 +8,31 @@ import type {
   SearchLogEntry,
   StaticEvalResponse,
 } from "../types";
-import { BACKEND_OFFLINE_MESSAGE, isGatewayHtml } from "../utils/api-errors";
+import { BACKEND_OFFLINE_MESSAGE, isGatewayHtml, isNetworkFetchError } from "../utils/api-errors";
+
+const HEALTH_CHECK_TIMEOUT_MS = 20_000;
+const LONG_REQUEST_TIMEOUT_MS = 120_000;
+
+function createTimeoutSignal(timeoutMs: number): AbortSignal {
+  if (typeof AbortSignal.timeout === "function") {
+    return AbortSignal.timeout(timeoutMs);
+  }
+
+  const controller = new AbortController();
+  setTimeout(() => controller.abort(), timeoutMs);
+  return controller.signal;
+}
+
+async function apiFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+  try {
+    return await fetch(input, init);
+  } catch (err) {
+    if (isNetworkFetchError(err)) {
+      throw new Error(BACKEND_OFFLINE_MESSAGE);
+    }
+    throw err;
+  }
+}
 
 function serializeLlmConfig(llmConfig: LLMConfig) {
   return {
@@ -41,8 +65,8 @@ async function parseJson<T>(response: Response): Promise<T> {
 }
 
 export async function fetchHealth(): Promise<HealthResponse> {
-  const response = await fetch("/api/health", {
-    signal: AbortSignal.timeout(90_000),
+  const response = await apiFetch("/api/health", {
+    signal: createTimeoutSignal(HEALTH_CHECK_TIMEOUT_MS),
   });
   return parseJson<HealthResponse>(response);
 }
@@ -64,9 +88,10 @@ export async function searchProducts(args: {
     }),
   );
 
-  const response = await fetch("/api/search", {
+  const response = await apiFetch("/api/search", {
     method: "POST",
     body: form,
+    signal: createTimeoutSignal(LONG_REQUEST_TIMEOUT_MS),
   });
 
   return parseJson(response);
@@ -77,7 +102,7 @@ export async function rateResult(args: {
   productId: string;
   relevant: boolean;
 }): Promise<void> {
-  const response = await fetch("/api/eval/rate", {
+  const response = await apiFetch("/api/eval/rate", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(args),
@@ -87,17 +112,18 @@ export async function rateResult(args: {
 }
 
 export async function fetchCatalogMeta(): Promise<CatalogMeta> {
-  const response = await fetch("/api/admin/catalog-meta");
+  const response = await apiFetch("/api/admin/catalog-meta");
   return parseJson<CatalogMeta>(response);
 }
 
 export async function triggerReindex(llmConfig: LLMConfig): Promise<void> {
-  const response = await fetch("/api/admin/reindex", {
+  const response = await apiFetch("/api/admin/reindex", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       llmConfig: serializeLlmConfig(llmConfig),
     }),
+    signal: createTimeoutSignal(LONG_REQUEST_TIMEOUT_MS),
   });
 
   await parseJson(response);
@@ -129,25 +155,26 @@ export async function runStaticEval(args: {
   llmConfig: LLMConfig;
   retrievalConfig: RetrievalConfig;
 }): Promise<StaticEvalResponse> {
-  const response = await fetch("/api/eval/run", {
+  const response = await apiFetch("/api/eval/run", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       llmConfig: serializeLlmConfig(args.llmConfig),
       retrievalConfig: args.retrievalConfig,
     }),
+    signal: createTimeoutSignal(LONG_REQUEST_TIMEOUT_MS),
   });
 
   return parseJson<StaticEvalResponse>(response);
 }
 
 export async function fetchLiveMetrics(): Promise<LiveEvalMetrics> {
-  const response = await fetch("/api/eval/metrics");
+  const response = await apiFetch("/api/eval/metrics");
   return parseJson<LiveEvalMetrics>(response);
 }
 
 export async function fetchLiveLogs(limit = 50): Promise<SearchLogEntry[]> {
-  const response = await fetch(`/api/eval/logs?limit=${limit}`);
+  const response = await apiFetch(`/api/eval/logs?limit=${limit}`);
   const data = await parseJson<{ logs: SearchLogEntry[] }>(response);
   return data.logs;
 }

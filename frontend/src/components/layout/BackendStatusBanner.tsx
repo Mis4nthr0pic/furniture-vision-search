@@ -12,7 +12,8 @@ export function BackendStatusBanner() {
       <div className="mx-auto flex max-w-[1280px] flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <Alert tone="warning" title="Backend API may be offline">
           On Render free tier the API sleeps after ~15 minutes of inactivity. The first request can
-          take 30–60 seconds. Open{" "}
+          take 30–60 seconds. Locally, run <code className="text-ink">docker compose up</code> or
+          keep the backend on port 4000. Open{" "}
           <a
             href="/api/health"
             target="_blank"

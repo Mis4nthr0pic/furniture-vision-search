@@ -53,6 +53,21 @@ describe("searchProducts", () => {
     expect(init?.body).toBeInstanceOf(FormData);
   });
 
+  it("maps network failures to a backend-offline message", async () => {
+    const fetchMock = vi.fn().mockRejectedValue(new TypeError("Failed to fetch"));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      triggerReindex({
+        apiKey: "sk-test",
+        baseUrl: "https://openrouter.ai/api/v1",
+        visionModel: "openai/gpt-4o",
+        chatModel: "openai/gpt-4o",
+        embedModel: "openai/text-embedding-3-small",
+      }),
+    ).rejects.toThrow(BACKEND_OFFLINE_MESSAGE);
+  });
+
   it("maps HTML gateway responses to a backend-offline message", async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: false,
