@@ -2,6 +2,10 @@
 
 **Image → ranked catalog matches** for a ~2,500-item furniture catalog — constrained vision extraction, hybrid retrieval, LLM rerank, transparent scoring, and a static eval harness.
 
+![Search flow — upload, vision extraction, hybrid retrieval, ranked results](docs/images/gif_searching.gif)
+
+*Search: photo + optional prompt → vision → hybrid rank → rerank (optional) → scored matches.*
+
 ---
 
 ## For evaluators — run and test (start here)
@@ -141,6 +145,10 @@ Until a key is set, Search shows a warning banner and search requests will fail.
 ### Step 5 — Build the embedding index (first time or after fresh volume)
 
 Required for full **hybrid** retrieval (vector + lexical + attributes).
+
+![Re-index catalog — embedding build progress](docs/images/gif_indexing.gif)
+
+*Admin → Config → Re-index catalog. First run or after Render redeploy (~30–90s with OpenRouter key).*
 
 1. **Admin → Config** tab.
 2. Scroll to **Re-index catalog** → click **Re-index catalog**.
@@ -622,9 +630,16 @@ All tunables are in [`.env.example`](./.env.example). Key groups:
 
 ---
 
-## Screenshots
+## Screenshots & demos
 
-Add captures to `docs/screenshots/` for README embedding:
+**GIFs** (in `docs/images/`):
+
+| File | Shows |
+|------|--------|
+| `gif_searching.gif` | End-to-end search flow (top of README) |
+| `gif_indexing.gif` | Re-index / embedding build (Step 5) |
+
+**Static captures** — add to `docs/screenshots/` when available:
 
 | File | What to capture |
 |------|-----------------|
