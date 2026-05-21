@@ -14,9 +14,7 @@ const paddingMap = {
 };
 
 export function Card({ children, className, padding = "md" }: CardProps) {
-  return (
-    <div className={cn("instrument-panel", paddingMap[padding], className)}>{children}</div>
-  );
+  return <div className={cn("instrument-panel", paddingMap[padding], className)}>{children}</div>;
 }
 
 export function CardHeader({

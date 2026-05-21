@@ -68,7 +68,9 @@ export const ResultCard = memo(function ResultCard({
               rerank {product.rerankScore.toFixed(3)}
             </p>
           )}
-          <p className="mt-1 font-mono text-[12px] tabular-nums text-ink">{formatPrice(product.price)}</p>
+          <p className="mt-1 font-mono text-[12px] tabular-nums text-ink">
+            {formatPrice(product.price)}
+          </p>
         </div>
       </div>
 

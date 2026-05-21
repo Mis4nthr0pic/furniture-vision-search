@@ -14,7 +14,10 @@ export function TextArea({ label, hint, className, id, ...props }: TextAreaProps
       <span className="instrument-kicker">{label}</span>
       <textarea
         id={areaId}
-        className={cn("instrument-input mt-1.5 min-h-[88px] resize-y font-mono text-[12px]", className)}
+        className={cn(
+          "instrument-input mt-1.5 min-h-[88px] resize-y font-mono text-[12px]",
+          className,
+        )}
         {...props}
       />
       {hint && <span className="mt-1.5 block font-mono text-[11px] text-ink-muted">{hint}</span>}

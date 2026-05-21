@@ -55,7 +55,10 @@ export function SearchPage() {
         }
         meta={
           <>
-            <StatusDot tone={hasApiKey ? "signal" : "warn"} label={hasApiKey ? "api_key" : "no_key"} />
+            <StatusDot
+              tone={hasApiKey ? "signal" : "warn"}
+              label={hasApiKey ? "api_key" : "no_key"}
+            />
             <span>·</span>
             <span>model gpt-4o → vision → embed → rank</span>
           </>
@@ -65,12 +68,12 @@ export function SearchPage() {
       {!hasApiKey && (
         <div className="mb-4">
           <Alert tone="warning" title="API key required">
-          Set OpenRouter key in{" "}
-          <Link to="/admin" className="text-accent underline-offset-2 hover:underline">
-            Admin → Config
-          </Link>
-          . Memory only — cleared on refresh.
-        </Alert>
+            Set OpenRouter key in{" "}
+            <Link to="/admin" className="text-accent underline-offset-2 hover:underline">
+              Admin → Config
+            </Link>
+            . Memory only — cleared on refresh.
+          </Alert>
         </div>
       )}
 

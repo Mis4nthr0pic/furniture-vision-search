@@ -21,11 +21,7 @@ export function TabNav({
   onChange: (tab: AdminTab) => void;
 }) {
   return (
-    <div
-      role="tablist"
-      aria-label="Admin sections"
-      className="flex flex-wrap border-b border-hair"
-    >
+    <div role="tablist" aria-label="Admin sections" className="flex flex-wrap border-b border-hair">
       {tabs.map((tab, index) => {
         const isActive = active === tab.id;
         return (

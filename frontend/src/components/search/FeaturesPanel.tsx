@@ -21,11 +21,7 @@ export const FeaturesPanel = memo(function FeaturesPanel({
   if (!visionFeatures) {
     return (
       <Card className="lg:sticky lg:top-16">
-        <CardHeader
-          sectionId="§ 1.2 · VISION"
-          title="Extraction"
-          description="awaiting query"
-        />
+        <CardHeader sectionId="§ 1.2 · VISION" title="Extraction" description="awaiting query" />
         <p className="font-mono text-[11px] text-ink-muted">0 fields · idx_idle</p>
       </Card>
     );

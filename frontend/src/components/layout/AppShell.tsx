@@ -15,7 +15,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <header className="sticky top-0 z-40 border-b border-hair bg-bg">
         <div className="mx-auto flex h-14 max-w-[1280px] items-center justify-between gap-4 px-4 sm:px-6">
           <Link to="/" className="flex items-baseline gap-2">
-            <span className="text-[15px] font-semibold tracking-[-0.03em] text-ink">instrument</span>
+            <span className="text-[15px] font-semibold tracking-[-0.03em] text-ink">
+              instrument
+            </span>
             <span className="font-mono text-[10px] text-ink-muted">
               @ v{APP_VERSION} · {INDEX_LABEL}
             </span>

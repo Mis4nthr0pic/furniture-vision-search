@@ -25,7 +25,12 @@ export function AdminPage() {
 
       <TabNav active={tab} onChange={setTab} />
 
-      <div className="mt-4" role="tabpanel" id={tabPanelId(tab)} aria-labelledby={`admin-tab-${tab}`}>
+      <div
+        className="mt-4"
+        role="tabpanel"
+        id={tabPanelId(tab)}
+        aria-labelledby={`admin-tab-${tab}`}
+      >
         {tab === "config" && <ConfigTab />}
         {tab === "static-eval" && <StaticEvalTab />}
         {tab === "live-eval" && <LiveEvalTab />}

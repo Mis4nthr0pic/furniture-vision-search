@@ -119,7 +119,9 @@ export function ReindexProgressScreen({
 
           <div className="mt-4 border-t border-hair pt-4">
             <div className="mb-2 flex items-center justify-between">
-              <span className="instrument-kicker">{isError ? "error" : getReindexPhaseLabel(phase)}</span>
+              <span className="instrument-kicker">
+                {isError ? "error" : getReindexPhaseLabel(phase)}
+              </span>
               <span className="font-mono text-[13px] tabular-nums text-ink">{percent}%</span>
             </div>
             <div className="h-1 bg-hair">
