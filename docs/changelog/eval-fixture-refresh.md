@@ -8,6 +8,8 @@
 - Added `backend/eval/images/ATTRIBUTION.md` with source links.
 - Prior baseline numbers in `docs/EVAL.md` marked pending re-run.
 
+**Baseline after refresh (Hybrid, openai/gpt-4o, cached embeddings):** 83% top-1 category, 33% top-1 type, 40% top-1 color, 56% attribute recall @1, 0.19 MRR, 4.9s avg latency (1/6 cases fully passed).
+
 **New fixtures:**
 
 | File | Expected |

@@ -24,10 +24,16 @@ How to measure search quality for demos and documentation.
 | MRR | Mean reciprocal rank of first fully matching result |
 | Avg latency | End-to-end pipeline ms per case (vision + hybrid, rerank off) |
 
-**Current recorded baseline:** *Pending re-run* after May 21 2026 eval image refresh. Run Static Eval locally, then update this table and `CHANGELOG.md` eval baselines.
+**Current recorded baseline** (local run, May 21 2026, OpenRouter `openai/gpt-4o`, cached embeddings, **new fixtures**):
+
+| Mode | Top-1 category | Top-1 type | Top-1 color | Attribute recall @1 | MRR | Avg latency | Cases passed |
+|------|----------------|------------|-------------|---------------------|-----|-------------|--------------|
+| Hybrid | 83% | 33% | 40% | 56% | 0.19 | 4.9s | 1/6 |
+
+Admin Static Eval runs the Hybrid row for stable comparisons. Type/color are stricter now that filenames match the visible product (exact catalog type/color match required).
 
 <!--
-Previous fixtures (mislabeled images): Hybrid 83% / 67% type / 0.583 MRR @ 5.1s
+Previous mislabeled fixtures: Hybrid 83% / 67% type / 0.583 MRR @ 5.1s — not comparable.
 -->
 
 **Recording future baselines:** paste a run into CHANGELOG under “Eval baselines”, e.g.:
