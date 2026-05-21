@@ -1,13 +1,12 @@
 import { cn } from "../../utils/format";
-import { WavyUnderline } from "../editorial/WavyUnderline";
 
 export type AdminTab = "config" | "static-eval" | "live-eval" | "catalog";
 
-const tabs: Array<{ id: AdminTab; label: string; num: string }> = [
-  { id: "config", label: "The recipe", num: "I" },
-  { id: "static-eval", label: "The dossier", num: "II" },
-  { id: "live-eval", label: "Tasting notes", num: "III" },
-  { id: "catalog", label: "The inventory", num: "IV" },
+const tabs: Array<{ id: AdminTab; label: string; section: string }> = [
+  { id: "config", label: "Config", section: "§ 4.1" },
+  { id: "static-eval", label: "Evaluation", section: "§ 4.2" },
+  { id: "live-eval", label: "Live metrics", section: "§ 4.3" },
+  { id: "catalog", label: "Catalog", section: "§ 4.4" },
 ];
 
 export function tabPanelId(tab: AdminTab): string {
@@ -25,9 +24,9 @@ export function TabNav({
     <div
       role="tablist"
       aria-label="Admin sections"
-      className="flex flex-wrap gap-x-6 gap-y-3 border-b border-cream/10 pb-4"
+      className="flex flex-wrap border-b border-hair"
     >
-      {tabs.map((tab) => {
+      {tabs.map((tab, index) => {
         const isActive = active === tab.id;
         return (
           <button
@@ -39,13 +38,14 @@ export function TabNav({
             aria-controls={tabPanelId(tab.id)}
             onClick={() => onChange(tab.id)}
             className={cn(
-              "relative flex flex-col items-start gap-1 transition",
-              isActive ? "text-terracotta" : "text-cream/55 hover:text-cream",
+              "px-4 py-3 font-mono text-[11px] uppercase tracking-wide transition",
+              index > 0 && "border-l border-hair",
+              isActive
+                ? "instrument-tab-active bg-panel font-medium text-ink"
+                : "text-ink-muted hover:bg-panel hover:text-ink-soft",
             )}
           >
-            <span className="font-mono text-[9px] uppercase tracking-kicker">No. {tab.num}</span>
-            <span className="font-serif text-sm italic">{tab.label}</span>
-            {isActive && <WavyUnderline className="mt-0.5" />}
+            {tab.label}
           </button>
         );
       })}

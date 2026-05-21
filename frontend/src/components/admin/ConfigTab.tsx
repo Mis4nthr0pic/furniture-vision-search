@@ -194,21 +194,21 @@ export function ConfigTab() {
       <Card>
         <CardHeader title="Rerank" description="LLM rerank runs on the top-K hybrid candidates." />
         <div className="flex flex-wrap gap-4">
-          <label className="flex items-center gap-2 font-serif text-sm italic text-cream/80">
+          <label className="flex items-center gap-2 font-mono text-[12px] text-ink-soft">
             <input
               type="checkbox"
               checked={retrievalConfig.enableRerank ?? false}
               onChange={(event) => setRetrievalConfig({ enableRerank: event.target.checked })}
-              className="rounded border-cream/30 bg-ink text-terracotta focus:ring-terracotta/40"
+              className="rounded border-hair text-accent focus:ring-accent/30"
             />
             Enable LLM rerank
           </label>
-          <label className="flex items-center gap-2 font-serif text-sm italic text-cream/80">
+          <label className="flex items-center gap-2 font-mono text-[12px] text-ink-soft">
             <input
               type="checkbox"
               checked={retrievalConfig.useImageInRerank ?? true}
               onChange={(event) => setRetrievalConfig({ useImageInRerank: event.target.checked })}
-              className="rounded border-cream/30 bg-ink text-terracotta focus:ring-terracotta/40"
+              className="rounded border-hair text-accent focus:ring-accent/30"
             />
             Include image in rerank prompt
           </label>

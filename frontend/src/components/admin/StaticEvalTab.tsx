@@ -79,7 +79,7 @@ export function StaticEvalTab() {
           <Card padding="sm" className="overflow-x-auto">
             <table className="min-w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-cream/10 text-xs uppercase tracking-wide text-cream/45">
+                <tr className="border-b border-hair bg-panelDeep text-[10px] font-mono uppercase tracking-wide text-ink-muted">
                   <th className="px-4 py-3">Case</th>
                   <th className="px-4 py-3">Status</th>
                   <th className="px-4 py-3">Top match</th>
@@ -91,18 +91,18 @@ export function StaticEvalTab() {
                 {result.cases.map((evalCase) => {
                   const top = evalCase.top[0];
                   return (
-                    <tr key={evalCase.id} className="border-b border-cream/10/70">
-                      <td className="px-4 py-3 font-medium text-cream">{evalCase.id}</td>
+                    <tr key={evalCase.id} className="border-b border-hair/70">
+                      <td className="px-4 py-3 font-medium text-ink">{evalCase.id}</td>
                       <td className="px-4 py-3">
                         <Badge tone={evalCase.passed ? "success" : "warning"}>
                           {evalCase.passed ? "Pass" : "Miss"}
                         </Badge>
                       </td>
-                      <td className="px-4 py-3 text-cream/75">
+                      <td className="px-4 py-3 text-ink-soft">
                         {top ? (
                           <>
                             {top.title}
-                            <span className="mt-0.5 block text-xs text-cream/40">
+                            <span className="mt-0.5 block text-xs text-ink-muted">
                               {top.category} · {top.type}
                             </span>
                           </>
@@ -110,13 +110,13 @@ export function StaticEvalTab() {
                           "—"
                         )}
                       </td>
-                      <td className="px-4 py-3 text-xs text-cream/45">
+                      <td className="px-4 py-3 text-xs text-ink-muted">
                         {Object.entries(evalCase.expected)
                           .filter(([, value]) => value)
                           .map(([key, value]) => `${key}: ${value}`)
                           .join(" · ") || "—"}
                       </td>
-                      <td className="px-4 py-3 text-cream/75">{formatMs(evalCase.latencyMs)}</td>
+                      <td className="px-4 py-3 text-ink-soft">{formatMs(evalCase.latencyMs)}</td>
                     </tr>
                   );
                 })}

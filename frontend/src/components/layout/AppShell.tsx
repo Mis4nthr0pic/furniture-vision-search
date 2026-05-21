@@ -1,47 +1,42 @@
 import { Link, useLocation } from "react-router-dom";
+import { APP_VERSION, INDEX_LABEL } from "../../design/instrument";
 import { cn } from "../../utils/format";
-import { WavyUnderline } from "../editorial/WavyUnderline";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const location = useLocation();
 
   const links = [
-    { to: "/", label: "The salon", editorial: "search" },
-    { to: "/admin", label: "Back of house", editorial: "admin" },
+    { to: "/", label: "Search" },
+    { to: "/admin", label: "Admin" },
   ];
 
   return (
-    <div className="min-h-screen bg-ink">
-      <header className="sticky top-0 z-40 border-b border-cream/8 bg-ink/90 backdrop-blur-md">
-        <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-8">
-          <Link to="/" className="group flex items-center gap-3">
-            <span className="flex h-11 w-11 items-center justify-center rounded-full border border-terracotta/40 bg-burgundy font-display text-lg italic text-terracotta">
-              Sd
+    <div className="min-h-screen bg-bg">
+      <header className="sticky top-0 z-40 border-b border-hair bg-bg">
+        <div className="mx-auto flex h-14 max-w-[1280px] items-center justify-between gap-4 px-4 sm:px-6">
+          <Link to="/" className="flex items-baseline gap-2">
+            <span className="text-[15px] font-semibold tracking-[-0.03em] text-ink">instrument</span>
+            <span className="font-mono text-[10px] text-ink-muted">
+              @ v{APP_VERSION} · {INDEX_LABEL}
             </span>
-            <div>
-              <p className="font-display text-lg italic tracking-tight text-cream">
-                Salon de l&apos;objet
-              </p>
-              <p className="font-mono text-[9px] uppercase tracking-kicker text-cream/45">
-                catalog vision search
-              </p>
-            </div>
           </Link>
 
-          <nav className="flex items-center gap-6">
-            {links.map((link) => {
+          <nav className="flex items-center">
+            {links.map((link, index) => {
               const active = location.pathname === link.to;
               return (
                 <Link
                   key={link.to}
                   to={link.to}
                   className={cn(
-                    "relative flex flex-col items-center gap-1 font-serif text-sm italic transition",
-                    active ? "text-terracotta" : "text-cream/65 hover:text-cream",
+                    "px-4 py-4 text-[13px] transition",
+                    index > 0 && "border-l border-hair",
+                    active
+                      ? "instrument-tab-active font-medium text-ink"
+                      : "text-ink-soft hover:text-ink",
                   )}
                 >
                   {link.label}
-                  {active && <WavyUnderline />}
                 </Link>
               );
             })}
@@ -51,9 +46,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <main>{children}</main>
 
-      <footer className="border-t border-cream/8 px-4 py-8 sm:px-8">
-        <p className="mx-auto max-w-[1200px] font-mono text-[10px] uppercase tracking-kicker text-cream/35">
-          ✦ Furniture vision · ~2,500 pieces · hybrid retrieval
+      <footer className="border-t border-hair px-4 py-3 sm:px-6">
+        <p className="mx-auto max-w-[1280px] font-mono text-[10px] text-ink-muted">
+          catalog ~2.5k · hybrid retrieval · openrouter gpt-4o
         </p>
       </footer>
     </div>

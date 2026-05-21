@@ -52,7 +52,7 @@ export function CatalogMetaTab() {
 
       {loading && !meta ? (
         <Card>
-          <p className="px-6 py-8 text-center text-sm text-cream/45" role="status">
+          <p className="px-6 py-8 text-center text-sm text-ink-muted" role="status">
             Loading catalog metadata…
           </p>
         </Card>
@@ -78,20 +78,20 @@ export function CatalogMetaTab() {
               <CardHeader title="Vocabulary" description="Distinct attribute values in catalog." />
               <dl className="grid grid-cols-2 gap-3 text-sm">
                 <div>
-                  <dt className="text-cream/45">Categories</dt>
-                  <dd className="font-semibold text-cream">{meta.categories.length}</dd>
+                  <dt className="text-ink-muted">Categories</dt>
+                  <dd className="font-semibold text-ink">{meta.categories.length}</dd>
                 </div>
                 <div>
-                  <dt className="text-cream/45">Types</dt>
-                  <dd className="font-semibold text-cream">{meta.types.length}</dd>
+                  <dt className="text-ink-muted">Types</dt>
+                  <dd className="font-semibold text-ink">{meta.types.length}</dd>
                 </div>
                 <div>
-                  <dt className="text-cream/45">Colors</dt>
-                  <dd className="font-semibold text-cream">{meta.colors.length}</dd>
+                  <dt className="text-ink-muted">Colors</dt>
+                  <dd className="font-semibold text-ink">{meta.colors.length}</dd>
                 </div>
                 <div>
-                  <dt className="text-cream/45">Materials</dt>
-                  <dd className="font-semibold text-cream">{meta.materials.length}</dd>
+                  <dt className="text-ink-muted">Materials</dt>
+                  <dd className="font-semibold text-ink">{meta.materials.length}</dd>
                 </div>
               </dl>
             </Card>
@@ -101,7 +101,7 @@ export function CatalogMetaTab() {
               <ul className="space-y-2">
                 {topCategories.map(([category, count]) => (
                   <li key={category} className="flex items-center justify-between text-sm">
-                    <span className="text-cream/75">{category}</span>
+                    <span className="text-ink-soft">{category}</span>
                     <Badge>{count.toLocaleString()}</Badge>
                   </li>
                 ))}

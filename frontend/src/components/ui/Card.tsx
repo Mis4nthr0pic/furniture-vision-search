@@ -4,28 +4,18 @@ import { cn } from "../../utils/format";
 interface CardProps {
   children: ReactNode;
   className?: string;
-  padding?: "sm" | "md" | "lg";
-  tone?: "dark" | "polaroid";
+  padding?: "none" | "sm" | "md";
 }
 
 const paddingMap = {
-  sm: "p-4",
-  md: "p-5",
-  lg: "p-6",
+  none: "",
+  sm: "p-3",
+  md: "p-4",
 };
 
-export function Card({ children, className, padding = "md", tone = "dark" }: CardProps) {
+export function Card({ children, className, padding = "md" }: CardProps) {
   return (
-    <div
-      className={cn(
-        paddingMap[padding],
-        tone === "dark" && "rounded-lg border border-cream/8 bg-ink-rise/90 backdrop-blur-sm",
-        tone === "polaroid" && "rounded-sm bg-butter text-ink shadow-polaroid",
-        className,
-      )}
-    >
-      {children}
-    </div>
+    <div className={cn("instrument-panel", paddingMap[padding], className)}>{children}</div>
   );
 }
 
@@ -33,24 +23,20 @@ export function CardHeader({
   title,
   description,
   action,
-  kicker,
+  sectionId,
 }: {
   title: string;
   description?: string;
   action?: ReactNode;
-  kicker?: string;
+  sectionId?: string;
 }) {
   return (
-    <div className="mb-4 flex items-start justify-between gap-3">
+    <div className="mb-3 flex items-start justify-between gap-3 border-b border-hair pb-3">
       <div>
-        {kicker && (
-          <p className="font-mono text-[10px] uppercase tracking-kicker text-terracotta">
-            {kicker}
-          </p>
-        )}
-        <h2 className="font-display text-2xl italic tracking-tight text-cream">{title}</h2>
+        {sectionId && <p className="instrument-kicker">{sectionId}</p>}
+        <h2 className="text-[15px] font-medium tracking-[-0.02em] text-ink">{title}</h2>
         {description && (
-          <p className="mt-1 font-serif text-sm italic text-cream/60">{description}</p>
+          <p className="mt-1 font-mono text-[11px] leading-relaxed text-ink-muted">{description}</p>
         )}
       </div>
       {action}
