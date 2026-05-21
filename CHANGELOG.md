@@ -1,5 +1,14 @@
 # Changelog
 
+## Step 10 — Frontend search page (2026-05-21)
+
+**Decisions:**
+- Search page: image dropzone, optional prompt, OpenRouter key (Zustand memory only).
+- Results grid with hybrid score, rerank score/reason, score breakdown on hover.
+- Vision features sidebar with timings.
+- Thumbs up/down wired to `POST /api/eval/rate` using `searchId` from search response.
+- Warning banner for pipeline notices and rerank errors.
+
 ## Step 9 — Live rating API (2026-05-21)
 
 **Decisions:**

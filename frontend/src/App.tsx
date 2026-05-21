@@ -1,23 +1,13 @@
 import { Link, Route, Routes } from "react-router-dom";
-
-function SearchPage() {
-  return (
-    <div className="flex min-h-screen flex-col items-center justify-center p-8">
-      <h1 className="text-4xl font-bold tracking-tight text-slate-800">
-        Furniture Vision Search
-      </h1>
-      <p className="mt-4 max-w-md text-center text-slate-600">
-        Upload a furniture image to find matching catalog products.
-      </p>
-    </div>
-  );
-}
+import { SearchPage } from "./pages/SearchPage";
 
 function AdminPage() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center p-8">
+    <div className="mx-auto max-w-4xl px-6 py-12">
       <h1 className="text-3xl font-bold text-slate-800">Admin</h1>
-      <p className="mt-4 text-slate-600">Configuration and evaluation tools.</p>
+      <p className="mt-4 text-slate-600">
+        Configuration, eval, and catalog tools — coming in the admin tab.
+      </p>
     </div>
   );
 }
