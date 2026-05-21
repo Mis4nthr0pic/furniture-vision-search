@@ -49,6 +49,6 @@ describe("ResultCard", () => {
     render(<ResultCard rank={1} product={product} onRate={() => {}} />);
 
     await user.click(screen.getByText("0.842"));
-    expect(screen.getByText(/Hybrid score/i)).toBeInTheDocument();
+    expect(screen.getByText("Hybrid score: 0.842")).toBeInTheDocument();
   });
 });
