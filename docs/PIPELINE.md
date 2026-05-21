@@ -2,7 +2,7 @@
 
 Incremental delivery: one branch and one pull request per step. Each PR is small, reviewable, and maps to a measurable capability.
 
-**User-facing docs:** [README](../README.md) · [Evaluation guide](./EVAL.md) · [Changelog](../CHANGELOG.md)
+**User-facing docs:** [README](../README.md) · [Evaluation guide](./EVAL.md) · [Testing guide](./TESTING.md) · [Changelog](../CHANGELOG.md)
 
 ## Workflow
 
@@ -38,9 +38,11 @@ Closes #6"
 | 9 | [#10](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/10) ✅ |
 | 10 | [#11](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/11) ✅ |
 | 11 | [#12](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/12) ✅ |
-| 12 | [#13](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/13) |
-| 13 | [#14](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/14) |
-| 14 | [#15](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/15) |
+| 12 | [#13](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/13) ✅ |
+| 13 | [#14](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/14) ✅ |
+| 14 | [#15](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/15) ✅ |
+| 15 | — | ✅ (no issue) |
+| 16 | — | ✅ (no issue) |
 
 ## Progress
 
@@ -60,9 +62,11 @@ Closes #6"
 | 10 | Frontend search page | `step/10-search-ui` | ✅ Done | [#27](https://github.com/Mis4nthr0pic/furniture-vision-search/pull/27) |
 | 11 | Frontend admin page | `step/11-admin-ui` | ✅ Done | [#28](https://github.com/Mis4nthr0pic/furniture-vision-search/pull/28) |
 | — | Reindex performance + rate limits | `step/11-reindex-polish` | ✅ Done | (follow-up PR) |
-| 12 | Edge cases | `step/12-edge-cases` | 🔲 | — |
-| 13 | Vitest suite | `step/13-tests` | 🔲 | — |
-| 14 | Docs + polish | `step/14-docs` | 🔄 In PR | — |
+| 12 | Edge cases | `step/12-edge-cases` | ✅ Done (via #15–#16 + this PR) | — |
+| 13 | Vitest suite | `step/13-tests` | 🔄 In PR | — |
+| 14 | Docs + polish | `step/14-docs` | ✅ Done | [#30](https://github.com/Mis4nthr0pic/furniture-vision-search/pull/30) |
+| 15 | Security hygiene | `step/15-security-hygiene` | ✅ Done | [#31](https://github.com/Mis4anthr0pic/furniture-vision-search/pull/31) |
+| 16 | Code quality | `step/16-code-quality-fixes` | ✅ Done | [#32](https://github.com/Mis4nthr0pic/furniture-vision-search/pull/32) |
 
 Steps 1–3 landed on `main` before the PR workflow was adopted. All new work uses branches + PRs.
 
