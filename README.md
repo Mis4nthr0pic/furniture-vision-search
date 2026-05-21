@@ -280,16 +280,20 @@ fortune/
 
 ### Tests
 
+**91 unit tests** (68 backend + 23 frontend) via Vitest. See [docs/TESTING.md](docs/TESTING.md) for the full file list and edge-case matrix.
+
 ```bash
 npm install          # root Biome tooling
-npm run check        # lint + typecheck + tests (backend + frontend)
-
-# Or run packages individually:
-cd backend && npm test
-cd frontend && npm test
+npm test             # run all Vitest suites (68 backend + 23 frontend)
+npm run check        # lint + typecheck + test
 ```
 
-CI runs both on push to `main` (GitHub Actions).
+```bash
+cd backend && npm test    # 68 tests — retrieval, validation, HTTP integration
+cd frontend && npm test   # 23 tests — hooks, components, store
+```
+
+CI runs **Backend unit tests (Vitest)**, **Frontend unit tests (Vitest)**, **Lint (Biome)**, and a **Unit test summary** job on every PR ([Actions](https://github.com/Mis4nthr0pic/furniture-vision-search/actions/workflows/ci.yml)).
 
 ### Local without Docker
 
