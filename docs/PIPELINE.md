@@ -29,8 +29,8 @@ Closes #6"
 | Step | GitHub issue |
 |------|--------------|
 | 4 | [#5](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/5) ✅ |
-| 5 | [#6](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/6) |
-| 6 | [#7](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/7) |
+| 5 | [#6](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/6) ✅ |
+| 6 | [#7](https://github.com/Mis4anthr0pic/furniture-vision-search/issues/7) |
 | 7 | [#8](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/8) |
 | 8 | [#9](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/9) |
 | 9 | [#10](https://github.com/Mis4nthr0pic/furniture-vision-search/issues/10) |
