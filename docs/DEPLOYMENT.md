@@ -174,7 +174,7 @@ A Salon editorial UI pass is in progress (see `docs/changelog/ui-salon-revamp.md
 | Search 401 / LLM errors | No OpenRouter key in Admin → Config |
 | Empty catalog | Wrong `MONGODB_URI` or network block from host to Atlas (allow Render/VM IPs in Atlas) |
 | Slow first search | Cold start + missing embeddings; run Re-index |
-| `/api` 502 from frontend | `BACKEND_URL` missing or wrong on frontend Render service |
+| `/api` 502 from frontend | `BACKEND_URL` missing/wrong on frontend service, or nginx sending frontend `Host` to backend (fixed in latest `nginx.conf.template` — redeploy frontend) |
 
 ---
 
