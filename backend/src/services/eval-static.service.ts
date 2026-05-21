@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { z } from "zod";
-import type { LLMConfig } from "../schemas/llm.js";
+import type { LLMConfig, VisionFeatures } from "../schemas/llm.js";
 import type { RetrievalConfig } from "../schemas/retrieval.js";
 import { equalsIgnoreCase } from "./retrieval.service.js";
 import { SearchService } from "./search.service.js";
@@ -25,6 +25,26 @@ const evalCaseSchema = z.object({
 });
 
 export type EvalCase = z.infer<typeof evalCaseSchema>;
+
+interface StaticEvalTopResult {
+  id: string;
+  title: string;
+  category: string;
+  type: string;
+  color: string;
+  style: string;
+  material: string;
+  score: number;
+}
+
+interface StaticEvalCaseResult {
+  id: string;
+  passed: boolean;
+  top: StaticEvalTopResult[];
+  expected: EvalCase["expected"];
+  visionFeatures: VisionFeatures;
+  latencyMs: number;
+}
 
 export function loadEvalCases(): EvalCase[] {
   const raw = readFileSync(path.join(evalDir, "cases.json"), "utf-8");
@@ -74,6 +94,8 @@ function reciprocalRank(
   return 0;
 }
 
+type ExpectedKey = keyof EvalCase["expected"];
+
 export const StaticEvalService = {
   async run(args: { llmConfig: LLMConfig; retrievalConfig: RetrievalConfig }) {
     const cases = loadEvalCases();
@@ -83,7 +105,7 @@ export const StaticEvalService = {
       n: Math.max(args.retrievalConfig.n, 10),
     };
 
-    const caseResults = [];
+    const caseResults: StaticEvalCaseResult[] = [];
     let totalLatency = 0;
 
     for (const evalCase of cases) {
@@ -126,24 +148,39 @@ export const StaticEvalService = {
     }
 
     const n = cases.length;
-    const top1 = caseResults.map((c) => c.top[0]).filter(Boolean);
+    function ratioForExpected(
+      key: ExpectedKey,
+      matches: (result: (typeof caseResults)[number], expectedValue: string) => boolean,
+    ): number {
+      let total = 0;
+      let matched = 0;
+
+      for (let i = 0; i < caseResults.length; i++) {
+        const expectedValue = cases[i]!.expected[key];
+        if (!expectedValue) continue;
+        total++;
+        if (matches(caseResults[i]!, expectedValue)) matched++;
+      }
+
+      return total === 0 ? 0 : matched / total;
+    }
 
     const summary = {
-      top1_category_match:
-        top1.filter((r, i) => equalsIgnoreCase(r!.category, cases[i]!.expected.category)).length /
-        n,
-      top1_type_match:
-        top1.filter((r, i) => equalsIgnoreCase(r!.type, cases[i]!.expected.type)).length / n,
-      top1_color_match:
-        top1.filter((r, i) => equalsIgnoreCase(r!.color, cases[i]!.expected.color)).length / n,
-      top10_category_match:
-        caseResults.filter((c, i) =>
-          c.top.some((r) => equalsIgnoreCase(r.category, cases[i]!.expected.category)),
-        ).length / n,
-      top10_type_match:
-        caseResults.filter((c, i) =>
-          c.top.some((r) => equalsIgnoreCase(r.type, cases[i]!.expected.type)),
-        ).length / n,
+      top1_category_match: ratioForExpected("category", (c, expected) =>
+        equalsIgnoreCase(c.top[0]?.category, expected),
+      ),
+      top1_type_match: ratioForExpected("type", (c, expected) =>
+        equalsIgnoreCase(c.top[0]?.type, expected),
+      ),
+      top1_color_match: ratioForExpected("color", (c, expected) =>
+        equalsIgnoreCase(c.top[0]?.color, expected),
+      ),
+      top10_category_match: ratioForExpected("category", (c, expected) =>
+        c.top.some((r) => equalsIgnoreCase(r.category, expected)),
+      ),
+      top10_type_match: ratioForExpected("type", (c, expected) =>
+        c.top.some((r) => equalsIgnoreCase(r.type, expected)),
+      ),
       attribute_recall_top1:
         caseResults.reduce((sum, c, i) => {
           const topResult = c.top[0];

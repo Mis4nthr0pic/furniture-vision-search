@@ -8,7 +8,7 @@ How to measure search quality for demos and documentation.
 
 **Run:** Admin → Static Eval → **Run static eval** (or `POST /api/eval/run`)
 
-**Cases (6):** Ottomans, Bookshelves, Benches, Chairs, Coffee Tables, Sofas — each with expected category/type/color attributes.
+**Cases (6):** targeted furniture images covering sofas, a side-table/stool, a storage bench, an accent chair, a rectangular coffee table, and a loveseat. Some cases include a short prompt when the source image contains multiple objects.
 
 **Metrics reported:**
 
@@ -22,7 +22,16 @@ How to measure search quality for demos and documentation.
 | MRR | Mean reciprocal rank of first fully matching result |
 | Avg latency | End-to-end pipeline ms per case (vision + hybrid, rerank off) |
 
-**Recording baselines:** paste a run into CHANGELOG under “Eval baselines”, e.g.:
+**Current recorded baseline** (local run, May 21 2026, OpenRouter `openai/gpt-4o`, cached embeddings):
+
+| Mode | Top-1 category | Top-1 type | Top-1 color | Attribute recall @1 | MRR | Avg latency |
+|------|----------------|------------|-------------|---------------------|-----|-------------|
+| Hybrid | 83% | 67% | 80% | 78% | 0.583 | 5.1s |
+| Hybrid + image rerank | 83% | 83% | 60% | 78% | 0.556 | 11.6s |
+
+Admin Static Eval runs the Hybrid row for stable comparisons. The rerank row was measured by replaying the same cases through `/api/search` with image rerank enabled.
+
+**Recording future baselines:** paste a run into CHANGELOG under “Eval baselines”, e.g.:
 
 ```markdown
 ### Eval baseline (2026-05-21, openai/gpt-4o, embeddings cached)
