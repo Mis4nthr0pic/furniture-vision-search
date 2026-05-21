@@ -8,3 +8,4 @@ backend/data/embeddings.json
 coverage/
 .vite/
 claude-code-kickoff-final.md
+furniture.md
