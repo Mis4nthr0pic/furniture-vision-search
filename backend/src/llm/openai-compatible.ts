@@ -1,3 +1,7 @@
+/**
+ * OpenAI-compatible LLM HTTP client.
+ * Works with OpenRouter (default) and OpenAI direct — same /chat/completions + /embeddings API shape.
+ */
 import { config } from "../config.js";
 import type { LLMConfig } from "../schemas/llm.js";
 import type { ChatMessage, ImageInput, LLMClient } from "./client.js";

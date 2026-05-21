@@ -14,7 +14,16 @@ All backend tunables (MongoDB, upload limits, LLM defaults, CORS) live in `.env`
 - Frontend: http://localhost:5173
 - Backend health: http://localhost:4000/api/health
 
-Paste your OpenAI API key in the Admin tab to enable vision search.
+Paste your **OpenRouter** API key in the Admin tab to enable vision search ([openrouter.ai/keys](https://openrouter.ai/keys)).
+
+### LLM providers
+
+| Capability | Default provider | Why |
+|------------|------------------|-----|
+| Vision + chat + rerank | **OpenRouter** (`LLM_BASE_URL`) | One key, model choice (`openai/gpt-4o`, `anthropic/claude-3.5-sonnet`, etc.) |
+| Embeddings | **OpenAI direct** (`LLM_EMBED_BASE_URL`) | OpenRouter embedding support is limited |
+
+The client speaks the OpenAI-compatible HTTP API — OpenRouter implements the same `/chat/completions` and `/embeddings` endpoints. When `LLM_BASE_URL` points at OpenRouter, attribution headers (`HTTP-Referer`, `X-Title`) are sent automatically.
 
 ## Development
 
